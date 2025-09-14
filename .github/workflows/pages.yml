@@ -22,4 +22,3 @@ jobs:
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
           projectName: lnara-com          # must match the project you created
           directory: dist                 # build output
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
