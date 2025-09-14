@@ -1,0 +1,25 @@
+name: Deploy to Cloudflare Pages
+on:
+  push:
+    branches: [ master ]  # using master since that's your default branch
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm ci
+      - run: npm run build   # outputs to dist
+
+      - name: Publish to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          projectName: lnara-com          # must match the project you created
+          directory: dist                 # build output
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
