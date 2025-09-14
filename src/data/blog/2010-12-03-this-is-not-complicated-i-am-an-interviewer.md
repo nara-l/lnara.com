@@ -76,6 +76,7 @@ After some fierce argument with some friends before this publishing, claiming th
 
 I actually spend some few minutes to leave the machine do some work.They where happy with something as this but I was not :).
 
+```php
 <?php
 
 /\*\*
@@ -131,6 +132,7 @@ $y= mt\_rand($this->a,$this->b);//Generate $y (Please don't use arithmetic)
 }//end of class tworand
 
 $tworand = new TwoRand();
+```
 
 Our 3 lines of code has ended up as  30 lines including undetermined recursive-ness. **Character of the Above code;**
 

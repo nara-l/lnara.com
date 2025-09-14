@@ -1,6 +1,6 @@
 ---
 title: "Human beings - real heroes"
-description: "I spent some quality time today away from my computer. I mean from writing codes cause I've been watching movies from the computer :). I picked \"Drive\" as o..."
+description: "I spent some quality time today away from my computer watching movies. I picked Drive as one of the movies to watch, reflecting on human nature and real heroes."
 pubDatetime: 2011-01-11T18:07:37.000Z
 author: "Lawrence Nara"
 tags: ["Life"]

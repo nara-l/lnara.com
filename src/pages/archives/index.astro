@@ -13,7 +13,10 @@ if (!SITE.showArchives) {
   return Astro.redirect("/404");
 }
 
-const posts = await getCollection("blog", ({ data }) => !data.draft);
+// Show only older posts (pre-2019) in archives
+const posts = await getCollection("blog", ({ data }) =>
+  !data.draft && data.pubDatetime.getFullYear() < 2019
+);
 
 const months = [
   "January",

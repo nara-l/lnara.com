@@ -3,119 +3,139 @@ import { getCollection } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
-import Socials from "@/components/Socials.astro";
-import LinkButton from "@/components/LinkButton.astro";
-import Card from "@/components/Card.astro";
-import Hr from "@/components/Hr.astro";
 import getSortedPosts from "@/utils/getSortedPosts";
-import IconRss from "@/assets/icons/IconRss.svg";
-import IconArrowRight from "@/assets/icons/IconArrowRight.svg";
+import { getPath } from "@/utils/getPath";
 import { SITE } from "@/config";
-import { SOCIALS } from "@/constants";
 
 const posts = await getCollection("blog");
-
 const sortedPosts = getSortedPosts(posts);
-const featuredPosts = sortedPosts.filter(({ data }) => data.featured);
-const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
+const recentPosts = sortedPosts.slice(0, 5); // Last 5 posts
 ---
 
 <Layout>
   <Header />
-  <main id="main-content" data-layout="index">
-    <section id="hero" class="pt-8 pb-6">
-      <h1 class="my-4 inline-block text-4xl font-bold sm:my-8 sm:text-5xl">
-        Mingalaba
-      </h1>
-      <a
-        target="_blank"
-        href="/rss.xml"
-        class="inline-block"
-        aria-label="rss feed"
-        title="RSS Feed"
-      >
-        <IconRss
-          width={20}
-          height={20}
-          class="scale-125 stroke-accent stroke-3 rtl:-rotate-90"
-        />
-        <span class="sr-only">RSS Feed</span>
-      </a>
+  <main id="main-content" class="max-w-3xl mx-auto px-4 py-8">
 
-      <p>
-        AstroPaper is a minimal, responsive, accessible and SEO-friendly Astro
-        blog theme. This theme follows best practices and provides accessibility
-        out of the box. Light and dark mode are supported by default. Moreover,
-        additional color schemes can also be configured.
+    <!-- Header -->
+    <header class="mb-12">
+      <h1 class="text-3xl font-bold mb-2">Lawrence Nara</h1>
+      <p class="text-lg text-gray-600">Building stuff, thinking out loud</p>
+    </header>
+
+    <hr class="my-8 border-gray-300" />
+
+    <!-- Now Section -->
+    <section class="mb-12">
+      <h2 class="text-xl font-semibold mb-4">Now</h2>
+      <p class="text-gray-700 leading-relaxed">
+        Currently working on migrating my blog to a cleaner, more focused format.
+        Experimenting with simplicity and authentic content over complexity.
       </p>
-      <p class="mt-2">
-        Read the blog posts or check
-        <LinkButton
-          class="underline decoration-dashed underline-offset-4 hover:text-accent"
-          href="https://github.com/satnaing/astro-paper#readme"
-        >
-          README
-        </LinkButton> for more info.
-      </p>
-      {
-        // only display if at least one social link is enabled
-        SOCIALS.length > 0 && (
-          <div class="mt-4 flex flex-col sm:flex-row sm:items-center">
-            <div class="me-2 mb-1 whitespace-nowrap sm:mb-0">Social Links:</div>
-            <Socials />
-          </div>
-        )
-      }
+      <p class="text-sm text-gray-500 mt-2">Last updated: January 2025</p>
     </section>
 
-    <Hr />
+    <hr class="my-8 border-gray-300" />
 
-    {
-      featuredPosts.length > 0 && (
-        <>
-          <section id="featured" class="pt-12 pb-6">
-            <h2 class="text-2xl font-semibold tracking-wide">Featured</h2>
-            <ul>
-              {featuredPosts.map(data => (
-                <Card variant="h3" {...data} />
-              ))}
-            </ul>
-          </section>
-          {recentPosts.length > 0 && <Hr />}
-        </>
-      )
-    }
+    <!-- Recent Writing -->
+    <section class="mb-12">
+      <h2 class="text-xl font-semibold mb-6">Recent Writing</h2>
+      <ul class="space-y-4">
+        {recentPosts.map((post) => (
+          <li>
+            <a
+              href={getPath(post.id, post.filePath)}
+              class="block hover:text-blue-600 transition-colors"
+            >
+              <div class="flex flex-col sm:flex-row sm:items-baseline sm:justify-between">
+                <h3 class="font-medium">{post.data.title}</h3>
+                <time class="text-sm text-gray-500 mt-1 sm:mt-0">
+                  {post.data.pubDatetime.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                  })}
+                </time>
+              </div>
+              <p class="text-gray-600 text-sm mt-1 line-clamp-1">
+                {post.data.description}
+              </p>
+            </a>
+          </li>
+        ))}
+      </ul>
+      <div class="mt-6">
+        <a
+          href="/posts/"
+          class="text-blue-600 hover:underline text-sm"
+        >
+          → View all posts
+        </a>
+      </div>
+    </section>
 
-    {
-      recentPosts.length > 0 && (
-        <section id="recent-posts" class="pt-12 pb-6">
-          <h2 class="text-2xl font-semibold tracking-wide">Recent Posts</h2>
-          <ul>
-            {recentPosts.map(
-              (data, index) =>
-                index < SITE.postPerIndex && <Card variant="h3" {...data} />
-            )}
-          </ul>
-        </section>
-      )
-    }
+    <hr class="my-8 border-gray-300" />
 
-    <div class="my-8 text-center">
-      <LinkButton href="/posts/">
-        All Posts
-        <IconArrowRight class="inline-block rtl:-rotate-180" />
-      </LinkButton>
-    </div>
+    <!-- Work Section -->
+    <section class="mb-12">
+      <h2 class="text-xl font-semibold mb-6">Work</h2>
+      <ul class="space-y-3">
+        <li>
+          <strong>AfroVision Group</strong> - Built web applications and CMS solutions using Kohana framework for African market
+        </li>
+        <li>
+          <strong>Various Projects</strong> - Developed MVC applications, database solutions, and helped teams embrace modern development practices
+        </li>
+      </ul>
+      <div class="mt-6">
+        <a
+          href="/cv.pdf"
+          class="text-blue-600 hover:underline text-sm"
+        >
+          Want the formal version? Download PDF
+        </a>
+      </div>
+    </section>
+
+    <hr class="my-8 border-gray-300" />
+
+    <!-- Connect Section -->
+    <section class="mb-12">
+      <h2 class="text-xl font-semibold mb-6">Connect</h2>
+      <div class="flex gap-4">
+        <a
+          href="mailto:admin@lnara.com"
+          class="text-blue-600 hover:underline"
+        >
+          Email
+        </a>
+        <span class="text-gray-400">·</span>
+        <a
+          href="https://x.com/lawrencenara"
+          class="text-blue-600 hover:underline"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          X
+        </a>
+        <span class="text-gray-400">·</span>
+        <a
+          href="/rss.xml"
+          class="text-blue-600 hover:underline"
+        >
+          RSS
+        </a>
+      </div>
+    </section>
+
   </main>
   <Footer />
 </Layout>
 
-<script>
-  document.addEventListener("astro:page-load", () => {
-    const indexLayout = (document.querySelector("#main-content") as HTMLElement)
-      ?.dataset?.layout;
-    if (indexLayout) {
-      sessionStorage.setItem("backUrl", "/");
-    }
-  });
-</script>
+<style>
+  .line-clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>

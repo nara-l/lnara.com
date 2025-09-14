@@ -1,6 +1,6 @@
 ---
 title: "I Will Always Love You"
-description: "I had a premonition yesterday. I told Quincy and some friends I was hanging out with that: \"Someone I know or Someone connected to me is about to die\". Well, ..."
+description: "I had a premonition yesterday. I told Quincy and some friends I was hanging out with that someone I know or someone connected to me is about to die."
 pubDatetime: 2012-02-12T17:58:00.000Z
 author: "Lawrence Nara"
 tags: ["death","Life","loss","Music"]
@@ -20,8 +20,7 @@ Remember [One of my life decisions this year](http://njielitumbe.blogspot.com/2
 3.  For the courage you instill in me and as I grew up to understood the [greatest love of all](http://www.azlyrics.com/lyrics/whitneyhouston/greatestloveofall.html).
 4.  I learning first from you that there is Greatness in Every being.
 5.  For your beautiful and peaceful voice, very great energy.
-6.  For the song that touch me more as I grew up as a child, till moment and forever: <span data-mce-type="bookmark" style="display: inline-block; width: 0px; overflow: hidden; line-height: 0;" class="mce\_SELRES\_start">﻿</span>
-7.  For the song I heard more by you played by those around me:
+6.  For the song that touch me more as I grew up as a child, till moment and forever: 7.  For the song I heard more by you played by those around me:
 
 Thank you for the life you lived: I Will Always Love You! R.I.P.
 

@@ -1,6 +1,6 @@
 ---
 title: "Piece 4: Thoughts on Einstein's dreams"
-description: "> 24 APRIL 1905 \"In this world, there are two times. There is mechanical time and there is body time\"."
+description: "Thoughts on Einsteins Dreams - exploring the concept of different types of time: mechanical time and body time."
 pubDatetime: 2013-10-12T16:29:08.000Z
 author: "Lawrence Nara"
 tags: ["Life"]

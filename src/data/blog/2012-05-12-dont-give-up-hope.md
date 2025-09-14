@@ -15,6 +15,5 @@ Some of them may deter  us and propel despair so bad that you fall into the "**
 
  Sometimes someone will slap you out of it. Most times you'll survive because you can slap yourself out: don't give up hope!
 
-<span data-mce-type="bookmark" style="display: inline-block; width: 0px; overflow: hidden; line-height: 0;" class="mce\_SELRES\_start">﻿</span>
 
 A proper depiction of what I'm trying to say from my new all time favorite anime -- Code Geass :)

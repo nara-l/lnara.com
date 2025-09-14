@@ -12,7 +12,11 @@ import { SITE } from "@/config";
 
 export const getStaticPaths = (async ({ paginate }) => {
   const posts = await getCollection("blog", ({ data }) => !data.draft);
-  return paginate(getSortedPosts(posts), { pageSize: SITE.postPerPage });
+  // Filter to show only recent posts (2019 and newer)
+  const recentPosts = getSortedPosts(posts).filter(post =>
+    post.data.pubDatetime.getFullYear() >= 2019
+  );
+  return paginate(recentPosts, { pageSize: SITE.postPerPage });
 }) satisfies GetStaticPaths;
 
 const { page } = Astro.props;
@@ -20,10 +24,20 @@ const { page } = Astro.props;
 
 <Layout title={`Posts | ${SITE.title}`}>
   <Header />
-  <Main pageTitle="Posts" pageDesc="All the articles I've posted.">
+  <Main pageTitle="Posts" pageDesc="Recent articles from 2019 onwards.">
     <ul>
       {page.data.map(data => <Card {...data} />)}
     </ul>
+
+    <div class="mt-8 text-center">
+      <p class="text-gray-600 mb-4">Looking for older posts?</p>
+      <a
+        href="/archives/"
+        class="inline-block px-4 py-2 text-blue-600 border border-blue-600 rounded hover:bg-blue-50 transition-colors"
+      >
+        View Archives (2010-2018)
+      </a>
+    </div>
   </Main>
 
   <Pagination {page} />

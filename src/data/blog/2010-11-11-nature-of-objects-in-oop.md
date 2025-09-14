@@ -19,6 +19,7 @@ timezone: "UTC"
 
 But there is a lot more to OOP as a concept. **Things to keep in mind.** Functions in a class are called Methods. Variables in a Class are called Properties. So far So fine :). **Things to keep in mind (Nature of Objects).** There are three pillars of OOP. **Encapsulation, Inheritance, Polymorphism.** Lets take one at a time we stick with PHP. **Encapsulation:** The object should keep its details to itself, and only expose its interface (or: behaviour) to the outside. **KEYWORDS:** **Private, Public, Protected** Private, Protected & Public, called specifiers. They are mainly here for data security. The use of them in programming is a separate, process on its own and has generated several arguments. Lets demonstrate:
 
+```php
 <?php
 class Member 
 {
@@ -59,6 +60,7 @@ echo "Activities : " .$mem->activities;
 //this is not possible.We can't access this directly, it’s protected//Fatal error: Cannot access private property Member::$age
 
 echo "Age  : " .$mem->age;//this is private.
+```
 
 **Lets Explain:** A **public** access specifier allows the data members and methods to be access from anywhere in the script. A method or data member declared as **privat**e can only be accessed by the class itself and neither the outside program nor the derived class can have access to it. A **protected** access specifier allows the derived class to access the data member or member functions of the base class, but does not allow global access to other objects and functions. We see this as we use the **getAct()** function to access the activities which was declared protected.Notice that we could not access $activities property directly. **Inheritance:** This is mainly inheriting the properties of a Superclass or Parent class to another class which is called the child class. As a child inherits the properties from a parent. This property is of great significance, because we don't have to declare the same properties in different classes again and again. We just declare the significant properties to a class and go on inheriting these classes to other classes, which needs to implement or reflect such properties in addition to its own properties. This approach naturally saves a lot of complexity. **KEYWORD:** **Extends** (a child extends properties of parent).A class can extend several classes. Lets Demonstrate: A car is a parent and a Sports car is a derivative of a Car. That is a sports car Inherits all the properties of a Car.
 

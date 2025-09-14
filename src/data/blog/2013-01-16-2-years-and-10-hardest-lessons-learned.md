@@ -1,6 +1,6 @@
 ---
 title: "2 years and 10 Hardest Lessons Learned"
-description: "A startup,, in the context of this discussion, is defined by Eric Ries of the Lean Startup movement as: \"A human institution designed to create new products an..."
+description: "A startup is defined by Eric Ries as a human institution designed to create new products and services under conditions of extreme uncertainty. Here are 2 years and 10 hardest lessons learned."
 pubDatetime: 2013-01-16T19:20:50.000Z
 author: "Lawrence Nara"
 tags: ["entrepreneurship","startup"]

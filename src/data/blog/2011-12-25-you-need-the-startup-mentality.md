@@ -1,6 +1,6 @@
 ---
 title: "You need the Startup Mentality"
-description: "While reading news on this most unusual Christmas morning, I stumbled on the article by Marty Zwilling(http://www.caycon.com/consultant-Marty-Zwilling.php \"Vi..."
+description: "While reading news on this most unusual Christmas morning, I stumbled on an article by Marty Zwilling about the startup mentality and its importance for entrepreneurs."
 pubDatetime: 2011-12-25T19:28:16.000Z
 author: "Lawrence Nara"
 tags: ["entrepreneurship","startup"]
