@@ -1,0 +1,11 @@
+---
+title: "Week recap"
+description: "Summary of my week 1. Big thief concert extremely good. The concert was everything I wanted it to be. The lights the music, the vibe. I loved it so much. Pics a..."
+pubDatetime: 2021-10-14T15:43:20.000Z
+author: "Lawrence Nara"
+tags: ["Adventure","Concerts","Getaway","Life","live","Peace","Travel","Uncategorized","USA","Vacation"]
+draft: true
+timezone: "UTC"
+---
+
+Summary of my week 1. Big thief concert extremely good. The concert was everything I wanted it to be. The lights the music, the vibe. I loved it so much. Pics and videos, hosted? 2. Vacation to Pennsylvania west Chester . Observations. What I really enjoyed. I needed a break so bad. I'm so burned at work. I can feel it in every part of my being. So I need a get away to somewhere which is not a long drive but some where peaceful. I found the perfect gateway in PA at: Cate's. Cate is wonderful. Review of my stay on Airbnb. The property gave me all i needed. Not too expensive within my budget of under $120 per night. Extreme quiet, Could hear all nature again. Could see the full skies. Cate lit the burn fire for us. I ate marshmallow and chocolate and stuff. I slept like a baby. 3. Podcasts noted and important take away. Listened to 2-3 on tim ferris. Or just 1 and 1 paragram summary. 4. Watched No Time To Die TWICE. It's a befitting end to Daniel Craigs end as 007. The movie I believe had every thing It had to: Bond dieing after having a legacy. I feel this should be the first bond xter with a child. Bond really feel in love, not just a fling. The protagonist was too weak, his idea for world dominance was brilliant and the nano bots programmed to Dna is smart. Daniel craig is the best bond, likely cos of recency bias. But discussion for another time. 5. Historic news: First Malaria Vaccine Approved by W.H.O.: https://www.nytimes.com/2021/10/06/health/malaria-vaccine-who.html 7. Song of the week: Certainty, Big Thief. 6. The business of Loyalty by Ububele :https://ububele.substack.com/p/the-business-of-loyalty-discount 7. Photo of the week: Big Thief at Union Transfer PA ![](/images/big_thief_uniontransfer_PA_lnara.jpg)     Until next time. Take care.
