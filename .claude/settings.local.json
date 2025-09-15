@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git clone:*)",
+      "Bash(npm install)",
+      "Bash(npm run migrate:*)",
+      "Bash(node:*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(npm run dev:*)",
+      "Bash(sed:*)",
+      "Bash(xargs rm:*)",
+      "Bash(find:*)",
+      "Bash(xargs:*)",
+      "Bash(npm run build:*)",
+      "Bash(curl:*)",
+      "Read(//c/Users/Lawrence.work/Pictures/Screenshots/**)",
+      "Bash(cat:*)",
+      "Bash(gh:*)",
+      "Bash(git push:*)",
+      "Bash(git config:*)",
+      "Bash(wrangler:*)",
+      "Read(//c/Users/Lawrence.work/Desktop/Projects/**)",
+      "WebSearch",
+      "Read(//c/Users/Lawrence.work/AppData/Roaming/xdg.config/.wrangler/logs/**)",
+      "WebFetch(domain:lnara-com.pages.dev)",
+      "WebFetch(domain:sive.rs)",
+      "WebFetch(domain:localhost)",
+      "Bash(lsof:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

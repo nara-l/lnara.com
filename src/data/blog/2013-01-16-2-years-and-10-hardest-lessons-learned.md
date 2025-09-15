@@ -16,11 +16,51 @@ A startup,, in the context of this discussion, is defined by Eric Ries of the Le
 1.  The kind of business.
 2.  Generational "mundane" mentality: In our community, there is a defined path: You are born, you go to school, you get a job, you retire, and enjoy your pension. We are not taught to start something, so we lack the pre-knowledge and adaptability skills for this.
 
-People live to survive poverty and rely on the financial security of a job. Finding the best talent requires finding the right passion to build a dream. I've resorted to continuing the search and have a solution that can only be tested, but I haven't had the opportunity yet. **2.You Can't Be Everything to Everybody at All Times: Say No, No, No as Much as You Can** The desire to satisfy everyone should be considered a sin. Over the years, I've said yes many times. I've also said no, such as refusing to sell Wasamundi, rejecting investments, and declining to integrate a new social network under the Wasamundi brand. However, in retrospect, I still said yes more often than I should have. Committing to too many things can lead to paralysis by analysis. The work for one startup alone is overwhelming and requires your ultimate focus for at least 2-5 years. **3.Scaling Prematurely Will Kill You: Focus and Re-focus** If you don't focus, your startup will fail. I mean the scaling of building many "products" rather than adding servers or investing in heavy technology. In the early days, especially for tech-led startups, there is a huge temptation to experiment with projects. These experiments can unknowingly become products, leading to maintenance issues and distractions from the main vision. This lack of focus comes with many bruises and requires time to recover, rethink, and re-strategize. **4.Avoid Side Projects: They Feed You and Kill You** An internet startup often struggles with capital. Before securing capital from friends, family, angels, or VCs, you need to validate your idea. However, in our community, people often lack an understanding of what software is, valuing physical products more. It took over two years for my closest family members to understand what I'm engaged in. In the end, you need to bootstrap. Side projects come into play, which can be detrimental to the startup. Paul Graham's essay, ["How Not to Die"](http://www.paulgraham.com/die.html), supports this: "Distraction is fatal to startups." This has caused us more pain and regret than anything else. **5.People Will Not Keep Their Promises: It Starts and Ends with You** Most promises and favors aren’t as genuine as you’d like them to be. Not relying on promises is the best way to manage. Remember, it’s not personal for others; it’s your company. The right people will respond when you need them, but most won’t. It’s your responsibility to keep pushing forward. **6.You Will Always Underestimate How Much It Costs to Deliver a Service or a Product** Always estimate higher than you think for budgets, timelines, and resources. If you have no experience, consult an advisor. Things always take more time and resources than expected. **7.A Startup Messed Up at Its Foundation Cannot Be Fixed** Peter Thiel's Law of Startups states that the foundation of a startup is its team. If the team is flawed early on, it takes grace to turn it around. This often happens when a startup has more than two people in the early days, leading to chaos. One person needs to have the ultimate authority to hire and fire to prevent failure. **8,Always Think About Making Money, Because If You Don’t, You’ll Die** Internet companies are picking up speed in Africa, but the temptation is to go with a freemium model. For a startup to generate substantial advertising revenue, significant capital is required. Always think about how to generate revenue for your business to attract investors. **9.Growing Too Fast** In the early days of a startup, fast growth should be horizontal, indicating you've found a product-market fit. Vertical growth should follow once you have a solid customer base and can afford to hire the right personnel without burdening the startup. Growing too fast vertically can lead to overspending and unsustainable operations. **10.You’ll Be Wrong Most of the Time: Try to Make the Right Decisions as Many Times as You Can** As a startup team member, you'll often find your assumptions are incorrect. Recognizing and acting on mistakes is more important than being perfect. The more times you're right, the faster the company grows. A leader must sense when things are going wrong, when passions are dying, and when to strategize next. Find core people who are ready to risk everything through ups and downs.
+People live to survive poverty and rely on the financial security of a job. Finding the best talent requires finding the right passion to build a dream. I've resorted to continuing the search and have a solution that can only be tested, but I haven't had the opportunity yet.
+
+**2. You Can't Be Everything to Everybody at All Times: Say No, No, No as Much as You Can**
+
+The desire to satisfy everyone should be considered a sin. Over the years, I've said yes many times. I've also said no, such as refusing to sell Wasamundi, rejecting investments, and declining to integrate a new social network under the Wasamundi brand. However, in retrospect, I still said yes more often than I should have. Committing to too many things can lead to paralysis by analysis. The work for one startup alone is overwhelming and requires your ultimate focus for at least 2-5 years.
+
+**3. Scaling Prematurely Will Kill You: Focus and Re-focus**
+
+If you don't focus, your startup will fail. I mean the scaling of building many "products" rather than adding servers or investing in heavy technology. In the early days, especially for tech-led startups, there is a huge temptation to experiment with projects. These experiments can unknowingly become products, leading to maintenance issues and distractions from the main vision. This lack of focus comes with many bruises and requires time to recover, rethink, and re-strategize.
+
+**4. Avoid Side Projects: They Feed You and Kill You**
+
+An internet startup often struggles with capital. Before securing capital from friends, family, angels, or VCs, you need to validate your idea. However, in our community, people often lack an understanding of what software is, valuing physical products more. It took over two years for my closest family members to understand what I'm engaged in. In the end, you need to bootstrap. Side projects come into play, which can be detrimental to the startup. Paul Graham's essay, ["How Not to Die"](http://www.paulgraham.com/die.html), supports this: "Distraction is fatal to startups." This has caused us more pain and regret than anything else.
+
+**5. People Will Not Keep Their Promises: It Starts and Ends with You**
+
+Most promises and favors aren't as genuine as you'd like them to be. Not relying on promises is the best way to manage. Remember, it's not personal for others; it's your company. The right people will respond when you need them, but most won't. It's your responsibility to keep pushing forward.
+
+**6. You Will Always Underestimate How Much It Costs to Deliver a Service or a Product**
+
+Always estimate higher than you think for budgets, timelines, and resources. If you have no experience, consult an advisor. Things always take more time and resources than expected.
+
+**7. A Startup Messed Up at Its Foundation Cannot Be Fixed**
+
+Peter Thiel's Law of Startups states that the foundation of a startup is its team. If the team is flawed early on, it takes grace to turn it around. This often happens when a startup has more than two people in the early days, leading to chaos. One person needs to have the ultimate authority to hire and fire to prevent failure.
+
+**8. Always Think About Making Money, Because If You Don't, You'll Die**
+
+Internet companies are picking up speed in Africa, but the temptation is to go with a freemium model. For a startup to generate substantial advertising revenue, significant capital is required. Always think about how to generate revenue for your business to attract investors.
+
+**9. Growing Too Fast**
+
+In the early days of a startup, fast growth should be horizontal, indicating you've found a product-market fit. Vertical growth should follow once you have a solid customer base and can afford to hire the right personnel without burdening the startup. Growing too fast vertically can lead to overspending and unsustainable operations.
+
+**10. You'll Be Wrong Most of the Time: Try to Make the Right Decisions as Many Times as You Can**
+
+As a startup team member, you'll often find your assumptions are incorrect. Recognizing and acting on mistakes is more important than being perfect. The more times you're right, the faster the company grows. A leader must sense when things are going wrong, when passions are dying, and when to strategize next. Find core people who are ready to risk everything through ups and downs.
 
 * * *
 
-**Quotes:** "That which does not kill you makes you stronger." - Friedrich Nietzsche **Footnotes:**
+**Quotes:**
+
+"That which does not kill you makes you stronger." - Friedrich Nietzsche
+
+**Footnotes:**
 
 1.  A startup here specifically refers to an internet/mobile company where programs and platforms are milestones. While every new business can be called a startup, Africans are learning how to run internet/mobile startups from companies like Google and Facebook. This culture is borrowed and not yet ingrained, but with time, it will develop.
 2.  Learning is the biggest tool mankind has. It allows us to step outside the system and see from the outside. According to Malcolm Gladwell, it takes at least 10,000 hours of practice to master a skill.
