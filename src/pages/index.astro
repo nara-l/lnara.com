@@ -5,7 +5,6 @@ import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
 import getSortedPosts from "@/utils/getSortedPosts";
 import { getPath } from "@/utils/getPath";
-import { SITE } from "@/config";
 
 const posts = await getCollection("blog");
 const sortedPosts = getSortedPosts(posts);
