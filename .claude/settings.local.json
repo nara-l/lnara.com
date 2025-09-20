@@ -27,7 +27,8 @@
       "WebFetch(domain:lnara-com.pages.dev)",
       "WebFetch(domain:sive.rs)",
       "WebFetch(domain:localhost)",
-      "Bash(lsof:*)"
+      "Bash(lsof:*)",
+      "WebFetch(domain:hmemcpy.com)"
     ],
     "deny": [],
     "ask": []

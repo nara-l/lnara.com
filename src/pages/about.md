@@ -3,35 +3,18 @@ layout: ../layouts/AboutLayout.astro
 title: "About"
 ---
 
-AstroPaper is a minimal, accessible and SEO-friendly blog theme built with [Astro](https://astro.build/) and [Tailwind CSS](https://tailwindcss.com/).
+I'm Lawrence, and I build things.
 
-![Astro Paper](public/astropaper-og.jpg)
+I grew up in Cameroon and started building things because there weren't many digital solutions around. In 2011, I noticed local businesses had no way for people to find them online, so I built the first business directory in Cameroon. We ended up pioneering a lot of firsts - first student hostel directory, first SMS marketing directory, first SMS marketing SaaS. It grew to thousands of businesses. It was messy and I learned a lot.
 
-AstroPaper provides a solid foundation for blogs, or even portfolios\_ with full markdown support, built-in dark mode, and a clean layout that works out-of-the-box.
+I spent a few years at Infosys consulting and leading teams that modernize legacy systems for Fortune 100 companies. The problems are different but the approach is the same - get presented with a problem, work with the team to solve it.
 
-The blog posts in this theme also serve as guides, docs or example articles\_ making AstroPaper a flexible starting point for your next content-driven site.
+I've worked on everything from university communication platforms in Africa to retirement plan systems for Fortune 100 companies. The tools change (started with PHP, now mostly AWS, React, Angular), but I still get excited about solving problems using technology as a means to an end.
 
-## Features
+Currently based in Baltimore. Took my first real break in years after getting burned out, used the time to finish my MBA and experiment with AI. Something magical happens when you step back - you see where tech and humanity are heading. Now prepping for my next full-time role.
 
-AstroPaper comes with a set of useful features that make content publishing easy and effective:
+When I'm not building something, I put my thoughts on new ideas, think about how things work, spend time with my family, go outside, walk the park. I read about everything that catches my eye, not just technical stuff. This site is where I put my thoughts and track what I'm working on.
 
-- SEO-friendly
-- Fast performance
-- Light & dark mode
-- Highly customizable
-- Organizable blog posts
-- Responsive & accessible
-- Static search with [PageFind](https://pagefind.app/)
-- Automatic social image generation
+---
 
-and so much more.
-
-## Show your support
-
-If you like [AstroPaper](https://github.com/satnaing/astro-paper), consider giving it a star ⭐️.
-
-Found a bug 🐛 or have an improvement ✨ in mind? Feel free to open an [issue](https://github.com/satnaing/astro-paper/issues), submit a [pull request](https://github.com/satnaing/astro-paper/pulls) or start a [discussion](https://github.com/satnaing/astro-paper/discussions).
-
-If you find this theme helpful, you can also [sponsor me on GitHub](https://github.com/sponsors/satnaing) or [buy me a coffee](https://buymeacoffee.com/satnaing) to show your support — every penny counts.
-
-Kyay zuu! 🙏🏼
+**Connect:** [Email](mailto:lawrence.nara@gmail.com) | [GitHub](https://github.com/nara-l) | [LinkedIn](https://www.linkedin.com/in/lawrence-njie-litumbe-8a042032/)
