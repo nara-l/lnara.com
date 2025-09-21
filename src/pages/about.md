@@ -11,7 +11,7 @@ I spent a few years at Infosys consulting and leading teams that modernize legac
 
 I've worked on everything from university communication platforms in Africa to retirement plan systems for Fortune 100 companies. The tools change (started with PHP, now mostly AWS, React, Angular), but I still get excited about solving problems using technology as a means to an end.
 
-Currently based in Baltimore. Took my first real break in years after getting burned out, used the time to finish my MBA and experiment with AI. Something magical happens when you step back - you see where tech and humanity are heading. Now prepping for my next full-time role.
+Currently based in Baltimore. Took my first real break in years after getting burned out, used the time to finish my MBA and experiment with AI. 'Your fastest path to yourself is unemployment' - and that turned out to be true. Something magical happens when you step back - you see where tech and humanity are heading. Now prepping for my next full-time role.
 
 When I'm not building something, I put my thoughts on new ideas, think about how things work, spend time with my family, go outside, walk the park. I read about everything that catches my eye, not just technical stuff. This site is where I put my thoughts and track what I'm working on.
 
