@@ -2,7 +2,7 @@ import type { Env } from "../sheets";
 
 type CommitFile = { path: string; content: string };
 
-export async function commitFilesToGitHub(env: Env & { GITHUB_TOKEN?: string; CF_API_TOKEN?: string; CF_ACCOUNT_ID?: string; CF_PAGES_PROJECT_NAME?: string }, message: string, files: CommitFile[]): Promise<Response> {
+export async function commitFilesToGitHub(env: Env & { GITHUB_TOKEN?: string; VERCEL_TOKEN?: string; VERCEL_PROJECT_ID?: string }, message: string, files: CommitFile[]): Promise<Response> {
   if (!env.GITHUB_TOKEN) {
     return new Response("GITHUB_TOKEN not configured; cannot push to repo", { status: 501 });
   }
@@ -67,41 +67,43 @@ export async function commitFilesToGitHub(env: Env & { GITHUB_TOKEN?: string; CF
     return new Response(`${failed.length} of ${files.length} file commits failed`, { status: 207 }); // Multi-status
   }
 
-  // Trigger Cloudflare Pages deployment to ensure immediate rebuild
+  // Trigger Vercel deployment to ensure immediate rebuild
   try {
-    await triggerCloudflareDeployment(env);
+    await triggerVercelDeployment(env);
   } catch (err) {
-    console.warn("Failed to trigger Cloudflare deployment:", err);
+    console.warn("Failed to trigger Vercel deployment:", err);
   }
 
   return new Response(`Successfully committed ${files.length} files`, { status: 200 });
 }
 
-async function triggerCloudflareDeployment(env: { CF_API_TOKEN?: string; CF_ACCOUNT_ID?: string; CF_PAGES_PROJECT_NAME?: string }): Promise<void> {
-  // Use Direct Upload API to deploy the built site
-  if (!env.CF_API_TOKEN || !env.CF_ACCOUNT_ID || !env.CF_PAGES_PROJECT_NAME) {
-    console.log("Direct upload not configured - GitHub commit only");
+async function triggerVercelDeployment(env: { VERCEL_TOKEN?: string; VERCEL_PROJECT_ID?: string }): Promise<void> {
+  // Use Vercel API to trigger deployment
+  if (!env.VERCEL_TOKEN || !env.VERCEL_PROJECT_ID) {
+    console.log("Vercel deployment not configured - GitHub auto-deploy should handle this");
     return;
   }
 
   try {
-    // Trigger a new deployment via Cloudflare API
+    // Trigger a new deployment via Vercel API
     const response = await fetch(
-      `https://api.cloudflare.com/client/v4/accounts/${env.CF_ACCOUNT_ID}/pages/projects/${env.CF_PAGES_PROJECT_NAME}/deployments`,
+      `https://api.vercel.com/v13/deployments`,
       {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${env.CF_API_TOKEN}`,
+          "Authorization": `Bearer ${env.VERCEL_TOKEN}`,
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          "source": {
+          "name": "lnara-com",
+          "gitSource": {
             "type": "github",
-            "config": {
-              "production_branch": "master",
-              "build_command": "npm run build",
-              "destination_dir": "dist"
-            }
+            "repo": "nara-l/lnara.com",
+            "ref": "master"
+          },
+          "projectSettings": {
+            "buildCommand": "npm run build",
+            "outputDirectory": "dist"
           }
         })
       }
@@ -109,12 +111,12 @@ async function triggerCloudflareDeployment(env: { CF_API_TOKEN?: string; CF_ACCO
 
     if (response.ok) {
       const result = await response.json();
-      console.log("Successfully triggered Cloudflare Pages deployment:", result.result?.id);
+      console.log("Successfully triggered Vercel deployment:", result.id);
     } else {
-      console.error("Direct deployment failed:", response.status, await response.text());
+      console.error("Vercel deployment failed:", response.status, await response.text());
     }
   } catch (err) {
-    console.error("Error triggering direct deployment:", err);
+    console.error("Error triggering Vercel deployment:", err);
   }
 }
 
