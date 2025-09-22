@@ -59,7 +59,85 @@ a:hover{
   color:var(--ink);
 }
 
-/* Bucket sections */
+/* Day accordion */
+.day-accordion{
+  border-top:1px solid var(--line);
+  margin:0;
+}
+.day-accordion:first-of-type{
+  border-top:0;
+}
+.day-accordion-header{
+  background:none;
+  border:none;
+  width:100%;
+  text-align:left;
+  padding:12px 0;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  color:var(--ink);
+  font-family:inherit;
+  font-size:18px;
+  font-weight:600;
+}
+.day-accordion-header:hover{
+  background:rgba(0,0,0,0.02);
+}
+.day-title{
+  text-transform:lowercase;
+}
+.entry-count{
+  font-size:13px;
+  color:var(--muted);
+  font-weight:normal;
+}
+.accordion-icon{
+  font-size:12px;
+  color:var(--muted);
+  margin-left:8px;
+}
+.day-accordion-content{
+  padding:0 0 12px 0;
+}
+
+/* Bucket accordion */
+.bucket-accordion{
+  margin:8px 0;
+}
+.bucket-accordion-header{
+  background:none;
+  border:none;
+  width:100%;
+  text-align:left;
+  padding:8px 0;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  color:var(--ink);
+  font-family:inherit;
+  font-size:15px;
+  font-weight:500;
+}
+.bucket-accordion-header:hover{
+  background:rgba(0,0,0,0.02);
+}
+.bucket-title{
+  flex:1;
+}
+.bucket-count{
+  font-size:12px;
+  color:var(--muted);
+  font-weight:normal;
+  margin-right:8px;
+}
+.bucket-accordion-content{
+  padding:0;
+}
+
+/* Bucket sections (legacy) */
 .bucket{
   font-weight:500;
   color:var(--ink);
