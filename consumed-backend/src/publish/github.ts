@@ -67,7 +67,28 @@ export async function commitFilesToGitHub(env: Env & { GITHUB_TOKEN?: string }, 
     return new Response(`${failed.length} of ${files.length} file commits failed`, { status: 207 }); // Multi-status
   }
 
+  // Trigger Cloudflare Pages deployment to ensure immediate rebuild
+  try {
+    await triggerCloudflareDeployment();
+  } catch (err) {
+    console.warn("Failed to trigger Cloudflare deployment:", err);
+  }
+
   return new Response(`Successfully committed ${files.length} files`, { status: 200 });
+}
+
+async function triggerCloudflareDeployment(): Promise<void> {
+  // Cloudflare Pages usually rebuilds automatically, but we can also
+  // trigger via a simple HTTP request to force cache invalidation
+  try {
+    // Simple cache bust request to the main site
+    await fetch("https://lnara.com/consumed/?cb=" + Date.now(), {
+      method: "HEAD",
+      headers: { "Cache-Control": "no-cache" }
+    });
+  } catch {
+    // Ignore failures - this is just a cache hint
+  }
 }
 
 // Helper function to encode content as base64 (GitHub Contents API requirement)

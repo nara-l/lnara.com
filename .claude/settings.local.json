@@ -37,7 +37,8 @@
       "Bash(npx wrangler:*)",
       "WebFetch(domain:consumed-backend.lawrence-nara.workers.dev)",
       "Bash(npm run deploy:*)",
-      "Bash(git fetch:*)"
+      "Bash(git fetch:*)",
+      "Read(//c/Users/Lawrence.work/Downloads/sample/**)"
     ],
     "deny": [],
     "ask": []
