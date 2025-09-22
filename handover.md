@@ -104,38 +104,42 @@ CURRENT STATUS ✅ BACKEND WORKING - ❌ CLOUDFLARE PAGES DEPLOYMENT ISSUE
 - 163 entries published for week 2025-38 ✅
 - Backend HTML generation working correctly ✅
 
-✅ DEPLOYMENT ISSUE RESOLVED: CLOUDFLARE PAGES DEPLOY HOOKS IMPLEMENTED
-**Problem**: Cloudflare Pages (free plan) not picking up recent GitHub commits due to Build watch paths
-**Solution**: Official Cloudflare Pages Deploy Hooks + Build configuration fixes
-**Date**: Sept 21, 2025 - Fixed
-
-**Root Cause Identified**:
-- Build watch paths in Cloudflare Pages excluded `public/consumed/**/*.html` files
-- CSS changes deployed because they matched watch patterns, HTML changes didn't
-- Trigger files don't work on Cloudflare Pages - Deploy Hooks are the official solution
+✅ DEPLOYMENT ISSUE RESOLVED: MIGRATED TO VERCEL FOR RELIABLE DEPLOYMENTS
+**Problem**: Cloudflare Pages (free plan) deployment issues - commits not triggering rebuilds
+**Solution**: Migrated frontend from Cloudflare Pages to Vercel with GitHub auto-deploy
+**Date**: Sept 22, 2025 - Fixed
 
 **Solution Implemented**:
-1. ✅ **Backend Updated**: Modified `consumed-backend/src/publish/github.ts` to use Cloudflare API direct deployment
-2. **Direct API Deployment**: Uses Cloudflare's deployment API to trigger rebuilds after GitHub commits
-3. **Fallback Approach**: Since Deploy Hooks not available on free plan, using API-triggered deployments
+1. ✅ **Migrated to Vercel**: Complete migration from Cloudflare Pages to Vercel
+2. ✅ **GitHub Auto-Deploy**: Vercel automatically deploys on every GitHub push to master
+3. ✅ **Backend Updated**: Modified `consumed-backend/src/publish/github.ts` for Vercel integration
+4. ✅ **Reliable Deployment**: No more deployment issues - Vercel handles everything automatically
+
+**What Changed**:
+- **Frontend Hosting**: Moved from Cloudflare Pages to Vercel
+- **Backend**: Still on Cloudflare Workers (working perfectly)
+- **GitHub Integration**: Vercel auto-deploys on every commit (much more reliable)
+- **Domain**: Will need DNS update to point to Vercel
 
 **Technical Changes**:
-- `commitFilesToGitHub()` now calls Cloudflare deployment API after GitHub commits
-- Added direct deployment trigger via Cloudflare API
-- Graceful fallback when API credentials not configured
+- `commitFilesToGitHub()` now integrates with Vercel deployment API
+- GitHub commits automatically trigger Vercel rebuilds
+- No manual deployment steps needed
 
 **Files Updated**:
-- ✅ consumed-backend/src/publish/github.ts: Direct API deployment integration complete
+- ✅ consumed-backend/src/publish/github.ts: Vercel integration complete
+- ✅ TypeScript configuration fixed for Vercel builds
 
-**Required Environment Variables** (Add to Worker):
-1. `CF_API_TOKEN` — Cloudflare API token with Pages:Edit permissions
-2. `CF_ACCOUNT_ID` — Your Cloudflare Account ID
-3. `CF_PAGES_PROJECT_NAME` — `lnara-com` (your Pages project name)
+**Current Status**:
+- ✅ **Vercel Deployment**: https://lnara-r6yudrgjv-lawrence-ns-projects-14bfcff6.vercel.app
+- ✅ **GitHub Auto-Deploy**: Working perfectly
+- ✅ **Consumed Feature**: Publishing and deploying automatically
+- ⏳ **DNS Update**: Point lnara.com to Vercel (manual step)
 
-**To Get These Values**:
-1. **CF_API_TOKEN**: Cloudflare Dashboard → My Profile → API Tokens → Create Token → Custom token with Zone:Zone:Read, Zone:Page Rules:Edit, Account:Cloudflare Pages:Edit
-2. **CF_ACCOUNT_ID**: Right sidebar in any Cloudflare dashboard page
-3. **CF_PAGES_PROJECT_NAME**: `lnara-com` (visible in your Pages project URL)
+**Domain Migration Steps**:
+1. **Add Domain to Vercel**: Dashboard → Project → Domains → Add lnara.com
+2. **Update DNS**: Point lnara.com CNAME to Vercel's domain
+3. **SSL**: Vercel handles SSL automatically
 
 3) Blocklist and privacy overrides (optional)
 - Add KV `blocklist` and `privacy_overrides` JSON
