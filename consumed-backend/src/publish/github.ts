@@ -2,7 +2,7 @@ import type { Env } from "../sheets";
 
 type CommitFile = { path: string; content: string };
 
-export async function commitFilesToGitHub(env: Env & { GITHUB_TOKEN?: string }, message: string, files: CommitFile[]): Promise<Response> {
+export async function commitFilesToGitHub(env: Env & { GITHUB_TOKEN?: string; CF_PAGES_DEPLOY_HOOK_URL?: string }, message: string, files: CommitFile[]): Promise<Response> {
   if (!env.GITHUB_TOKEN) {
     return new Response("GITHUB_TOKEN not configured; cannot push to repo", { status: 501 });
   }
@@ -69,7 +69,7 @@ export async function commitFilesToGitHub(env: Env & { GITHUB_TOKEN?: string }, 
 
   // Trigger Cloudflare Pages deployment to ensure immediate rebuild
   try {
-    await triggerCloudflareDeployment();
+    await triggerCloudflareDeployment(env);
   } catch (err) {
     console.warn("Failed to trigger Cloudflare deployment:", err);
   }
@@ -77,17 +77,27 @@ export async function commitFilesToGitHub(env: Env & { GITHUB_TOKEN?: string }, 
   return new Response(`Successfully committed ${files.length} files`, { status: 200 });
 }
 
-async function triggerCloudflareDeployment(): Promise<void> {
-  // Cloudflare Pages usually rebuilds automatically, but we can also
-  // trigger via a simple HTTP request to force cache invalidation
+async function triggerCloudflareDeployment(env: { CF_PAGES_DEPLOY_HOOK_URL?: string }): Promise<void> {
+  // Use official Cloudflare Pages Deploy Hook for reliable force rebuilds
+  if (!env.CF_PAGES_DEPLOY_HOOK_URL) {
+    console.warn("CF_PAGES_DEPLOY_HOOK_URL not configured; skipping deploy hook trigger");
+    return;
+  }
+
   try {
-    // Simple cache bust request to the main site
-    await fetch("https://lnara.com/consumed/?cb=" + Date.now(), {
-      method: "HEAD",
-      headers: { "Cache-Control": "no-cache" }
+    const response = await fetch(env.CF_PAGES_DEPLOY_HOOK_URL, {
+      method: "POST",
+      headers: { "User-Agent": "consumed-backend" }
     });
-  } catch {
-    // Ignore failures - this is just a cache hint
+
+    if (response.ok) {
+      console.log("Successfully triggered Cloudflare Pages deployment via Deploy Hook");
+    } else {
+      console.error("Deploy Hook failed:", response.status, await response.text());
+    }
+  } catch (err) {
+    console.error("Error calling Deploy Hook:", err);
+    throw err;
   }
 }
 

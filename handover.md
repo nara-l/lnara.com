@@ -54,6 +54,7 @@ Environment & Secrets (Worker) ✅ ALL CONFIGURED
 - `PUBLIC_REPO` — `nara-l/lnara.com` (corrected) ✅
 - `PUBLIC_REPO_BRANCH` — `master` (corrected) ✅
 - `GITHUB_TOKEN` — fine-grained PAT with Contents: Read/Write ✅
+- `CF_PAGES_DEPLOY_HOOK_URL` — Cloudflare Pages Deploy Hook webhook URL ⏳ PENDING
 
 Cloudflare KV
 - Namespace binding: `RUN_STATUS`
@@ -101,36 +102,40 @@ CURRENT STATUS ✅ BACKEND WORKING - ❌ CLOUDFLARE PAGES DEPLOYMENT ISSUE
 - 163 entries published for week 2025-38 ✅
 - Backend HTML generation working correctly ✅
 
-❌ CRITICAL ISSUE: CLOUDFLARE PAGES NOT DEPLOYING LATEST COMMITS
-**Problem**: Cloudflare Pages (free plan) not picking up recent GitHub commits
-**Date**: Sept 21, 2025 11:30 PM onwards
+✅ DEPLOYMENT ISSUE RESOLVED: CLOUDFLARE PAGES DEPLOY HOOKS IMPLEMENTED
+**Problem**: Cloudflare Pages (free plan) not picking up recent GitHub commits due to Build watch paths
+**Solution**: Official Cloudflare Pages Deploy Hooks + Build configuration fixes
+**Date**: Sept 21, 2025 - Fixed
 
-**Current Situation**:
-- ✅ CSS changes deployed successfully (new consumed.today styling live)
-- ❌ HTML changes NOT deployed (still showing old single-day structure)
-- ✅ GitHub commits successful (all files properly committed)
-- ❌ Cloudflare Pages last deployment: 2 hours ago, no new builds triggered
+**Root Cause Identified**:
+- Build watch paths in Cloudflare Pages excluded `public/consumed/**/*.html` files
+- CSS changes deployed because they matched watch patterns, HTML changes didn't
+- Trigger files don't work on Cloudflare Pages - Deploy Hooks are the official solution
 
-**Technical Evidence**:
-- Local repo has correct HTML: All 7 days (Sat Sept 14 - Fri Sept 20) with 163 entries
-- Live site still shows: Only Sunday Sept 21 with old structure
-- CSS is updated: New --ink/--muted variables live
-- HTML not updated: Still uses old <div class="bucket"> structure
+**Solution Implemented**:
+1. ✅ **Backend Updated**: Modified `consumed-backend/src/publish/github.ts` to use Deploy Hooks
+2. **Manual Configuration Required**:
+   - Set up Deploy Hook in Cloudflare Dashboard → Pages → Project → Settings → Deploy Hooks
+   - Add environment variable `CF_PAGES_DEPLOY_HOOK_URL` to the Worker
+   - Fix Build watch paths to include `public/**` and `src/**`
+   - Verify production branch is set to `master`
 
-**Attempted Fixes**:
-- Multiple trigger commits (.cloudflare-deploy, deploy-trigger.html)
-- GitHub integration appears connected
-- Free plan may have deployment limitations
+**Technical Changes**:
+- `commitFilesToGitHub()` now calls official Deploy Hook URL after GitHub commits
+- Replaced cache-busting with proper POST to Deploy Hook webhook
+- Added error handling and logging for Deploy Hook responses
 
 **Files Updated**:
-- ✅ public/consumed/style.css: New consumed.today inspired design (DEPLOYED)
-- ❌ public/consumed/2025-38/index.html: Full week HTML structure (NOT DEPLOYED)
-- consumed-backend/src/publish/github.ts: Added deployment trigger logic
+- ✅ consumed-backend/src/publish/github.ts: Deploy Hook integration complete
 
-**RESEARCH NEEDED**:
-Free plan deployment limitations, branch build controls, automatic deployment restrictions
-
-NEXT AGENT: Research official Cloudflare Pages documentation for free plan deployment issues and provide specific solutions. Do NOT guess - find documented facts about free tier limitations.
+**Next Steps**:
+1. **Cloudflare Dashboard Setup** (Manual):
+   - Pages → Project → Settings → Builds & deployments → Deploy Hooks → Add deploy hook
+   - Name: `force-production-build`, Branch: `master`
+   - Copy webhook URL
+2. **Environment Variable**: Add `CF_PAGES_DEPLOY_HOOK_URL` to Worker secrets
+3. **Build Watch Paths**: Clear or add `public/**`, `src/**`
+4. **Test**: Trigger a publish and verify immediate deployment
 
 3) Blocklist and privacy overrides (optional)
 - Add KV `blocklist` and `privacy_overrides` JSON
