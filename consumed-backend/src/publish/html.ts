@@ -23,14 +23,19 @@ export function groupByDayAndBucket(entries: EntryRow[]): DayGroup {
 }
 
 export function renderDigestHTML(d: WeekDigest): string {
+  console.log(`renderDigestHTML: Rendering week ${d.year}-${d.week} with ${d.entries.length} entries`);
   const weekPath = `${String(d.year)}-${String(d.week).padStart(2, "0")}`;
   const grouped = groupByDayAndBucket(d.entries);
   const days = weekDaysET(d); // Mon..Sun list of YYYY-MM-DD strings
+  console.log(`renderDigestHTML: Week days: ${JSON.stringify(days)}`);
+  console.log(`renderDigestHTML: Grouped days: ${JSON.stringify(Object.keys(grouped))}`);
   const esc = (s: string) => (s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
   let body = "";
   for (const day of days) {
     const buckets = grouped[day];
+    const bucketEntryCount = buckets ? Object.values(buckets).reduce((sum, arr) => sum + arr.length, 0) : 0;
+    console.log(`renderDigestHTML: Day ${day} has ${bucketEntryCount} entries`);
     body += `<section class="day"><h2>${day}</h2>`;
     if (!buckets) {
       body += `<p class="empty">No entries</p>`;

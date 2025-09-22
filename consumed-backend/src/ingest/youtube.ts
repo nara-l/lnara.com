@@ -32,7 +32,7 @@ export async function ingestYouTubeLikes(env: Env): Promise<EntryRow[]> {
       url: `https://www.youtube.com/watch?v=${videoId}`,
       source: "youtube",
       notes: "",
-      is_public: false,
+      is_public: true,
       created_at: nowIso,
       updated_at: nowIso,
     });

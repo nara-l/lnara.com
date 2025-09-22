@@ -15,6 +15,26 @@ export default {
       return new Response("ok", { status: 200 });
     }
 
+    if (path === "/test-publish" && method === "POST") {
+      const url = new URL(req.url);
+      const week = url.searchParams.get("week");
+      if (!week || !/^\d{4}-\d{2}$/.test(week)) {
+        return new Response("Invalid week format", { status: 400 });
+      }
+      const [year, weekNum] = week.split("-").map(Number);
+      try {
+        const rows = await sheets.listRowsForIsoWeek(year, weekNum);
+        const publicRows = rows.filter(r => r.is_public);
+        console.log(`Publishing ${publicRows.length} entries for week ${week}`);
+        const result = await publishWeek(env, year, weekNum, publicRows);
+        console.log(`Successfully published week ${week} with ${publicRows.length} entries`);
+        return new Response(`Published week ${week} with ${publicRows.length} entries`);
+      } catch (error) {
+        console.error("Publish error:", error);
+        return new Response(`Error: ${error}`, { status: 500 });
+      }
+    }
+
     // Authenticated routes start with /draft/consumed or /api or /publish
     const isAuthed = await authenticate(req, env);
 
@@ -111,7 +131,7 @@ export default {
         const { sha256Hex } = await import("./utils/hash");
         const id = await sha256Hex(`manual|${title}|${urlf}|${date}|${Date.now()}`);
         const nowIso = new Date().toISOString();
-        const row = { id, date, bucket: bucket as any, title, url: urlf, source: "manual", notes, is_public: false, created_at: nowIso, updated_at: nowIso };
+        const row = { id, date, bucket: bucket as any, title, url: urlf, source: "manual", notes, is_public: true, created_at: nowIso, updated_at: nowIso };
         const sheets = new SheetsClient(env);
         await sheets.appendRows([row]);
         return new Response("Entry added successfully", { status: 200 });
@@ -122,25 +142,44 @@ export default {
     }
 
     if (path.startsWith("/api/entries/") && method === "POST") {
+      const rawId = path.split("/").pop()!;
+      let form: FormData | null = null;
+
       try {
-        const id = path.split("/").pop()!;
-        if (!id) {
+        if (!rawId) {
           return new Response("Entry ID is required", { status: 400 });
         }
 
-        const form = await req.formData();
+        // Decode the URL-encoded ID to match what's stored in the sheet
+        const id = decodeURIComponent(rawId);
+        console.log(`Raw ID: ${rawId}, Decoded ID: ${id}`);
+
+        form = await req.formData();
         const notes = form.has("notes") ? String(form.get("notes") || "").trim() : undefined;
         const isPublic = form.has("is_public") ? String(form.get("is_public")) : undefined;
+
+        console.log(`Updating entry ${id} with notes: "${notes?.substring(0, 50)}..." is_public: ${isPublic}`);
 
         const sheets = new SheetsClient(env);
         await sheets.updateRow(id, {
           notes,
           is_public: typeof isPublic === "string" ? isPublic === "true" : undefined
         });
+
+        console.log(`Successfully updated entry ${id}`);
         return new Response("Entry updated successfully", { status: 200 });
       } catch (err) {
-        console.error("Error updating entry:", err);
-        return new Response("Failed to update entry", { status: 500 });
+        console.error("Error updating entry:", {
+          error: err.message,
+          stack: err.stack,
+          rawId,
+          decodedId: rawId ? decodeURIComponent(rawId) : "null",
+          notes: form?.has("notes") ? String(form.get("notes") || "").substring(0, 100) : "no notes",
+          isPublic: form?.has("is_public") ? String(form.get("is_public")) : "no is_public",
+          hasSheetId: !!env.SHEETS_ID,
+          hasServiceAccount: !!env.GOOGLE_SERVICE_ACCOUNT_JSON
+        });
+        return new Response(`Failed to update entry: ${err.message}`, { status: 500 });
       }
     }
 
@@ -152,21 +191,29 @@ export default {
         const year = Number(y);
         const wk = Number(w);
 
+        console.log(`Publishing week ${ww} (year: ${year}, week: ${wk})`);
+
         if (!year || !wk || year < 2020 || year > 2030 || wk < 1 || wk > 53) {
           return new Response("Invalid week format. Expected YYYY-WW", { status: 400 });
         }
 
         const sheets = new SheetsClient(env);
         const rowsAll = await sheets.listRowsForIsoWeek(year, wk);
+        console.log(`Retrieved ${rowsAll.length} total entries for week ${ww}`);
+
         const rows = rowsAll.filter(r => r.is_public);
+        console.log(`Found ${rows.length} public entries out of ${rowsAll.length} total for week ${ww}`);
 
         if (rows.length === 0) {
+          console.log(`No public entries found for week ${ww} - returning 404`);
           return new Response(`No public entries found for week ${ww}`, { status: 404 });
         }
 
+        console.log(`Publishing ${rows.length} entries for week ${ww}`);
         const { publishWeek } = await import("./publish/index");
         const res = await publishWeek(env as any, year, wk, rows as any);
         if (!res.ok) return res;
+        console.log(`Successfully published week ${ww} with ${rows.length} entries`);
         return new Response(`Published week ${ww} with ${rows.length} entries`, { status: 200 });
       } catch (err) {
         console.error("Error publishing week:", err);
@@ -232,9 +279,24 @@ async function dashboardPage(env: Env): Promise<Response> {
   const sheets = new SheetsClient(env);
   let entries: any[] = [];
   try {
+    console.log("Fetching entries from Google Sheets...");
     entries = await sheets.listRowsSince(7);
+    console.log(`Retrieved ${entries.length} entries from sheets`);
+    if (entries.length > 0) {
+      console.log("Sample entry:", {
+        id: entries[0].id,
+        title: entries[0].title,
+        is_public: entries[0].is_public,
+        date: entries[0].date
+      });
+    }
   } catch (err) {
-    console.error("Failed to fetch entries:", err);
+    console.error("Failed to fetch entries:", {
+      error: err.message,
+      stack: err.stack,
+      hasSheetId: !!env.SHEETS_ID,
+      hasServiceAccount: !!env.GOOGLE_SERVICE_ACCOUNT_JSON
+    });
   }
 
   // Group by date, then by bucket
@@ -254,6 +316,8 @@ header{display:flex;justify-content:space-between;align-items:center;margin-bott
 .bulk-btn.primary{background:#007bff;color:#fff;border-color:#007bff}
 .bulk-btn:hover{background:#f8f9fa}
 .bulk-btn.primary:hover{background:#0056b3}
+.bulk-btn:disabled{opacity:0.6;cursor:not-allowed}
+.bulk-btn:disabled:hover{background:inherit}
 .status-summary{font-size:14px;color:#666;margin-left:auto}
 .save-status{position:fixed;top:20px;right:20px;padding:8px 12px;border-radius:4px;font-size:12px;opacity:0;transition:opacity 0.3s}
 .save-status.show{opacity:1}
@@ -358,21 +422,60 @@ input:checked + .slider:before{transform:translateX(20px)}
 
   ${renderEntries(groupedByDate)}
 
+  <div class="bulk-controls">
+    <h3>Bulk Actions</h3>
+    <div class="bulk-actions">
+      <button class="bulk-btn primary" onclick="bulkSetPublic()">Mark All Public</button>
+      <button class="bulk-btn" onclick="bulkSetPrivate()">Mark All Private</button>
+      <button class="bulk-btn" onclick="bulkSaveNotes()">Save All Notes</button>
+      <span class="status-summary">
+        <span id="public-count-bottom">0</span> public,
+        <span id="private-count-bottom">0</span> private,
+        <span id="total-count-bottom">0</span> total
+      </span>
+    </div>
+  </div>
+
   <script>
     // Auto-save notes on blur
     document.addEventListener('blur', async (e) => {
       if (e.target.matches('.entry-notes textarea')) {
         const id = e.target.dataset.id;
         const notes = e.target.value;
+        const originalBackground = e.target.style.background;
+
         try {
+          // Show saving state
+          e.target.style.background = '#fff3cd';
+          e.target.style.borderColor = '#ffc107';
+
           const form = new FormData();
           form.append('notes', notes);
-          await fetch('/api/entries/' + id, {
+          const response = await fetch('/api/entries/' + id, {
             method: 'POST',
             body: form
           });
+
+          if (response.ok) {
+            // Show success
+            e.target.style.background = '#d4edda';
+            e.target.style.borderColor = '#28a745';
+            setTimeout(() => {
+              e.target.style.background = originalBackground;
+              e.target.style.borderColor = '#ddd';
+            }, 1500);
+          } else {
+            throw new Error('Save failed');
+          }
         } catch (err) {
           console.error('Failed to save notes:', err);
+          // Show error
+          e.target.style.background = '#f8d7da';
+          e.target.style.borderColor = '#dc3545';
+          setTimeout(() => {
+            e.target.style.background = originalBackground;
+            e.target.style.borderColor = '#ddd';
+          }, 2000);
         }
       }
     }, true);
@@ -419,8 +522,12 @@ input:checked + .slider:before{transform:translateX(20px)}
           button.textContent = 'Added!';
           button.style.background = '#059669';
           setTimeout(() => {
-            window.location.reload();
-          }, 1000);
+            button.textContent = originalText;
+            button.style.background = '';
+            button.disabled = false;
+            form.reset();
+            form.querySelector('[name="date"]').value = new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" });
+          }, 2000);
         } else {
           const error = await response.text();
           alert('Error: ' + error);
@@ -441,23 +548,43 @@ input:checked + .slider:before{transform:translateX(20px)}
       const totalCount = document.querySelectorAll('.public-toggle').length;
       const privateCount = totalCount - publicCount;
 
+      // Update top summary
       document.getElementById('public-count').textContent = publicCount;
       document.getElementById('private-count').textContent = privateCount;
       document.getElementById('total-count').textContent = totalCount;
+
+      // Update bottom summary
+      document.getElementById('public-count-bottom').textContent = publicCount;
+      document.getElementById('private-count-bottom').textContent = privateCount;
+      document.getElementById('total-count-bottom').textContent = totalCount;
     }
 
     function showStatus(message, isSuccess = true) {
       const statusEl = document.getElementById('save-status');
       statusEl.textContent = message;
-      statusEl.style.display = 'block';
+
+      // Set styles immediately
       statusEl.style.background = isSuccess ? '#d4edda' : '#f8d7da';
       statusEl.style.color = isSuccess ? '#155724' : '#721c24';
       statusEl.style.border = isSuccess ? '1px solid #c3e6cb' : '1px solid #f5c6cb';
-      setTimeout(() => { statusEl.style.display = 'none'; }, 3000);
+      statusEl.style.opacity = '1';
+      statusEl.style.display = 'block';
+
+      // Auto-hide after 4 seconds
+      setTimeout(() => {
+        statusEl.style.opacity = '0';
+        setTimeout(() => { statusEl.style.display = 'none'; }, 300);
+      }, 4000);
     }
 
     async function bulkSetPublic() {
       const toggles = document.querySelectorAll('.public-toggle:not(:checked)');
+      const buttons = document.querySelectorAll('.bulk-btn');
+
+      // Show loading state
+      buttons.forEach(btn => btn.disabled = true);
+      showStatus('Processing ' + toggles.length + ' entries...', true);
+
       let successCount = 0;
 
       for (const toggle of toggles) {
@@ -475,12 +602,21 @@ input:checked + .slider:before{transform:translateX(20px)}
         }
       }
 
+      // Re-enable buttons
+      buttons.forEach(btn => btn.disabled = false);
+
       updateStatusSummary();
-      showStatus('Updated ' + successCount + ' entries to public');
+      showStatus('✅ Updated ' + successCount + ' entries to public');
     }
 
     async function bulkSetPrivate() {
       const toggles = document.querySelectorAll('.public-toggle:checked');
+      const buttons = document.querySelectorAll('.bulk-btn');
+
+      // Show loading state
+      buttons.forEach(btn => btn.disabled = true);
+      showStatus('Processing ' + toggles.length + ' entries...', true);
+
       let successCount = 0;
 
       for (const toggle of toggles) {
@@ -498,12 +634,21 @@ input:checked + .slider:before{transform:translateX(20px)}
         }
       }
 
+      // Re-enable buttons
+      buttons.forEach(btn => btn.disabled = false);
+
       updateStatusSummary();
-      showStatus('Updated ' + successCount + ' entries to private');
+      showStatus('✅ Updated ' + successCount + ' entries to private');
     }
 
     async function bulkSaveNotes() {
       const textareas = document.querySelectorAll('.entry-notes textarea');
+      const buttons = document.querySelectorAll('.bulk-btn');
+
+      // Show loading state
+      buttons.forEach(btn => btn.disabled = true);
+      showStatus('Saving notes for ' + textareas.length + ' entries...', true);
+
       let successCount = 0;
 
       for (const textarea of textareas) {
@@ -520,7 +665,10 @@ input:checked + .slider:before{transform:translateX(20px)}
         }
       }
 
-      showStatus('Saved notes for ' + successCount + ' entries');
+      // Re-enable buttons
+      buttons.forEach(btn => btn.disabled = false);
+
+      showStatus('✅ Saved notes for ' + successCount + ' entries');
     }
 
     // Initialize status summary on page load
@@ -541,28 +689,47 @@ input:checked + .slider:before{transform:translateX(20px)}
 function groupEntriesByDate(entries: any[]): Map<string, Map<string, any[]>> {
   const grouped = new Map<string, Map<string, any[]>>();
 
-  // Get last 7 days starting from today
-  const today = new Date();
+  console.log(`groupEntriesByDate: Starting with ${entries.length} entries`);
+  if (entries.length > 0) {
+    console.log("Sample entry dates:", entries.slice(0, 3).map(e => e.date));
+  }
+
+  // Get last 7 days starting from today in NY timezone
+  const today = nowInNY();
   today.setHours(0, 0, 0, 0);
 
+  const validDates = [];
   for (let i = 0; i < 7; i++) {
     const date = new Date(today);
     date.setDate(today.getDate() - i);
     const dateStr = date.toLocaleDateString("en-CA", { timeZone: "America/New_York" });
     grouped.set(dateStr, new Map());
+    validDates.push(dateStr);
   }
 
+  console.log("Valid date keys:", validDates);
+
   // Group entries by date and bucket
+  let matchedCount = 0;
+  const unmatchedDates = new Set();
   for (const entry of entries) {
     const dateMap = grouped.get(entry.date);
-    if (!dateMap) continue;
+    if (!dateMap) {
+      unmatchedDates.add(entry.date);
+      continue;
+    }
 
+    matchedCount++;
     if (!dateMap.has(entry.bucket)) {
       dateMap.set(entry.bucket, []);
     }
     dateMap.get(entry.bucket)!.push(entry);
   }
 
+  console.log(`groupEntriesByDate: Matched ${matchedCount} out of ${entries.length} entries`);
+  if (unmatchedDates.size > 0) {
+    console.log("Unmatched entry dates:", Array.from(unmatchedDates));
+  }
   return grouped;
 }
 

@@ -89,23 +89,51 @@ Publishing Flow
   - Commits files to lnara.com repo via GitHub API
 - After first publish, add nav link to `/consumed` in the public site.
 
-CURRENT STATUS ✅ FUNCTIONAL
-- Dashboard working: 7-day view, day/bucket grouping, toggles, notes ✅
-- Ingestion working: Last.fm (200 tracks) + YouTube OAuth + deduplication ✅
-- Publishing working: Generates HTML and commits to GitHub (49 entries published) ✅
-- All APIs connected and tested ✅
+CURRENT STATUS ❌ CRITICAL GOOGLE SHEETS HEADER BUG - DASHBOARD BROKEN
 
-Remaining Work (Prioritized)
-1) UX IMPROVEMENTS - CRITICAL for large datasets
-- **Bulk operations**: Current individual toggles don't scale for 200+ entries
-- **Workflow**: Need "bulk public by default, toggle specific private" approach
-- **Bulk selection**: Allow selecting multiple entries, mass toggle operations
-- **Notes auto-save**: Clarify when/if notes are auto-saved and where they appear in published content
+❌ CRITICAL ISSUE: GOOGLE SHEETS HEADER CORRUPTION
+**Problem**: Dashboard shows "0 public, 0 private, 0 total" entries despite Google Sheets containing 650+ rows
+**Date**: Sept 21, 2025 10:00 PM onwards
 
-2) PUBLISHING DEBUG - ACTIVE ISSUE
-- Publishing reports success (49 entries) but files not appearing on live site
-- GitHub commits working but site not rebuilding or routing issue
-- Need to debug: deployment pipeline, Astro build, or Cloudflare Pages integration
+**Root Cause Found**: Google Sheets API returning corrupted/empty header row
+- `valuesGet("media_log!A:Z")` returns 659 rows but header[0] is empty/corrupted
+- `mapRow()` rejects ALL 658 data rows because header.indexOf("id") returns -1
+- This causes `pick("id")` to return empty string, triggering rejection
+
+**Technical Details**:
+- Logs show: `allRows: Header columns: [` (empty array logged)
+- All 658 rows get `mapRow: Rejecting row - no id value`
+- Google Sheets has correct data, issue is API response structure
+
+**Current Fix Deployed**:
+- Added fallback header detection in `allRows()` (sheets.ts:192-198)
+- If header is corrupt, uses expected: ["id", "date", "bucket", "title", "url", "source", "notes", "is_public", "created_at", "updated_at"]
+- Performance optimization: reduced from `media_log!A:Z` (659 rows) to `media_log!A:Z200` (200 rows)
+
+**Environment Secrets Set**:
+- ✅ GITHUB_TOKEN: (set but value redacted for security)
+- ✅ DASHBOARD_PASSWORD: (set but value unknown)
+
+**Working at 9:45 PM** (before corruption):
+- Retrieved 606 rows → filtered to 128 entries showing "alt-J — Pleader"
+- Individual updates, bulk operations, dashboard display all working
+
+**IMMEDIATE TEST NEEDED**:
+User reports dashboard STILL shows 0 entries after fix deployment. Need to:
+1. Test dashboard access with correct password to see latest logs
+2. Verify fallback header logic is triggering
+3. Check if Google Sheets structure changed or if there's a different API issue
+4. User said to "test it yourself" - need direct dashboard testing
+
+**LOGS TO WATCH FOR**:
+- "Header seems corrupted, using expected header"
+- "processRowsWithHeader: Processing X values with fallback header"
+- "allRows: Starting to fetch recent rows (optimized)"
+
+**FILES MODIFIED**:
+- consumed-backend/src/sheets.ts: Lines 174-198 (optimization + fallback header)
+
+NEXT AGENT: Focus ONLY on verifying the header fallback fix works. Don't add features.
 
 3) Blocklist and privacy overrides (optional)
 - Add KV `blocklist` and `privacy_overrides` JSON

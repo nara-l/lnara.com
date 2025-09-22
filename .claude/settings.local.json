@@ -33,7 +33,11 @@
       "Bash(npx pagefind:*)",
       "WebFetch(domain:lnara.com)",
       "Bash(npx wrangler secret:*)",
-      "Bash(git pull:*)"
+      "Bash(git pull:*)",
+      "Bash(npx wrangler:*)",
+      "WebFetch(domain:consumed-backend.lawrence-nara.workers.dev)",
+      "Bash(npm run deploy:*)",
+      "Bash(git fetch:*)"
     ],
     "deny": [],
     "ask": []

@@ -56,7 +56,7 @@ export async function ingestLastFm(env: Env): Promise<EntryRow[]> {
         url,
         source: "lastfm",
         notes: "",
-        is_public: false,
+        is_public: true,
         created_at: nowIso,
         updated_at: nowIso,
       });
