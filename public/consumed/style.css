@@ -198,10 +198,10 @@ summary::-webkit-details-marker{
 .caret{
   display:inline-block;
   transition:transform .18s ease;
-  transform:rotate(-90deg);
+  transform:rotate(0deg);
 }
 details[open] > summary .caret{
-  transform:rotate(0);
+  transform:rotate(90deg);
 }
 .date{
   font-weight:600;
