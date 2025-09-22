@@ -247,6 +247,18 @@ async function dashboardPage(env: Env): Promise<Response> {
 <style>
 body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;max-width:1200px;margin:2vh auto;padding:0 16px;color:#111;line-height:1.5}
 header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:16px}
+.bulk-controls{background:#f8f9fa;border:1px solid #e0e0e0;border-radius:8px;padding:16px;margin-bottom:24px}
+.bulk-controls h3{margin:0 0 12px 0;font-size:16px}
+.bulk-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.bulk-btn{padding:8px 16px;border:1px solid #ddd;border-radius:6px;background:#fff;color:#333;cursor:pointer;font-size:14px}
+.bulk-btn.primary{background:#007bff;color:#fff;border-color:#007bff}
+.bulk-btn:hover{background:#f8f9fa}
+.bulk-btn.primary:hover{background:#0056b3}
+.status-summary{font-size:14px;color:#666;margin-left:auto}
+.save-status{position:fixed;top:20px;right:20px;padding:8px 12px;border-radius:4px;font-size:12px;opacity:0;transition:opacity 0.3s}
+.save-status.show{opacity:1}
+.save-status.success{background:#d4edda;color:#155724;border:1px solid #c3e6cb}
+.save-status.error{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb}
 .publish-btn{padding:10px 16px;border:0;border-radius:6px;background:#111;color:#fff;cursor:pointer;font-size:14px;text-decoration:none;display:inline-block}
 .publish-btn:hover{background:#333}
 .day-section{margin:32px 0;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden}
@@ -293,6 +305,22 @@ input:checked + .slider:before{transform:translateX(20px)}
       <form method="post" action="/publish/week?week=${week}" style="display:inline"><button type="submit" class="publish-btn">Publish Week ${week}</button></form>
     </div>
   </header>
+
+  <div class="bulk-controls">
+    <h3>Bulk Actions</h3>
+    <div class="bulk-actions">
+      <button class="bulk-btn primary" onclick="bulkSetPublic()">Mark All Public</button>
+      <button class="bulk-btn" onclick="bulkSetPrivate()">Mark All Private</button>
+      <button class="bulk-btn" onclick="bulkSaveNotes()">Save All Notes</button>
+      <span class="status-summary">
+        <span id="public-count">0</span> public,
+        <span id="private-count">0</span> private,
+        <span id="total-count">0</span> total
+      </span>
+    </div>
+  </div>
+
+  <div class="save-status" id="save-status"></div>
 
   <div class="add-form">
     <h2 style="margin:0 0 16px 0">Add Manual Entry</h2>
@@ -404,6 +432,104 @@ input:checked + .slider:before{transform:translateX(20px)}
         alert('Failed to add entry. Please try again.');
         button.textContent = originalText;
         button.disabled = false;
+      }
+    });
+
+    // Bulk controls functionality
+    function updateStatusSummary() {
+      const publicCount = document.querySelectorAll('.public-toggle:checked').length;
+      const totalCount = document.querySelectorAll('.public-toggle').length;
+      const privateCount = totalCount - publicCount;
+
+      document.getElementById('public-count').textContent = publicCount;
+      document.getElementById('private-count').textContent = privateCount;
+      document.getElementById('total-count').textContent = totalCount;
+    }
+
+    function showStatus(message, isSuccess = true) {
+      const statusEl = document.getElementById('save-status');
+      statusEl.textContent = message;
+      statusEl.style.display = 'block';
+      statusEl.style.background = isSuccess ? '#d4edda' : '#f8d7da';
+      statusEl.style.color = isSuccess ? '#155724' : '#721c24';
+      statusEl.style.border = isSuccess ? '1px solid #c3e6cb' : '1px solid #f5c6cb';
+      setTimeout(() => { statusEl.style.display = 'none'; }, 3000);
+    }
+
+    async function bulkSetPublic() {
+      const toggles = document.querySelectorAll('.public-toggle:not(:checked)');
+      let successCount = 0;
+
+      for (const toggle of toggles) {
+        try {
+          const form = new FormData();
+          form.append('is_public', 'true');
+          await fetch('/api/entries/' + toggle.dataset.id, {
+            method: 'POST',
+            body: form
+          });
+          toggle.checked = true;
+          successCount++;
+        } catch (err) {
+          console.error('Failed to update entry:', err);
+        }
+      }
+
+      updateStatusSummary();
+      showStatus('Updated ' + successCount + ' entries to public');
+    }
+
+    async function bulkSetPrivate() {
+      const toggles = document.querySelectorAll('.public-toggle:checked');
+      let successCount = 0;
+
+      for (const toggle of toggles) {
+        try {
+          const form = new FormData();
+          form.append('is_public', 'false');
+          await fetch('/api/entries/' + toggle.dataset.id, {
+            method: 'POST',
+            body: form
+          });
+          toggle.checked = false;
+          successCount++;
+        } catch (err) {
+          console.error('Failed to update entry:', err);
+        }
+      }
+
+      updateStatusSummary();
+      showStatus('Updated ' + successCount + ' entries to private');
+    }
+
+    async function bulkSaveNotes() {
+      const textareas = document.querySelectorAll('.entry-notes textarea');
+      let successCount = 0;
+
+      for (const textarea of textareas) {
+        try {
+          const form = new FormData();
+          form.append('notes', textarea.value);
+          await fetch('/api/entries/' + textarea.dataset.id, {
+            method: 'POST',
+            body: form
+          });
+          successCount++;
+        } catch (err) {
+          console.error('Failed to save notes:', err);
+        }
+      }
+
+      showStatus('Saved notes for ' + successCount + ' entries');
+    }
+
+    // Initialize status summary on page load
+    document.addEventListener('DOMContentLoaded', updateStatusSummary);
+
+    // Update status when individual toggles change
+    document.addEventListener('change', (e) => {
+      if (e.target.matches('.public-toggle')) {
+        updateStatusSummary();
       }
     });
   </script>
