@@ -30,7 +30,10 @@
       "Bash(lsof:*)",
       "WebFetch(domain:hmemcpy.com)",
       "Bash(npx astro:*)",
-      "Bash(npx pagefind:*)"
+      "Bash(npx pagefind:*)",
+      "WebFetch(domain:lnara.com)",
+      "Bash(npx wrangler secret:*)",
+      "Bash(git pull:*)"
     ],
     "deny": [],
     "ask": []

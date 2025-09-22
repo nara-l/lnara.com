@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Consumed · Draft</title>
+<style>
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;max-width:1200px;margin:2vh auto;padding:0 16px;color:#111;line-height:1.5}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:16px}
+
+/* BULK CONTROLS */
+.bulk-controls{background:#f8f9fa;border:1px solid #e0e0e0;border-radius:8px;padding:16px;margin-bottom:24px}
+.bulk-controls h3{margin:0 0 12px 0;font-size:16px}
+.bulk-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.bulk-btn{padding:8px 16px;border:1px solid #ddd;border-radius:6px;background:#fff;color:#333;cursor:pointer;font-size:14px}
+.bulk-btn.primary{background:#007bff;color:#fff;border-color:#007bff}
+.bulk-btn.danger{background:#dc3545;color:#fff;border-color:#dc3545}
+.bulk-btn:hover{background:#f8f9fa}
+.bulk-btn.primary:hover{background:#0056b3}
+.bulk-btn.danger:hover{background:#c82333}
+.status-summary{font-size:14px;color:#666;margin-left:auto}
+
+.publish-btn{padding:10px 16px;border:0;border-radius:6px;background:#111;color:#fff;cursor:pointer;font-size:14px;text-decoration:none;display:inline-block}
+.publish-btn:hover{background:#333}
+.day-section{margin:32px 0;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden}
+.day-header{background:#f8f9fa;padding:16px;border-bottom:1px solid #e0e0e0;font-weight:600;font-size:16px}
+.bucket-section{border-bottom:1px solid #f0f0f0}
+.bucket-section:last-child{border-bottom:none}
+.bucket-header{background:#fafbfc;padding:12px 16px;font-weight:500;font-size:14px;color:#666;text-transform:uppercase;letter-spacing:0.5px}
+.entry{padding:16px;border-bottom:1px solid #f8f9fa;display:flex;align-items:flex-start;gap:16px}
+.entry:last-child{border-bottom:none}
+.entry-content{flex:1;min-width:0}
+.entry-title{font-weight:500;margin:0 0 4px 0}
+.entry-title a{color:#111;text-decoration:none}
+.entry-title a:hover{text-decoration:underline}
+.entry-meta{font-size:12px;color:#666;margin-bottom:8px}
+.entry-notes{margin:8px 0}
+.entry-notes textarea{width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;font-size:13px;font-family:inherit;resize:vertical;min-height:60px}
+.entry-controls{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.toggle{position:relative;display:inline-block;width:44px;height:24px}
+.toggle input{opacity:0;width:0;height:0}
+.slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#ccc;border-radius:24px;transition:0.2s}
+.slider:before{position:absolute;content:"";height:18px;width:18px;left:3px;bottom:3px;background:white;border-radius:50%;transition:0.2s}
+input:checked + .slider{background:#2196F3}
+input:checked + .slider:before{transform:translateX(20px)}
+.toggle-label{font-size:12px;color:#666}
+.add-form{background:#f8f9fa;border-radius:8px;padding:24px;margin:32px 0}
+.form-row{display:flex;gap:16px;margin-bottom:16px;align-items:center;flex-wrap:wrap}
+.form-row label{min-width:80px;font-weight:500;font-size:14px}
+.form-row input, .form-row select, .form-row textarea{padding:8px;border:1px solid #ddd;border-radius:4px;font-size:14px;font-family:inherit}
+.form-row input[type="text"], .form-row input[type="url"]{flex:1;min-width:200px}
+.form-row textarea{flex:1;min-width:200px;resize:vertical;height:60px}
+.form-row select{min-width:120px}
+.add-btn{padding:10px 20px;border:0;border-radius:6px;background:#0066cc;color:#fff;cursor:pointer;font-size:14px}
+.add-btn:hover{background:#0052a3}
+.empty-state{text-align:center;padding:48px 16px;color:#666}
+.ingest-btn{padding:8px 12px;border:1px solid #ddd;border-radius:4px;background:#fff;color:#666;cursor:pointer;font-size:12px;text-decoration:none}
+.ingest-btn:hover{background:#f8f9fa}
+
+/* Save status indicator */
+.save-status{position:fixed;top:20px;right:20px;padding:8px 12px;border-radius:4px;font-size:12px;opacity:0;transition:opacity 0.3s}
+.save-status.show{opacity:1}
+.save-status.success{background:#d4edda;color:#155724;border:1px solid #c3e6cb}
+.save-status.error{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb}
+</style>
+</head><body>
+  <header>
+    <h1>Consumed · Draft</h1>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <a class="ingest-btn" href="/oauth/youtube/start">Connect YouTube</a>
+      <form method="post" action="/api/ingest" style="display:inline"><button type="submit" class="ingest-btn">Run Ingest</button></form>
+      <form method="post" action="/publish/week?week=2025-38" style="display:inline"><button type="submit" class="publish-btn">Publish Week 2025-38</button></form>
+    </div>
+  </header>
+
+  <div class="bulk-controls">
+    <h3>Bulk Actions</h3>
+    <div class="bulk-actions">
+      <button class="bulk-btn primary" onclick="bulkSetPublic()">Mark All Public</button>
+      <button class="bulk-btn" onclick="bulkSetPrivate()">Mark All Private</button>
+      <button class="bulk-btn" onclick="bulkSaveNotes()">Save All Notes</button>
+      <span class="status-summary">
+        <span id="public-count">0</span> public,
+        <span id="private-count">0</span> private,
+        <span id="total-count">0</span> total
+      </span>
+    </div>
+  </div>
+
+  <div class="save-status" id="save-status"></div>
+
+  <!-- Entry sections will be populated here -->
+  <div id="entries-container">
+    <!-- Entries from server will be inserted here -->
+  </div>
+
+  <script>
+    // Bulk action functions
+    function bulkSetPublic() {
+      const toggles = document.querySelectorAll('.public-toggle');
+      toggles.forEach(toggle => {
+        if (!toggle.checked) {
+          toggle.checked = true;
+          updateEntry(toggle.dataset.id, true, null);
+        }
+      });
+      updateStatusSummary();
+      showStatus('All entries marked as public', 'success');
+    }
+
+    function bulkSetPrivate() {
+      const toggles = document.querySelectorAll('.public-toggle');
+      toggles.forEach(toggle => {
+        if (toggle.checked) {
+          toggle.checked = false;
+          updateEntry(toggle.dataset.id, false, null);
+        }
+      });
+      updateStatusSummary();
+      showStatus('All entries marked as private', 'success');
+    }
+
+    function bulkSaveNotes() {
+      const textareas = document.querySelectorAll('.entry-notes textarea');
+      let saved = 0;
+      textareas.forEach(textarea => {
+        if (textarea.value.trim()) {
+          updateEntry(textarea.dataset.id, null, textarea.value);
+          saved++;
+        }
+      });
+      showStatus(`Saved notes for ${saved} entries`, 'success');
+    }
+
+    // Individual entry updates
+    function updateEntry(id, isPublic, notes) {
+      const payload = {};
+      if (isPublic !== null) payload.is_public = isPublic;
+      if (notes !== null) payload.notes = notes;
+
+      fetch(`/api/entries/${id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).catch(err => {
+        console.error('Failed to update entry:', err);
+        showStatus('Failed to save changes', 'error');
+      });
+    }
+
+    // Auto-save notes on blur
+    function setupNotesAutoSave() {
+      document.querySelectorAll('.entry-notes textarea').forEach(textarea => {
+        textarea.addEventListener('blur', () => {
+          const notes = textarea.value.trim();
+          const id = textarea.dataset.id;
+          if (notes) {
+            updateEntry(id, null, notes);
+            showStatus('Notes auto-saved', 'success');
+          }
+        });
+      });
+    }
+
+    // Toggle change handlers
+    function setupToggleHandlers() {
+      document.querySelectorAll('.public-toggle').forEach(toggle => {
+        toggle.addEventListener('change', () => {
+          updateEntry(toggle.dataset.id, toggle.checked, null);
+          updateStatusSummary();
+        });
+      });
+    }
+
+    // Status summary
+    function updateStatusSummary() {
+      const toggles = document.querySelectorAll('.public-toggle');
+      const publicCount = Array.from(toggles).filter(t => t.checked).length;
+      const totalCount = toggles.length;
+      const privateCount = totalCount - publicCount;
+
+      document.getElementById('public-count').textContent = publicCount;
+      document.getElementById('private-count').textContent = privateCount;
+      document.getElementById('total-count').textContent = totalCount;
+    }
+
+    // Save status feedback
+    function showStatus(message, type) {
+      const status = document.getElementById('save-status');
+      status.textContent = message;
+      status.className = `save-status show ${type}`;
+      setTimeout(() => {
+        status.className = 'save-status';
+      }, 3000);
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      setupToggleHandlers();
+      setupNotesAutoSave();
+      updateStatusSummary();
+    });
+  </script>
+</body></html>

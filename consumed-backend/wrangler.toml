@@ -1,0 +1,17 @@
+name = "consumed-backend"
+main = "src/index.ts"
+compatibility_date = "2024-09-02"
+
+# Set your custom routes during deployment
+# routes = [
+#   { pattern = "draft.lnara.com/consumed*", zone_name = "lnara.com" }
+# ]
+
+kv_namespaces = [
+  # Set your KV id(s) after creating them with Wrangler
+  { binding = "RUN_STATUS", id = "72371f08334c44dca2dbe167fd3e3004" }
+]
+
+[observability]
+enabled = true
+

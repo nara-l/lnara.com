@@ -1,0 +1,47 @@
+import type { Env, EntryRow } from "../sheets";
+import { nowInNY } from "../utils/time";
+import { sha256Hex } from "../utils/hash";
+
+export async function ingestLastFm(env: Env): Promise<EntryRow[]> {
+  const api = "https://ws.audioscrobbler.com/2.0/";
+  const url = `${api}?method=user.getrecenttracks&user=${encodeURIComponent(env.LASTFM_USER)}&api_key=${encodeURIComponent(env.LASTFM_API_KEY)}&format=json&limit=200`;
+  const res = await fetch(url);
+  if (!res.ok) return [];
+  const json: any = await res.json();
+  const tracks: any[] = json?.recenttracks?.track || [];
+  if (!Array.isArray(tracks)) return [];
+
+  // Deduping window using KV (store last processed uts)
+  const lastKey = "lastfm:last_uts";
+  const prev = Number(await env.RUN_STATUS.get(lastKey)) || 0;
+  let maxUts = prev;
+
+  const out: EntryRow[] = [];
+  for (const t of tracks) {
+    const date = t?.date?.uts ? Number(t.date.uts) : null;
+    if (!date) continue; // skip now-playing items
+    if (date <= prev) continue;
+    const artist = t?.artist?.["#text"] || "";
+    const name = t?.name || "";
+    const title = `${artist} — ${name}`.trim();
+    const url = t?.url || "";
+    const etDate = new Date(date * 1000).toLocaleDateString("en-CA", { timeZone: "America/New_York" });
+    const id = await sha256Hex(`${artist}|${name}|${date}`);
+    const nowIso = new Date().toISOString();
+    out.push({
+      id,
+      date: etDate,
+      bucket: "music",
+      title,
+      url,
+      source: "lastfm",
+      notes: "",
+      is_public: false,
+      created_at: nowIso,
+      updated_at: nowIso,
+    });
+    if (date > maxUts) maxUts = date;
+  }
+  if (maxUts > prev) await env.RUN_STATUS.put(lastKey, String(maxUts));
+  return out;
+}
