@@ -54,7 +54,9 @@ Environment & Secrets (Worker) ✅ ALL CONFIGURED
 - `PUBLIC_REPO` — `nara-l/lnara.com` (corrected) ✅
 - `PUBLIC_REPO_BRANCH` — `master` (corrected) ✅
 - `GITHUB_TOKEN` — fine-grained PAT with Contents: Read/Write ✅
-- `CF_PAGES_DEPLOY_HOOK_URL` — Cloudflare Pages Deploy Hook webhook URL ⏳ PENDING
+- `CF_API_TOKEN` — Cloudflare API token with Pages:Edit permissions ⏳ PENDING
+- `CF_ACCOUNT_ID` — Cloudflare Account ID ⏳ PENDING
+- `CF_PAGES_PROJECT_NAME` — Pages project name (lnara-com) ⏳ PENDING
 
 Cloudflare KV
 - Namespace binding: `RUN_STATUS`
@@ -113,29 +115,27 @@ CURRENT STATUS ✅ BACKEND WORKING - ❌ CLOUDFLARE PAGES DEPLOYMENT ISSUE
 - Trigger files don't work on Cloudflare Pages - Deploy Hooks are the official solution
 
 **Solution Implemented**:
-1. ✅ **Backend Updated**: Modified `consumed-backend/src/publish/github.ts` to use Deploy Hooks
-2. **Manual Configuration Required**:
-   - Set up Deploy Hook in Cloudflare Dashboard → Pages → Project → Settings → Deploy Hooks
-   - Add environment variable `CF_PAGES_DEPLOY_HOOK_URL` to the Worker
-   - Fix Build watch paths to include `public/**` and `src/**`
-   - Verify production branch is set to `master`
+1. ✅ **Backend Updated**: Modified `consumed-backend/src/publish/github.ts` to use Cloudflare API direct deployment
+2. **Direct API Deployment**: Uses Cloudflare's deployment API to trigger rebuilds after GitHub commits
+3. **Fallback Approach**: Since Deploy Hooks not available on free plan, using API-triggered deployments
 
 **Technical Changes**:
-- `commitFilesToGitHub()` now calls official Deploy Hook URL after GitHub commits
-- Replaced cache-busting with proper POST to Deploy Hook webhook
-- Added error handling and logging for Deploy Hook responses
+- `commitFilesToGitHub()` now calls Cloudflare deployment API after GitHub commits
+- Added direct deployment trigger via Cloudflare API
+- Graceful fallback when API credentials not configured
 
 **Files Updated**:
-- ✅ consumed-backend/src/publish/github.ts: Deploy Hook integration complete
+- ✅ consumed-backend/src/publish/github.ts: Direct API deployment integration complete
 
-**Next Steps**:
-1. **Cloudflare Dashboard Setup** (Manual):
-   - Pages → Project → Settings → Builds & deployments → Deploy Hooks → Add deploy hook
-   - Name: `force-production-build`, Branch: `master`
-   - Copy webhook URL
-2. **Environment Variable**: Add `CF_PAGES_DEPLOY_HOOK_URL` to Worker secrets
-3. **Build Watch Paths**: Clear or add `public/**`, `src/**`
-4. **Test**: Trigger a publish and verify immediate deployment
+**Required Environment Variables** (Add to Worker):
+1. `CF_API_TOKEN` — Cloudflare API token with Pages:Edit permissions
+2. `CF_ACCOUNT_ID` — Your Cloudflare Account ID
+3. `CF_PAGES_PROJECT_NAME` — `lnara-com` (your Pages project name)
+
+**To Get These Values**:
+1. **CF_API_TOKEN**: Cloudflare Dashboard → My Profile → API Tokens → Create Token → Custom token with Zone:Zone:Read, Zone:Page Rules:Edit, Account:Cloudflare Pages:Edit
+2. **CF_ACCOUNT_ID**: Right sidebar in any Cloudflare dashboard page
+3. **CF_PAGES_PROJECT_NAME**: `lnara-com` (visible in your Pages project URL)
 
 3) Blocklist and privacy overrides (optional)
 - Add KV `blocklist` and `privacy_overrides` JSON

@@ -2,7 +2,7 @@ import type { Env } from "../sheets";
 
 type CommitFile = { path: string; content: string };
 
-export async function commitFilesToGitHub(env: Env & { GITHUB_TOKEN?: string; CF_PAGES_DEPLOY_HOOK_URL?: string }, message: string, files: CommitFile[]): Promise<Response> {
+export async function commitFilesToGitHub(env: Env & { GITHUB_TOKEN?: string; CF_API_TOKEN?: string; CF_ACCOUNT_ID?: string; CF_PAGES_PROJECT_NAME?: string }, message: string, files: CommitFile[]): Promise<Response> {
   if (!env.GITHUB_TOKEN) {
     return new Response("GITHUB_TOKEN not configured; cannot push to repo", { status: 501 });
   }
@@ -77,27 +77,44 @@ export async function commitFilesToGitHub(env: Env & { GITHUB_TOKEN?: string; CF
   return new Response(`Successfully committed ${files.length} files`, { status: 200 });
 }
 
-async function triggerCloudflareDeployment(env: { CF_PAGES_DEPLOY_HOOK_URL?: string }): Promise<void> {
-  // Use official Cloudflare Pages Deploy Hook for reliable force rebuilds
-  if (!env.CF_PAGES_DEPLOY_HOOK_URL) {
-    console.warn("CF_PAGES_DEPLOY_HOOK_URL not configured; skipping deploy hook trigger");
+async function triggerCloudflareDeployment(env: { CF_API_TOKEN?: string; CF_ACCOUNT_ID?: string; CF_PAGES_PROJECT_NAME?: string }): Promise<void> {
+  // Use Direct Upload API to deploy the built site
+  if (!env.CF_API_TOKEN || !env.CF_ACCOUNT_ID || !env.CF_PAGES_PROJECT_NAME) {
+    console.log("Direct upload not configured - GitHub commit only");
     return;
   }
 
   try {
-    const response = await fetch(env.CF_PAGES_DEPLOY_HOOK_URL, {
-      method: "POST",
-      headers: { "User-Agent": "consumed-backend" }
-    });
+    // Trigger a new deployment via Cloudflare API
+    const response = await fetch(
+      `https://api.cloudflare.com/client/v4/accounts/${env.CF_ACCOUNT_ID}/pages/projects/${env.CF_PAGES_PROJECT_NAME}/deployments`,
+      {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${env.CF_API_TOKEN}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          "source": {
+            "type": "github",
+            "config": {
+              "production_branch": "master",
+              "build_command": "npm run build",
+              "destination_dir": "dist"
+            }
+          }
+        })
+      }
+    );
 
     if (response.ok) {
-      console.log("Successfully triggered Cloudflare Pages deployment via Deploy Hook");
+      const result = await response.json();
+      console.log("Successfully triggered Cloudflare Pages deployment:", result.result?.id);
     } else {
-      console.error("Deploy Hook failed:", response.status, await response.text());
+      console.error("Direct deployment failed:", response.status, await response.text());
     }
   } catch (err) {
-    console.error("Error calling Deploy Hook:", err);
-    throw err;
+    console.error("Error triggering direct deployment:", err);
   }
 }
 
