@@ -89,51 +89,48 @@ Publishing Flow
   - Commits files to lnara.com repo via GitHub API
 - After first publish, add nav link to `/consumed` in the public site.
 
-CURRENT STATUS ❌ CRITICAL GOOGLE SHEETS HEADER BUG - DASHBOARD BROKEN
+CURRENT STATUS ✅ BACKEND WORKING - ❌ CLOUDFLARE PAGES DEPLOYMENT ISSUE
 
-❌ CRITICAL ISSUE: GOOGLE SHEETS HEADER CORRUPTION
-**Problem**: Dashboard shows "0 public, 0 private, 0 total" entries despite Google Sheets containing 650+ rows
-**Date**: Sept 21, 2025 10:00 PM onwards
+✅ BACKEND FIXED: Google Sheets header corruption resolved
+**Solution**: User manually added proper header row to Google Sheets
+**Result**: Dashboard now shows 163 entries (up from 49), backend publishing works correctly
 
-**Root Cause Found**: Google Sheets API returning corrupted/empty header row
-- `valuesGet("media_log!A:Z")` returns 659 rows but header[0] is empty/corrupted
-- `mapRow()` rejects ALL 658 data rows because header.indexOf("id") returns -1
-- This causes `pick("id")` to return empty string, triggering rejection
+✅ CONSUMED FEATURE WORKING:
+- Dashboard displays last 7 days of entries with proper grouping ✅
+- Publishing generates correct HTML for full week (all 7 days) ✅
+- 163 entries published for week 2025-38 ✅
+- Backend HTML generation working correctly ✅
 
-**Technical Details**:
-- Logs show: `allRows: Header columns: [` (empty array logged)
-- All 658 rows get `mapRow: Rejecting row - no id value`
-- Google Sheets has correct data, issue is API response structure
+❌ CRITICAL ISSUE: CLOUDFLARE PAGES NOT DEPLOYING LATEST COMMITS
+**Problem**: Cloudflare Pages (free plan) not picking up recent GitHub commits
+**Date**: Sept 21, 2025 11:30 PM onwards
 
-**Current Fix Deployed**:
-- Added fallback header detection in `allRows()` (sheets.ts:192-198)
-- If header is corrupt, uses expected: ["id", "date", "bucket", "title", "url", "source", "notes", "is_public", "created_at", "updated_at"]
-- Performance optimization: reduced from `media_log!A:Z` (659 rows) to `media_log!A:Z200` (200 rows)
+**Current Situation**:
+- ✅ CSS changes deployed successfully (new consumed.today styling live)
+- ❌ HTML changes NOT deployed (still showing old single-day structure)
+- ✅ GitHub commits successful (all files properly committed)
+- ❌ Cloudflare Pages last deployment: 2 hours ago, no new builds triggered
 
-**Environment Secrets Set**:
-- ✅ GITHUB_TOKEN: (set but value redacted for security)
-- ✅ DASHBOARD_PASSWORD: (set but value unknown)
+**Technical Evidence**:
+- Local repo has correct HTML: All 7 days (Sat Sept 14 - Fri Sept 20) with 163 entries
+- Live site still shows: Only Sunday Sept 21 with old structure
+- CSS is updated: New --ink/--muted variables live
+- HTML not updated: Still uses old <div class="bucket"> structure
 
-**Working at 9:45 PM** (before corruption):
-- Retrieved 606 rows → filtered to 128 entries showing "alt-J — Pleader"
-- Individual updates, bulk operations, dashboard display all working
+**Attempted Fixes**:
+- Multiple trigger commits (.cloudflare-deploy, deploy-trigger.html)
+- GitHub integration appears connected
+- Free plan may have deployment limitations
 
-**IMMEDIATE TEST NEEDED**:
-User reports dashboard STILL shows 0 entries after fix deployment. Need to:
-1. Test dashboard access with correct password to see latest logs
-2. Verify fallback header logic is triggering
-3. Check if Google Sheets structure changed or if there's a different API issue
-4. User said to "test it yourself" - need direct dashboard testing
+**Files Updated**:
+- ✅ public/consumed/style.css: New consumed.today inspired design (DEPLOYED)
+- ❌ public/consumed/2025-38/index.html: Full week HTML structure (NOT DEPLOYED)
+- consumed-backend/src/publish/github.ts: Added deployment trigger logic
 
-**LOGS TO WATCH FOR**:
-- "Header seems corrupted, using expected header"
-- "processRowsWithHeader: Processing X values with fallback header"
-- "allRows: Starting to fetch recent rows (optimized)"
+**RESEARCH NEEDED**:
+Free plan deployment limitations, branch build controls, automatic deployment restrictions
 
-**FILES MODIFIED**:
-- consumed-backend/src/sheets.ts: Lines 174-198 (optimization + fallback header)
-
-NEXT AGENT: Focus ONLY on verifying the header fallback fix works. Don't add features.
+NEXT AGENT: Research official Cloudflare Pages documentation for free plan deployment issues and provide specific solutions. Do NOT guess - find documented facts about free tier limitations.
 
 3) Blocklist and privacy overrides (optional)
 - Add KV `blocklist` and `privacy_overrides` JSON
