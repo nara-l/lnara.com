@@ -38,7 +38,8 @@
       "WebFetch(domain:consumed-backend.lawrence-nara.workers.dev)",
       "Bash(npm run deploy:*)",
       "Bash(git fetch:*)",
-      "Read(//c/Users/Lawrence.work/Downloads/sample/**)"
+      "Read(//c/Users/Lawrence.work/Downloads/sample/**)",
+      "WebFetch(domain:developers.cloudflare.com)"
     ],
     "deny": [],
     "ask": []
