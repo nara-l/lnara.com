@@ -39,7 +39,9 @@
       "Bash(npm run deploy:*)",
       "Bash(git fetch:*)",
       "Read(//c/Users/Lawrence.work/Downloads/sample/**)",
-      "WebFetch(domain:developers.cloudflare.com)"
+      "WebFetch(domain:developers.cloudflare.com)",
+      "Bash(npx vercel:*)",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []

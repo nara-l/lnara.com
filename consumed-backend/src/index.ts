@@ -2,6 +2,7 @@ import { setCookie, parseCookies, makeSessionCookie, verifySessionCookie } from 
 import { nowInNY, formatWeekPath } from "./utils/time";
 import type { Env } from "./sheets";
 import { SheetsClient } from "./sheets";
+import { publishWeek } from "./publish/index";
 
 // Simple router
 export default {
@@ -23,6 +24,7 @@ export default {
       }
       const [year, weekNum] = week.split("-").map(Number);
       try {
+        const sheets = new SheetsClient(env);
         const rows = await sheets.listRowsForIsoWeek(year, weekNum);
         const publicRows = rows.filter(r => r.is_public);
         console.log(`Publishing ${publicRows.length} entries for week ${week}`);
