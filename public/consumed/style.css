@@ -1,19 +1,105 @@
-/* Minimal styles for /consumed weekly digests. Kept small and portable. */
+/* Consumed weekly digest styles inspired by consumed.today */
 :root{
-  --fg:#0f172a;
-  --muted:#475569;
-  --border:#e2e8f0;
+  --ink:#111;
+  --muted:#6b7280;
+  --line:#e5e7eb;
+  --accent:#111;
 }
-*{box-sizing:border-box}
-body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:var(--fg);line-height:1.6}
-.site-header{border-bottom:1px solid var(--border);padding:24px 16px}
-.site-header h1{margin:0;font-weight:700;font-size:24px}
-.container{max-width:900px;margin:0 auto;padding:24px 16px}
-.day{padding:16px 0;border-bottom:1px solid var(--border)}
-.day h2{margin:0 0 12px 0;font-size:18px;color:var(--muted);font-weight:600}
-.bucket{margin:8px 0 6px 0;font-size:16px}
-ul{margin:0 0 12px 20px;padding:0}
-li{margin:6px 0}
-.empty{color:var(--muted)}
 
-<!-- Force deployment Sat, Sep 21, 2025  9:00:00 PM with bulk controls -->
+html,body{
+  margin:0;
+  background:#fff;
+  color:var(--ink);
+  font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+}
+
+a{
+  color:var(--accent);
+  text-decoration:none;
+}
+a:hover{
+  text-decoration:underline;
+}
+
+.site-header{
+  max-width:700px;
+  margin:40px auto 16px;
+  padding:0 20px;
+}
+.site-header h1{
+  font-size:26px;
+  font-weight:600;
+  margin:0;
+}
+.site-header p{
+  color:var(--muted);
+  font-size:14px;
+  margin-top:4px;
+}
+
+.container{
+  max-width:700px;
+  margin:0 auto;
+  padding:0 20px;
+}
+
+/* Day sections */
+.day{
+  border-top:1px solid var(--line);
+  padding:12px 0;
+}
+.day:first-of-type{
+  border-top:0;
+}
+.day h2{
+  font-weight:600;
+  text-transform:lowercase;
+  margin:0 0 12px 0;
+  font-size:18px;
+  color:var(--ink);
+}
+
+/* Bucket sections */
+.bucket{
+  font-weight:500;
+  color:var(--ink);
+  font-size:15px;
+  margin:12px 0 8px 0;
+}
+
+/* Entry lists */
+ul{
+  list-style:none;
+  margin:8px 0 6px;
+  padding:0 0 0 1.5rem;
+}
+ul li{
+  padding:4px 0;
+  margin:0;
+}
+.empty{
+  color:var(--muted);
+  font-style:italic;
+  padding:4px 0;
+}
+
+/* Source attribution */
+.source{
+  color:var(--muted);
+  font-size:13px;
+  margin-left:6px;
+}
+
+/* Navigation */
+.nav-weeks{
+  max-width:700px;
+  margin:36px auto 60px;
+  padding:0 20px;
+  font-size:14px;
+}
+.nav-weeks a{
+  color:var(--muted);
+}
+.nav-weeks a:hover{
+  color:var(--ink);
+}
