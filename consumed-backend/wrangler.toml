@@ -15,3 +15,7 @@ kv_namespaces = [
 [observability]
 enabled = true
 
+[triggers]
+# Run every 6 hours to catch all Last.fm tracks and prevent data loss
+crons = ["0 3,9,15,21 * * *"]
+
