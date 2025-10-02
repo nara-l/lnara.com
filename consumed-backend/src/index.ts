@@ -15,6 +15,31 @@ export default {
       return new Response("ok", { status: 200 });
     }
 
+    // Serve images from R2 bucket (public access, no auth required)
+    if (path.startsWith("/images/") && method === "GET") {
+      const filename = path.split("/images/")[1];
+      if (!filename) {
+        return new Response("Missing filename", { status: 400 });
+      }
+
+      try {
+        const object = await env.CONSUMED_PHOTOS.get(filename);
+        if (!object) {
+          return new Response("Image not found", { status: 404 });
+        }
+
+        const headers = new Headers();
+        headers.set("Content-Type", object.httpMetadata?.contentType || "image/jpeg");
+        headers.set("Cache-Control", "public, max-age=31536000, immutable");
+        headers.set("ETag", object.httpEtag || "");
+
+        return new Response(object.body, { headers });
+      } catch (err) {
+        console.error("Error fetching image:", err);
+        return new Response("Error fetching image", { status: 500 });
+      }
+    }
+
     // Authenticated routes start with /draft/consumed or /api or /publish
     const isAuthed = await authenticate(req, env);
 

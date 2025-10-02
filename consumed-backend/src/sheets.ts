@@ -13,9 +13,10 @@ export interface Env {
   // Optional GitHub token for REST API publishing (preferred over deploy key in Workers)
   GITHUB_TOKEN?: string;
   RUN_STATUS: KVNamespace;
+  CONSUMED_PHOTOS: R2Bucket;
 }
 
-export type Bucket = "music" | "video" | "article" | "tweet" | "other";
+export type Bucket = "music" | "video" | "article" | "tweet" | "physical" | "other";
 
 export interface EntryRow {
   id: string;
@@ -68,152 +69,49 @@ export class SheetsClient {
   }
 
   async listRowsSince(days: number): Promise<EntryRow[]> {
-    console.log(`listRowsSince: Fetching last ${days} days of data`);
     const all = await this.allRows();
-    console.log(`listRowsSince: Retrieved ${all.length} total rows from sheets`);
-
-    // Fix: Use milliseconds arithmetic instead of setDate to avoid month boundary issues
-    const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
     const cutoffStr = cutoff.toLocaleDateString("en-CA", { timeZone: "America/New_York" });
-    console.log(`listRowsSince: Cutoff date is ${cutoffStr}`);
-
-    const filtered = all.filter(r => r.date >= cutoffStr);
-    console.log(`listRowsSince: After date filtering, ${filtered.length} rows remain`);
-    console.log(`listRowsSince: Date comparison - cutoff: ${cutoffStr}, sample entries:`, all.slice(0, 3).map(r => ({ date: r.date, title: r.title?.substring(0, 20) })));
-
-    if (filtered.length > 0) {
-      console.log(`listRowsSince: Sample filtered entry:`, {
-        id: filtered[0].id?.substring(0, 20),
-        date: filtered[0].date,
-        title: filtered[0].title?.substring(0, 30),
-        is_public: filtered[0].is_public,
-        bucket: filtered[0].bucket
-      });
-    }
-
-    return filtered;
+    return all.filter(r => r.date >= cutoffStr);
   }
 
   async listRowsForIsoWeek(year: number, week: number): Promise<EntryRow[]> {
-    console.log(`listRowsForIsoWeek: Starting for week ${year}-${week}`);
     const all = await this.allRows();
-    console.log(`listRowsForIsoWeek: Retrieved ${all.length} total rows`);
-
     // Compute Mon..Sun ET-local date strings for the specified week
-    const days = this.weekDays(year, week);
-
+    const days = await this.weekDays(year, week);
     const set = new Set(days);
-    const filtered = all.filter(r => set.has(r.date));
-    console.log(`listRowsForIsoWeek: Found ${filtered.length} entries for week ${year}-${week}`);
-
-    if (filtered.length > 0) {
-      console.log(`listRowsForIsoWeek: Sample entries:`, filtered.slice(0, 3).map(r => ({
-        date: r.date,
-        title: r.title?.substring(0, 30),
-        is_public: r.is_public
-      })));
-      const publicCount = filtered.filter(r => r.is_public).length;
-      console.log(`listRowsForIsoWeek: ${publicCount} are public, ${filtered.length - publicCount} are private`);
-    }
-
-    return filtered;
+    return all.filter(r => set.has(r.date));
   }
 
   async updateRow(id: string, patch: Partial<Pick<EntryRow, "notes" | "is_public">>): Promise<void> {
-    console.log(`updateRow: Starting update for id ${id}, patch:`, patch);
-
     const sheet = await this.valuesGet("media_log!A:Z");
-    if (!sheet || sheet.length === 0) {
-      console.log("updateRow: No sheet data found");
-      return;
-    }
-
-    console.log(`updateRow: Retrieved sheet with ${sheet.length} rows`);
+    if (!sheet || sheet.length === 0) return;
     const header = sheet[0];
     let idIdx = header.indexOf("id");
     if (idIdx < 0) idIdx = 0;
     const notesIdx = header.indexOf("notes");
     const pubIdx = header.indexOf("is_public");
     const updatedIdx = header.indexOf("updated_at");
-
-    console.log(`updateRow: Column indices - id: ${idIdx}, notes: ${notesIdx}, is_public: ${pubIdx}, updated_at: ${updatedIdx}`);
-
     for (let i = 1; i < sheet.length; i++) {
       const row = sheet[i];
       if (row[idIdx] === id) {
-        console.log(`updateRow: Found matching row at index ${i}, current values:`, {
-          id: row[idIdx],
-          notes: row[notesIdx],
-          is_public: row[pubIdx]
-        });
-
-        if (typeof patch.notes !== "undefined" && notesIdx >= 0) {
-          row[notesIdx] = patch.notes ?? "";
-          console.log(`updateRow: Updated notes to: "${patch.notes}"`);
-        }
-        if (typeof patch.is_public !== "undefined" && pubIdx >= 0) {
-          row[pubIdx] = patch.is_public ? "TRUE" : "FALSE";
-          console.log(`updateRow: Updated is_public to: ${patch.is_public ? "TRUE" : "FALSE"}`);
-        }
-        if (updatedIdx >= 0) {
-          row[updatedIdx] = new Date().toISOString();
-        }
-
-        const range = `media_log!A${i+1}:Z${i+1}`;
-        console.log(`updateRow: Updating range ${range} with row:`, row);
-
-        await this.valuesUpdate(range, [row]);
-        console.log(`updateRow: Successfully updated row for id ${id}`);
+        if (typeof patch.notes !== "undefined" && notesIdx >= 0) row[notesIdx] = patch.notes ?? "";
+        if (typeof patch.is_public !== "undefined" && pubIdx >= 0) row[pubIdx] = patch.is_public ? "TRUE" : "FALSE";
+        if (updatedIdx >= 0) row[updatedIdx] = new Date().toISOString();
+        await this.valuesUpdate(`media_log!A${i+1}:Z${i+1}`, [row]);
         return;
       }
     }
-
-    console.log(`updateRow: No row found with id ${id}`);
   }
 
   private async allRows(): Promise<EntryRow[]> {
-    console.log("allRows: Starting to fetch recent rows (optimized)");
     await this.ensureHeader();
-    console.log("allRows: Header ensured, fetching all data with header");
-    // Fetch all rows to ensure we get the header row properly
     const values = await this.valuesGet("media_log!A:Z");
-    console.log(`allRows: Raw values response - ${values ? values.length : 0} rows`);
-
-    if (!values || values.length <= 1) {
-      console.log("allRows: No data found or only header row");
-      return [];
-    }
-
+    if (!values || values.length <= 1) return [];
     const header = values[0];
-    console.log("allRows: Header columns:", header);
-    console.log("allRows: Header length:", header.length);
-    console.log("allRows: First few header values:", header.slice(0, 10));
-    console.log("allRows: Sample data row:", values[1]?.slice(0, 10));
-
-    // TEMPORARY FIX: If header is empty or invalid, use expected header
-    // Check if the first column is exactly "id" (not just contains "id")
-    if (!header || header.length === 0 || header[0] !== "id") {
-      console.log("allRows: Header seems corrupted, using expected header");
-      console.log("allRows: First header value is:", header[0]);
-      const expectedHeader = ["id", "date", "bucket", "title", "url", "source", "notes", "is_public", "created_at", "updated_at"];
-      console.log("allRows: Using fallback header:", expectedHeader);
-      return this.processRowsWithHeader(expectedHeader, values);
-    }
     const rows = values.slice(1).map(v => this.mapRow(header, v));
-    const filteredRows = rows.filter(Boolean) as EntryRow[];
-    console.log(`allRows: Mapped and filtered to ${filteredRows.length} valid rows`);
-
-    return filteredRows;
-  }
-
-  private processRowsWithHeader(header: string[], values: string[][]): EntryRow[] {
-    console.log(`processRowsWithHeader: Processing ${values.length} values with fallback header`);
-    // Skip the corrupted first row and process all remaining rows as data
-    const dataRows = values.slice(1);
-    const rows = dataRows.map(v => this.mapRow(header, v));
-    const filteredRows = rows.filter(Boolean) as EntryRow[];
-    console.log(`processRowsWithHeader: Mapped and filtered to ${filteredRows.length} valid rows`);
-    return filteredRows;
+    return rows.filter(Boolean) as EntryRow[];
   }
 
   private mapRow(header: string[], v: string[]): EntryRow | null {
@@ -222,15 +120,9 @@ export class SheetsClient {
       const i = idx(name);
       return i >= 0 ? (v[i] ?? "") : "";
     };
-
-    const idValue = pick("id");
-    if (!idValue) {
-      console.log(`mapRow: Rejecting row - no id value`);
-      return null;
-    }
-
+    if (!pick("id")) return null;
     return {
-      id: idValue,
+      id: pick("id"),
       date: pick("date"),
       bucket: (pick("bucket") as any) || "other",
       title: pick("title"),
@@ -243,14 +135,12 @@ export class SheetsClient {
     };
   }
 
-  private weekDays(year: number, week: number): string[] {
-    console.log(`weekDays: Calculating dates for ISO week ${year}-${week}`);
+  private async weekDays(year: number, week: number): Promise<string[]> {
     // Monday of ISO week
     const jan4 = new Date(Date.UTC(year, 0, 4));
     const day = jan4.getUTCDay() || 7;
     const mondayUTC = new Date(jan4);
     mondayUTC.setUTCDate(jan4.getUTCDate() - day + 1 + (week - 1) * 7);
-
     const out: string[] = [];
     for (let i = 0; i < 7; i++) {
       const dt = new Date(mondayUTC.getTime());
@@ -258,37 +148,16 @@ export class SheetsClient {
       const s = dt.toLocaleDateString("en-CA", { timeZone: "America/New_York" });
       out.push(s);
     }
-    console.log(`weekDays: Week ${year}-${week} includes dates:`, out);
     return out;
   }
 
   private async valuesGet(range: string): Promise<string[][]> {
-    console.log(`valuesGet: Starting API call for range "${range}"`);
     const token = await this.token();
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${this.env.SHEETS_ID}/values/${encodeURIComponent(range)}`;
-    console.log(`valuesGet: API URL: ${url}`);
-
     const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
-    console.log(`valuesGet: Response status: ${res.status} ${res.statusText}`);
-
-    if (!res.ok) {
-      console.log(`valuesGet: API error - status ${res.status}`);
-      const errorText = await res.text();
-      console.log(`valuesGet: Error response body: ${errorText}`);
-      return [] as any;
-    }
-
+    if (!res.ok) return [] as any;
     const json = await res.json();
-    console.log(`valuesGet: Response structure:`, {
-      hasValues: !!json.values,
-      valuesLength: json.values?.length || 0,
-      firstRowLength: json.values?.[0]?.length || 0,
-      responseKeys: Object.keys(json)
-    });
-
-    const result = (json.values ?? []) as string[][];
-    console.log(`valuesGet: Returning ${result.length} rows`);
-    return result;
+    return (json.values ?? []) as string[][];
   }
 
   private async valuesAppend(values: any[][]): Promise<void> {
