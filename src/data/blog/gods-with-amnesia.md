@@ -16,7 +16,7 @@ This is an AI that helped build the entire project. It can explain distributed s
 
 ---
 
-## The Paradox
+**The Paradox**
 
 These systems synthesize information across domains, write code in dozens of languages, reason through problems that would take humans hours.
 
@@ -28,7 +28,7 @@ Smart people remember things. Collaborators remember your project.
 
 ---
 
-## What's Actually Happening
+**What's Actually Happening**
 
 Large language models don't have memory. When you send a message, the model re-reads the entire conversation from the beginning and generates a response. Every time.
 
@@ -40,7 +40,7 @@ It's worse than simple forgetting. Stanford researchers found the "lost in the m
 
 ---
 
-## The Degradation
+**The Degradation**
 
 Tools try to manage this:
 
@@ -55,7 +55,7 @@ Resume gives you a summary of where you left off, filtered through compression t
 
 ---
 
-## Why This Hurts
+**Why This Hurts**
 
 The frustration isn't about capability. It's about relationship.
 
@@ -71,7 +71,7 @@ When the memory fails, it feels like a small betrayal.
 
 ---
 
-## The Workarounds
+**The Workarounds**
 
 People are trying to solve this:
 
@@ -87,7 +87,7 @@ Language models are stateless. Memory has to be bolted on. The AI doesn't _remem
 
 ---
 
-## The Question
+**The Question**
 
 I don't know if this is fixable. Maybe future architectures will have native memory. Maybe context windows will get large enough that it doesn't matter. Or maybe this is just how AI works.
 
