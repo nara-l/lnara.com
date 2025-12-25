@@ -24,7 +24,7 @@
     figcaption,
     table,
     code {
-      @apply text-foreground leading-relaxed;
+      @apply leading-relaxed text-foreground;
     }
 
     a {
@@ -80,6 +80,25 @@
 
     details {
       @apply inline-block cursor-pointer text-foreground select-none [&_p]:hidden [&_ul]:!my-0;
+    }
+
+    /* Glossary terms - inline definitions */
+    .gloss {
+      @apply relative cursor-help border-b border-dotted border-accent/50;
+    }
+    .gloss::after {
+      content: attr(data-def);
+      @apply pointer-events-none absolute top-full left-0 z-10 mt-1 max-w-xs rounded bg-muted px-2 py-1 text-sm opacity-0 transition-opacity duration-150;
+    }
+    .gloss:hover::after,
+    .gloss:focus::after {
+      @apply opacity-100;
+    }
+    /* Mobile: tap to toggle */
+    @media (hover: none) {
+      .gloss:active::after {
+        @apply opacity-100;
+      }
     }
 
     summary {
