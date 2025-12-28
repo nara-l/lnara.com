@@ -2,7 +2,7 @@ export const SITE = {
   website: "https://lnara.com/",
   author: "Lawrence Nara",
   profile: "https://lnara.com/",
-  desc: "Building things, thinking out loud",
+  desc: "Product. Many many incomplete ideas and thoughts.",
   title: "Lawrence Nara",
   ogImage: "astropaper-og.jpg",
   lightAndDarkMode: false, // Keep it simple - light mode only

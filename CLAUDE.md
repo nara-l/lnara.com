@@ -42,3 +42,12 @@ The theme uses Google Fonts:
 - Magnific Popup (for lightboxes)
 - Isotope (for grid layouts)
 - Custom theme functionality in `main.js`
+
+## CRITICAL DEPLOYMENT RULE
+NEVER run deployments (npm run deploy, wrangler deploy, etc.) without explicit user permission.
+ALWAYS ask the user before deploying anything to production or staging environments.
+This includes:
+- consumed-backend deployments to Cloudflare Workers
+- Any npm run deploy commands
+- Any wrangler deploy commands
+- Git commits to main/production branches

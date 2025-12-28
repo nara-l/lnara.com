@@ -8,6 +8,7 @@
     "preview": "astro preview",
     "sync": "astro sync",
     "astro": "astro",
+    "tts": "node scripts/generate-tts.mjs",
     "format:check": "prettier --check .",
     "format": "prettier --write .",
     "lint": "eslint ."
