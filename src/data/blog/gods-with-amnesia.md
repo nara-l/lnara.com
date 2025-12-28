@@ -8,8 +8,6 @@ draft: false
 timezone: "UTC"
 ---
 
-# Gods with Amnesia
-
 I'd been working with <a href="https://claude.ai" class="gloss" data-def="Anthropic's AI assistant">Claude</a> Code on a project for three months. One morning it called the project by a name we'd abandoned weeks ago.
 
 This is an AI that helped build the entire project. It can explain distributed systems, catch subtle bugs, reason through complex architecture. And it couldn't remember what we renamed the project.

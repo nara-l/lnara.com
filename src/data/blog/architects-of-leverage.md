@@ -19,7 +19,7 @@ Welcome to collective stuckness.
 
 ---
 
-## The Traffic Problem
+### The Traffic Problem
 
 Here's how it works.
 
@@ -37,7 +37,7 @@ This is collective stuckness: everyone agrees the outcome is bad, but no single 
 
 ---
 
-## The Pattern Repeats
+### The Pattern Repeats
 
 Once you see this pattern, you start noticing it everywhere.
 
@@ -49,7 +49,7 @@ For more examples, see [The List](/posts/the-list).
 
 ---
 
-## Why It Persists
+### Why It Persists
 
 Not all these problems are identical. Some you cause yourself, like traffic. Some you just suffer, like daylight saving. Some hit you today, like healthcare enrollment. Some hit your grandchildren, like climate change or falling birthrates.
 
@@ -71,7 +71,7 @@ This is why people feel powerless. Not because they lack ideas. Because individu
 
 ---
 
-## The Wrong Approach
+### The Wrong Approach
 
 Most people who notice collective stuckness try to fix it by pushing. They write articles. Start petitions. Complain on social media. Try to convince everyone, one person at a time.
 
@@ -81,7 +81,7 @@ The system is stuck because you cannot think your way out of a coordination trap
 
 ---
 
-## Architects of Leverage
+### Architects of Leverage
 
 The people who actually change stuck systems don't push harder. They find the hinge.
 
@@ -97,7 +97,7 @@ The pattern is consistent. Architects of leverage don't try to convince the syst
 
 ---
 
-## How Change Actually Happens
+### How Change Actually Happens
 
 Every lasting change traces back to a small committed group who decided something must change. It always starts with a handful of people.
 
@@ -123,7 +123,7 @@ This distinction matters. In environments where you can build without permission
 
 ---
 
-## The Progression
+### The Progression
 
 The committed minority picks a tactic. If it works, momentum builds. Then scaling happens: policy, regulation, mainstream adoption.
 
@@ -135,7 +135,7 @@ The pattern holds. Small group → tactic → momentum → scaling → the norm.
 
 ---
 
-## The Shift in Thinking
+### The Shift in Thinking
 
 The insight here is simple but important.
 

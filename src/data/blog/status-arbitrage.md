@@ -8,8 +8,6 @@ draft: false
 timezone: "UTC"
 ---
 
-# Status Arbitrage
-
 There's a man, call him Emeka, who drives for Uber in Washington, DC. He makes about $60,000 a year. In America, this puts him somewhere in the middle: not poor, not comfortable. The work itself carries no prestige. When passengers ask what he does, there's sometimes a flicker of pity in their eyes.
 
 But Emeka sends money home to Lagos every month. And in Lagos, $60,000 a year is not middle. It's elite, multiple times what even the top 1% of Nigerians earn. The money arrives without the Uber attached to it. His family sees the Western Union transfers, not the 3 AM airport runs. His mother tells neighbors her son is "doing well in America." He is, by her metrics, a success.
