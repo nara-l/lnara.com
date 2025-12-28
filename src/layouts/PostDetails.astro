@@ -36,6 +36,17 @@ const {
 } = post.data;
 
 const { Content } = await render(post);
+const { audio } = post.data;
+
+const bodyText = post.body
+  .replace(/<[^>]+>/g, " ")
+  .replace(/\[(.*?)\]\([^)]+\)/g, "$1")
+  .replace(/[#_*`>~\-]/g, " ")
+  .replace(/\s+/g, " ")
+  .trim();
+const wordCount = bodyText ? bodyText.split(" ").length : 0;
+const readMinutes = wordCount ? Math.ceil(wordCount / 220) : 0;
+const listenMinutes = wordCount ? Math.ceil(wordCount / 150) : 0;
 
 let ogImageUrl: string | undefined;
 
@@ -99,8 +110,28 @@ const nextPost =
     >
       {title}
     </h1>
-    <div class="my-2 flex items-center gap-2">
+    <div class="my-2 flex flex-wrap items-center gap-x-2 gap-y-1">
       <Datetime {pubDatetime} {modDatetime} {timezone} size="lg" />
+      {wordCount > 0 && (
+        <>
+          <span aria-hidden="true" class="opacity-60">|</span>
+          <span class="text-sm opacity-80 sm:text-base">
+            {wordCount} words
+          </span>
+          <span aria-hidden="true" class="opacity-60">|</span>
+          <span class="text-sm opacity-80 sm:text-base">
+            {readMinutes} min read
+          </span>
+          {audio && (
+            <>
+              <span aria-hidden="true" class="opacity-60">|</span>
+              <span class="text-sm opacity-80 sm:text-base">
+                {listenMinutes} min listen
+              </span>
+            </>
+          )}
+        </>
+      )}
       <span
         aria-hidden="true"
         class:list={[
@@ -110,6 +141,23 @@ const nextPost =
       >
       <EditPost {hideEditPost} {post} class="max-sm:hidden" />
     </div>
+    {
+      audio && (
+        <div class="mt-4">
+          <audio id="audio-player" class="w-full" controls preload="none">
+            <source src={audio} type="audio/mpeg" />
+            Your browser does not support the audio element.
+          </audio>
+          <div class="mt-2 flex gap-2">
+            <span class="text-sm opacity-80">Speed:</span>
+            <button class="playback-speed text-sm opacity-60 hover:opacity-100 transition-opacity" data-speed="1">1x</button>
+            <button class="playback-speed text-sm opacity-60 hover:opacity-100 transition-opacity" data-speed="1.25">1.25x</button>
+            <button class="playback-speed text-sm opacity-60 hover:opacity-100 transition-opacity" data-speed="1.5">1.5x</button>
+            <button class="playback-speed text-sm opacity-60 hover:opacity-100 transition-opacity" data-speed="2">2x</button>
+          </div>
+        </div>
+      )
+    }
     <article
       id="article"
       class="app-prose mx-auto mt-8 max-w-app prose-pre:bg-(--shiki-light-bg) dark:prose-pre:bg-(--shiki-dark-bg)"
@@ -285,4 +333,32 @@ const nextPost =
   document.addEventListener("astro:after-swap", () =>
     window.scrollTo({ left: 0, top: 0, behavior: "instant" })
   );
+
+  /* Audio playback speed controls */
+  function setupAudioSpeedControls() {
+    const audioPlayer = document.getElementById("audio-player");
+    const speedButtons = document.querySelectorAll(".playback-speed");
+
+    if (!audioPlayer || speedButtons.length === 0) return;
+
+    // Set initial active state for 1x
+    speedButtons[0].style.opacity = "1";
+    speedButtons[0].style.fontWeight = "600";
+
+    speedButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        const speed = parseFloat(button.getAttribute("data-speed"));
+        audioPlayer.playbackRate = speed;
+
+        // Update active state
+        speedButtons.forEach(btn => {
+          btn.style.opacity = "0.6";
+          btn.style.fontWeight = "400";
+        });
+        button.style.opacity = "1";
+        button.style.fontWeight = "600";
+      });
+    });
+  }
+  setupAudioSpeedControls();
 </script>

@@ -101,6 +101,32 @@
       }
     }
 
+    .mini-grid {
+      @apply my-6 grid gap-4 rounded-lg border border-border bg-muted/40 p-4 sm:grid-cols-3;
+    }
+    .mini-grid-title {
+      @apply mb-2 text-xs font-semibold uppercase tracking-widest text-accent;
+    }
+    .mini-grid ul {
+      @apply my-0 list-disc ps-5 text-sm;
+    }
+    .mini-grid li {
+      @apply my-1;
+    }
+    .mini-grid-note {
+      @apply mt-2 text-xs text-foreground/70;
+    }
+
+    .callout {
+      @apply my-8 rounded-lg border border-accent/30 bg-accent/10 p-4;
+    }
+    .callout p {
+      @apply m-0 text-foreground;
+    }
+    .callout strong {
+      @apply text-accent;
+    }
+
     summary {
       @apply focus-visible:no-underline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent focus-visible:outline-dashed;
     }

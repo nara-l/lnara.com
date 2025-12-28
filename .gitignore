@@ -28,3 +28,28 @@ pnpm-debug.log*
 public/pagefindconsumed-backend/
 
 .vercel
+
+# IDE settings
+.vscode/
+.claude/
+
+# deployment caches
+.wrangler/
+
+# backend code (should be in private repo)  
+consumed-backend/
+
+# development files
+*.pdf
+handover.md
+Master\ Build\ Prompt*
+patch.diff
+limits.html
+search.html
+deploy-trigger.html
+test-deploy.md
+cookies.txt
+.cloudflare-deploy
+
+# docs (downloaded content)
+docs/
