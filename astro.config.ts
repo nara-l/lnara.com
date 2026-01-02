@@ -18,6 +18,13 @@ export default defineConfig({
   integrations: [
     sitemap({
       filter: page => SITE.showArchives || !page.endsWith("/archives"),
+      serialize: item => {
+        // Add lastmod date to improve SEO
+        return {
+          ...item,
+          lastmod: new Date().toISOString(),
+        };
+      },
     }),
   ],
   markdown: {
