@@ -41,6 +41,7 @@ consumed-backend/
 
 # development files
 *.pdf
+!public/lawrence-njie-litumbe-resume-2026.pdf
 handover.md
 Master\ Build\ Prompt*
 patch.diff
