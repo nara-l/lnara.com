@@ -8,6 +8,7 @@ dist/
 node_modules/
 
 # logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -54,3 +55,16 @@ cookies.txt
 
 # docs (downloaded content)
 docs/
+
+# private publishing workflow artifacts
+AGENTS.md
+.agents/
+lnara-publishing-packet*/
+drafts/
+WRITING_BACKLOG.md
+src/data/blog/_writing-backlog.md
+SHIPPING_PLAN.md
+SHIPPING_LOG.md
+
+# Windows command artifacts
+nul

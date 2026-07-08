@@ -6,7 +6,9 @@ import { SITE } from "@/config";
 
 export async function GET() {
   const posts = await getCollection("blog");
-  const sortedPosts = getSortedPosts(posts);
+  const sortedPosts = getSortedPosts(posts).filter(
+    post => !post.data.tags.includes("series")
+  );
   return rss({
     title: SITE.title,
     description: SITE.desc,

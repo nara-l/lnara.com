@@ -8,67 +8,80 @@ import { getPath } from "@/utils/getPath";
 
 const posts = await getCollection("blog");
 const sortedPosts = getSortedPosts(posts);
-const recentPosts = sortedPosts.slice(0, 5); // Last 5 posts
+const recentPosts = sortedPosts
+  .filter(post => !post.data.tags.includes("series"))
+  .slice(0, 5); // Last 5 posts
 ---
 
 <Layout>
   <Header />
-  <main id="main-content" class="max-w-3xl mx-auto px-4 py-8">
-
+  <main id="main-content" class="mx-auto max-w-3xl px-4 py-8">
     <!-- Header -->
     <header class="mb-12">
-      <h1 class="text-3xl font-bold mb-2">Lawrence Nara</h1>
-      <p class="text-lg text-gray-600">Product. Many many incomplete ideas and thoughts.</p>
-      <p class="text-sm text-gray-500 mt-1">Life is short. What have I done about it today?</p>
+      <h1 class="mb-2 text-3xl font-bold">Lawrence Nara</h1>
+      <p class="text-lg text-gray-600">
+        Product. Many many incomplete ideas and thoughts.
+      </p>
+      <p class="mt-1 text-sm text-gray-500">
+        Life is short. What have I done about it today?
+      </p>
     </header>
 
     <hr class="my-8 border-gray-300" />
 
     <!-- Now Section -->
     <section class="mb-12">
-      <h2 class="text-xl font-semibold mb-4">Now</h2>
+      <h2 class="mb-4 text-xl font-semibold">Now</h2>
       <p class="text-lg leading-relaxed font-medium">
-        Took my first real break in years after getting burned out from working non-stop.
-        During the sabbatical, decided to finally finish my MBA and started experimenting with AI. 'Your fastest path to yourself is unemployment' - and that turned out to be true. Something magical happens when you step back from the daily grind - you see where tech is heading, where humanity is heading. Got my energy back. Now building things and prepping for my next full-time role.
+        Took my first real break in years after getting burned out from working
+        non-stop. During the sabbatical, decided to finally finish my MBA and
+        started experimenting with AI. 'Your fastest path to yourself is
+        unemployment' - and that turned out to be true. Something magical
+        happens when you step back from the daily grind - you see where tech is
+        heading, where humanity is heading. Got my energy back. Now building
+        things and prepping for my next full-time role.
       </p>
-      <p class="text-sm text-gray-500 mt-2">Last updated: December 2025</p>
+      <p class="mt-2 text-sm text-gray-500">Last updated: December 2025</p>
     </section>
 
     <hr class="my-8 border-gray-300" />
 
     <!-- Recent Writing -->
     <section class="mb-12">
-      <h2 class="text-xl font-semibold mb-6">Recent Writing</h2>
+      <h2 class="mb-6 text-xl font-semibold">Recent Writing</h2>
       <ul class="space-y-4">
-        {recentPosts.map((post) => (
-          <li>
-            <a
-              href={getPath(post.id, post.filePath)}
-              class="block text-blue-600 hover:text-blue-800 transition-colors"
-            >
-              <div class="flex flex-col sm:flex-row sm:items-baseline sm:justify-between">
-                <h3 class="font-medium">{post.data.title}</h3>
-                <time class="text-sm text-gray-500 mt-1 sm:mt-0">
-                  {post.data.pubDatetime.toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric'
-                  })}
-                </time>
-              </div>
-              <p class="text-gray-600 text-base mt-1 line-clamp-1 leading-relaxed">
-                {post.data.description}
-              </p>
-            </a>
-          </li>
-        ))}
+        {
+          recentPosts.map(post => (
+            <li>
+              <a
+                href={getPath(post.id, post.filePath)}
+                class="block text-blue-600 transition-colors hover:text-blue-800"
+              >
+                <div class="flex flex-col sm:flex-row sm:items-baseline sm:justify-between">
+                  <h3 class="font-medium">{post.data.title}</h3>
+                  <time class="mt-1 text-sm text-gray-500 sm:mt-0">
+                    {post.data.pubDatetime.toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })}
+                  </time>
+                </div>
+                <p class="mt-1 line-clamp-1 text-base leading-relaxed text-gray-600">
+                  {post.data.description}
+                </p>
+              </a>
+            </li>
+          ))
+        }
       </ul>
       <div class="mt-6">
-        <a
-          href="/posts/"
-          class="text-blue-600 hover:underline text-sm"
-        >
+        <a href="/posts/" class="text-sm text-blue-600 hover:underline">
           → View all posts
+        </a>
+        <span class="mx-2 text-gray-400">·</span>
+        <a href="/notes/" class="text-sm text-blue-600 hover:underline">
+          → View notes
         </a>
       </div>
     </section>
@@ -77,31 +90,38 @@ const recentPosts = sortedPosts.slice(0, 5); // Last 5 posts
 
     <!-- Work Section -->
     <section class="mb-12">
-      <h2 class="text-xl font-semibold mb-6">Work</h2>
+      <h2 class="mb-6 text-xl font-semibold">Work</h2>
       <ul class="space-y-4">
         <li class="text-lg leading-relaxed">
-          <strong>Infosys</strong> - Led teams that modernize legacy systems for Fortune 100 companies (2019-2024)
+          <strong>Infosys</strong> - Led teams that modernize legacy systems for
+          Fortune 100 companies (2019-2024)
         </li>
         <li class="text-lg leading-relaxed">
-          <strong>Amiti Consulting</strong> - Built SaaS feedback tool for investment firm with 500+ employees (2018)
+          <strong>Amiti Consulting</strong> - Built SaaS feedback tool for investment
+          firm with 500+ employees (2018)
         </li>
         <li class="text-lg leading-relaxed">
-          <strong>UMHCS</strong> - Developed HIPAA-compliant health records system (2017-2018)
+          <strong>UMHCS</strong> - Developed HIPAA-compliant health records system
+          (2017-2018)
         </li>
         <li class="text-lg leading-relaxed">
-          <strong>Wasamundi</strong> - Co-founded first business directory in Cameroon, pioneered student hostel directory and SMS marketing SaaS, grew to 5K+ businesses (2011-2017)
+          <strong>Wasamundi</strong> - Co-founded first business directory in Cameroon,
+          pioneered student hostel directory and SMS marketing SaaS, grew to 5K+
+          businesses (2011-2017)
         </li>
         <li class="text-lg leading-relaxed">
-          <strong>Usepulse</strong> - Built university communication platform connecting students via SMS/web (2011-2013)
+          <strong>Usepulse</strong> - Built university communication platform connecting
+          students via SMS/web (2011-2013)
         </li>
         <li class="text-lg leading-relaxed">
-          <strong>Tools I use</strong> - AWS, React, Angular, Node.js, Python, whatever works for the problem
+          <strong>Tools I use</strong> - AWS, React, Angular, Node.js, Python, whatever
+          works for the problem
         </li>
       </ul>
       <div class="mt-6">
         <a
           href="/lawrence-njie-litumbe-resume-2026.pdf"
-          class="text-blue-600 hover:underline text-sm"
+          class="text-sm text-blue-600 hover:underline"
           target="_blank"
         >
           → Download resume (PDF)
@@ -113,7 +133,7 @@ const recentPosts = sortedPosts.slice(0, 5); // Last 5 posts
 
     <!-- Connect Section -->
     <section class="mb-12">
-      <h2 class="text-xl font-semibold mb-6">Connect</h2>
+      <h2 class="mb-6 text-xl font-semibold">Connect</h2>
       <div class="flex gap-4">
         <a
           href="mailto:lawrence.nara@gmail.com"
@@ -140,15 +160,9 @@ const recentPosts = sortedPosts.slice(0, 5); // Last 5 posts
           LinkedIn
         </a>
         <span class="text-gray-400">·</span>
-        <a
-          href="/rss.xml"
-          class="text-blue-600 hover:underline"
-        >
-          RSS
-        </a>
+        <a href="/rss.xml" class="text-blue-600 hover:underline"> RSS </a>
       </div>
     </section>
-
   </main>
   <Footer />
 </Layout>
