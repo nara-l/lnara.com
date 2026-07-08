@@ -1,7 +1,6 @@
 import type { APIRoute } from "astro";
 import { getCollection, type CollectionEntry } from "astro:content";
-import { getPath } from "@/utils/getPath";
-import { isNote } from "@/utils/entryPaths";
+import { getNotePath, isNote } from "@/utils/entryPaths";
 import { generateOgImageForPost } from "@/utils/generateOgImages";
 import { SITE } from "@/config";
 
@@ -10,15 +9,15 @@ export async function getStaticPaths() {
     return [];
   }
 
-  const posts = await getCollection("blog").then(p =>
-    p.filter(
-      entry => !entry.data.draft && !entry.data.ogImage && !isNote(entry)
+  const notes = await getCollection("blog").then(entries =>
+    entries.filter(
+      entry => !entry.data.draft && !entry.data.ogImage && isNote(entry)
     )
   );
 
-  return posts.map(post => ({
-    params: { slug: getPath(post.id, post.filePath, false) },
-    props: post,
+  return notes.map(note => ({
+    params: { slug: getNotePath(note.id, note.filePath, false) },
+    props: note,
   }));
 }
 

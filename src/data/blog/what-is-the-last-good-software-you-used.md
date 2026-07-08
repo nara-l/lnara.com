@@ -8,39 +8,85 @@ draft: false
 timezone: "America/New_York"
 ---
 
-Software companies have more engineering power than at any point in history. They have cloud infrastructure, design systems, automated testing, telemetry, AI coding assistants, and models that can produce working code in seconds.
+What is the last software product you used that was simply good?
 
-Yet I keep returning to a primitive question:
+Software companies have more engineering power than ever, yet ordinary software increasingly fails at its first responsibility: working clearly and reliably for the user.
 
-**What is the last piece of software you used that simply worked?**
+By good, I mean software that does what you opened it to do. It is clear. It works. You complete the task and move on with your life.
 
-I do not mean software that looked impressive in a launch video. I mean software that opened quickly, made its purpose obvious, completed the task, and stayed out of the way.
+Steve Jobs said, "It's not just what it looks like and feels like. Design is how it works."
+
+I think the same thing is true of a software product. A good software product is how it works. Does it do what you came there to do? Does it make the task easier? Does it remove work from your life, or does it create more work? Does it work reliably enough that you stop thinking about the software itself?
+
+Maybe the simplest definition is that it just works.
+
+Google Lens is one of the last products I remember using and immediately thinking, wow, this works. You point the camera at something and it identifies it. You can copy text from an image or translate something in front of you. It does exactly what you thought it would do.
+
+I also think about McMaster-Carr, the industrial-parts website. It sells an absurd number of things, but the site does not make the experience absurd. You search for the part, find it, and buy it. You do not have to learn a new interface or fight through a campaign designed to keep you there longer. The product helps you do the thing you came to do.
 
 That standard now feels strangely rare.
 
-Search barely works anywhere. Google search has become a negotiation with advertisements, summaries, shopping results, and pages written for search engines. Search inside social networks is unreliable. Search inside many websites behaves as though matching the words you typed is an unreasonable request.
+A few days ago, I had a HelloFresh coupon. I knew what HelloFresh was. I wanted to choose a box of ready-to-cook meals, apply the coupon, place the order, and wait for the delivery.
 
-Apple spent years as the last dependable argument for thoughtful software. Now even the iPhone is filled with visual experiments, interface changes, and features that seem to exist because somebody needed to announce something. Liquid Glass may be visually ambitious. On my phone, it often feels like another layer between me and the thing I was trying to do.
+Instead, I found myself trying to understand the relationship between the trial, the first delivery, the subscription, the next box, skipped weeks, renewal dates, and cancellation. If I cancelled, would the box I had already chosen still arrive? When exactly would I be charged again? Was the first delivery part of the trial, or was the trial simply the beginning of the subscription?
 
-Then there are subscription products such as meal-delivery services. Ordering food should be simple: choose the food, apply a coupon, pay, receive it. Instead, the interface makes you calculate future deliveries, cancellation dates, promotional windows, skipped weeks, and what will happen after the discount expires. The software gives the company more control while transferring more cognitive work to the customer.
+Why does ordering a box of ready-to-cook meals require me to calculate trial periods, renewal dates, and deliveries I have not even asked for yet?
 
-Maybe this is the clearest definition of bad software: **software that makes the user perform work the product should have absorbed.**
+When I decided I did not want future boxes, I went back into the mobile app and could not find a way to cancel. I kept looking because I assumed I was missing something obvious. Eventually, I asked ChatGPT. It told me I had to use the website.
 
-Good software is clear, fast, reliable, and respectful of the task. It does not require a tutorial for an ordinary action. It does not hide cancellation. It does not reorganize itself every few months. It does not confuse engagement with usefulness.
+The app could sign me up, take my payment, let me choose meals, and schedule future deliveries. It could not let me leave.
 
-The old Apple ideal was that design is how the thing works. Somewhere along the way, software companies learned to optimize everything surrounding the work: retention, conversion, time spent, upgrade rates, notifications, subscriptions, and visual novelty.
+That told me what the product was really doing. It was trying to make me a subscriber. The box of meals was the entry point.
 
-The task itself became secondary.
+I understand that HelloFresh needs subscriptions. Google needs advertising revenue. Apple needs people to keep buying its products. I am not asking companies to become charities.
 
-This may explain why modern software can be technically sophisticated and still feel terrible. The product is often doing exactly what the company needs it to do. It captures attention. It makes leaving difficult. It pushes the next purchase. It creates another reason to return.
+I just do not believe a good business and a good product are opposites.
 
-It simply stops doing what the user opened it to do.
+A company should be able to make money while still giving the user what they came for, making the process clear, and then getting out of the way. I do not see why confusion, forced subscriptions, hidden exits, constant redesigns, or unnecessary friction have to be part of the business model.
 
-Most bad software is therefore not an engineering mystery. It is an incentives problem made visible through an interface.
+Search is another example.
 
-The software works for somebody. Increasingly, that somebody is not the person using it.
+Search is supposed to help me find what I asked for. Google search now has to serve advertisements, shopping results, AI summaries, and pages written mainly to rank on Google. Search inside Twitter is unreliable. Search inside many websites barely works.
 
-Good software remembers that it has a job.
+Apple used to be the last company I could point to and say: they still care about the whole product.
+
+Since updating to Liquid Glass, my phone sometimes overheats for no clear reason. I can be on a WhatsApp call with my wife and the phone freezes until I restart it. A friend with a newer iPhone told me he had similar problems after updating.
+
+These are basic things. A phone call should work. The phone should not randomly become hot. An update should not leave the device less dependable than it was before.
+
+Instead, I am looking at visual changes I did not ask for while trying to understand why ordinary things no longer work properly. I cannot simply return to iOS 18. Maybe I will have to go to an Apple Store and ask what can be done.
+
+That genuinely saddens me because Apple was the company that taught people to expect software that just worked.
+
+ChatGPT is the strange exception in my daily use.
+
+I speak into it while walking. I can talk for several minutes, with my accent, and it usually understands what I mean. I listen to the response and continue the thought. The voice input stays out of the way. The product seems to take the product layer seriously.
+
+Claude.ai feels different.
+
+The models can be excellent. Sometimes they are exceptional. But I use Claude often enough that I could write a separate note called "Ninety-Nine Things Broken in Claude." Voice input, mobile behavior, search, context management, and basic interactions repeatedly get between me and the model.
+
+About eight months ago, I reached a conclusion as a user: Anthropic behaves like a model company first and a product company second. Claude.ai often feels like a way to expose the model rather than the thing the company cares most about getting right.
+
+But models are still a means to an end.
+
+Even AGI, if it arrives, will have to reach people through a product: an interface, an agent, a device, a voice, a workflow, or something else. The intelligence still has to be turned into something people can use and depend on.
+
+People now say that software is solved.
+
+Maybe producing code is becoming solved. Models can write code, generate components, diagnose bugs, and build large parts of an application.
+
+But software is not only code.
+
+It is the full stack between the code and the person using it: the product decisions, the interface, the mobile experience, the search, the reliability, the small details, and whether the software helps the person complete the task.
+
+The strongest evidence should be the products these AI companies build for themselves.
+
+Maybe software is solved and the solution is not evenly distributed. Or maybe writing code was only one part of the problem, and we confused that part for the whole thing.
+
+So I keep returning to the same question:
+
+What is the last software product you used that did what you came for, did it reliably, and then got out of your way?
 
 ---
 

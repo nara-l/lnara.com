@@ -18,9 +18,13 @@ import { SITE } from "@/config";
 export interface Props {
   post: CollectionEntry<"blog">;
   posts: CollectionEntry<"blog">[];
+  pathBase?: "/posts" | "/notes";
+  entryLabel?: "Post" | "Note";
 }
 
-const { post, posts } = Astro.props;
+const { post, posts, pathBase = "/posts", entryLabel = "Post" } = Astro.props;
+const entryPath = (id: string, filePath: string | undefined) =>
+  getPath(id, filePath, true, pathBase);
 
 const {
   title,
@@ -59,7 +63,7 @@ if (typeof initOgImage === "string") {
 
 // Use dynamic OG image if enabled and no remote|local ogImage
 if (!ogImageUrl && SITE.dynamicOgImage) {
-  ogImageUrl = `${getPath(post.id, post.filePath)}/index.png`;
+  ogImageUrl = `${entryPath(post.id, post.filePath)}/index.png`;
 }
 
 // Resolve OG image URL (or fallback to SITE.ogImage / default `og.png`)
@@ -112,26 +116,34 @@ const nextPost =
     </h1>
     <div class="my-2 flex flex-wrap items-center gap-x-2 gap-y-1">
       <Datetime {pubDatetime} {modDatetime} {timezone} size="lg" />
-      {wordCount > 0 && (
-        <>
-          <span aria-hidden="true" class="opacity-60">|</span>
-          <span class="text-sm opacity-80 sm:text-base">
-            {wordCount} words
-          </span>
-          <span aria-hidden="true" class="opacity-60">|</span>
-          <span class="text-sm opacity-80 sm:text-base">
-            {readMinutes} min read
-          </span>
-          {audio && (
-            <>
-              <span aria-hidden="true" class="opacity-60">|</span>
-              <span class="text-sm opacity-80 sm:text-base">
-                {listenMinutes} min listen
-              </span>
-            </>
-          )}
-        </>
-      )}
+      {
+        wordCount > 0 && (
+          <>
+            <span aria-hidden="true" class="opacity-60">
+              |
+            </span>
+            <span class="text-sm opacity-80 sm:text-base">
+              {wordCount} words
+            </span>
+            <span aria-hidden="true" class="opacity-60">
+              |
+            </span>
+            <span class="text-sm opacity-80 sm:text-base">
+              {readMinutes} min read
+            </span>
+            {audio && (
+              <>
+                <span aria-hidden="true" class="opacity-60">
+                  |
+                </span>
+                <span class="text-sm opacity-80 sm:text-base">
+                  {listenMinutes} min listen
+                </span>
+              </>
+            )}
+          </>
+        )
+      }
       <span
         aria-hidden="true"
         class:list={[
@@ -150,10 +162,30 @@ const nextPost =
           </audio>
           <div class="mt-2 flex gap-2">
             <span class="text-sm opacity-80">Speed:</span>
-            <button class="playback-speed text-sm opacity-60 hover:opacity-100 transition-opacity" data-speed="1">1x</button>
-            <button class="playback-speed text-sm opacity-60 hover:opacity-100 transition-opacity" data-speed="1.25">1.25x</button>
-            <button class="playback-speed text-sm opacity-60 hover:opacity-100 transition-opacity" data-speed="1.5">1.5x</button>
-            <button class="playback-speed text-sm opacity-60 hover:opacity-100 transition-opacity" data-speed="2">2x</button>
+            <button
+              class="playback-speed text-sm opacity-60 transition-opacity hover:opacity-100"
+              data-speed="1"
+            >
+              1x
+            </button>
+            <button
+              class="playback-speed text-sm opacity-60 transition-opacity hover:opacity-100"
+              data-speed="1.25"
+            >
+              1.25x
+            </button>
+            <button
+              class="playback-speed text-sm opacity-60 transition-opacity hover:opacity-100"
+              data-speed="1.5"
+            >
+              1.5x
+            </button>
+            <button
+              class="playback-speed text-sm opacity-60 transition-opacity hover:opacity-100"
+              data-speed="2"
+            >
+              2x
+            </button>
           </div>
         </div>
       )
@@ -184,12 +216,12 @@ const nextPost =
       {
         prevPost && (
           <a
-            href={getPath(prevPost.id, prevPost.filePath)}
+            href={entryPath(prevPost.id, prevPost.filePath)}
             class="flex w-full gap-1 hover:opacity-75"
           >
             <IconChevronLeft class="inline-block flex-none rtl:rotate-180" />
             <div>
-              <span>Previous Post</span>
+              <span>Previous {entryLabel}</span>
               <div class="text-sm text-accent/85">{prevPost.title}</div>
             </div>
           </a>
@@ -198,11 +230,11 @@ const nextPost =
       {
         nextPost && (
           <a
-            href={getPath(nextPost.id, nextPost.filePath)}
+            href={entryPath(nextPost.id, nextPost.filePath)}
             class="flex w-full justify-end gap-1 text-end hover:opacity-75 sm:col-start-2"
           >
             <div>
-              <span>Next Post</span>
+              <span>Next {entryLabel}</span>
               <div class="text-sm text-accent/85">{nextPost.title}</div>
             </div>
             <IconChevronRight class="inline-block flex-none rtl:rotate-180" />

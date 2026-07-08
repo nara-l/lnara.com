@@ -13,5 +13,5 @@ Capitalism and Human Desire is a series about the wants the market did not creat
 
 The notes look for the shelters that keep a human being from becoming fully governed by the market's voice.
 
-1. [Capitalism Requires a Non-Capitalist Shelter](/posts/capitalism-requires-a-non-capitalist-shelter)
+1. [Capitalism Requires a Non-Capitalist Shelter](/notes/capitalism-requires-a-non-capitalist-shelter)
    A note on why family, friendship, religion, and community can protect people from market-shaped desire.

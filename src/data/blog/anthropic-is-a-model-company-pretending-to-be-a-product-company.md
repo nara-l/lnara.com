@@ -8,37 +8,43 @@ draft: false
 timezone: "America/New_York"
 ---
 
-Several months ago, after another basic failure in Claude's mobile app, I stopped treating the problems as isolated bugs.
+About eight months ago, I stopped thinking of Claude's product problems as isolated bugs.
 
-The product kept revealing the company's priorities.
+I concluded that Anthropic probably sees itself as a model company first. Claude.ai feels like a place to expose the model, rather than a product the company is determined to make excellent.
 
-Anthropic builds some of the most capable AI models in the world. Claude can reason beautifully. It can analyze a difficult problem, improve writing, and work through code. But the software surrounding that intelligence often feels careless.
+I use Claude often enough that I could write a separate note called "Ninety-Nine Things Broken in Claude."
 
-I use these products every day. That kind of use exposes details that disappear in demonstrations.
+At one point, I could be speaking into the mobile app and the phone screen would go to sleep. I had to keep touching the screen while recording a long voice note.
 
-At different points, Claude's voice input has allowed the phone screen to sleep while I was still speaking. The mobile and desktop experiences have contained small obstacles that repeatedly interrupt the work. Voice transcription struggles more with my accent than ChatGPT does. Basic interactions sometimes feel as though nobody responsible for the product has used them heavily for a week.
+How does that survive inside a product made by one of the leading AI companies in the world?
 
-Any individual bug can be dismissed. Together, they form a pattern.
+The voice transcription also struggles with my accent more than ChatGPT does. Search, context management, mobile behavior, desktop behavior, and other basic interactions repeatedly get between me and the model.
 
-My inference is that Anthropic is a model company first. The consumer application is a delivery mechanism for the model, while the deeper business lives in APIs, enterprise relationships, and the value of the underlying intelligence.
+The strange part is that the models themselves can be excellent. Claude can reason through difficult problems, improve writing, and work through code. Sometimes I prefer its answer.
 
-That would explain why the model can feel exceptional while the product remains unfinished. A company protects the things it considers central. Product quality is executive strategy made visible.
+But using the model and using the product are two different experiences.
 
-ChatGPT gives me the opposite experience. It has problems, but it is the only AI application I use daily that works consistently well as a product. Its voice input is especially revealing. I speak naturally, with my accent, and it usually captures what I meant. I do not have to reshape my speech around the machine.
+ChatGPT seems to take the product layer more seriously.
 
-That reliability changes how I think. I can walk, talk, listen to the response, and continue developing an idea. The interface disappears, leaving the thought intact.
+I can walk, speak for several minutes, and trust that it will understand most of what I say. I can listen to the response and continue the thought. I do not have to keep checking whether the screen has gone to sleep or reshape the way I speak so the transcription can understand me.
 
-This is what makes the Anthropic experience frustrating. Claude's intelligence deserves software that lets a person reach it without friction. A brilliant model trapped inside a careless interface is still a poor product.
+That matters because voice is how I produce a lot of my thinking. When the product works, I stop thinking about the product.
 
-AI companies frequently speak as though software development has been solved. Their models can generate applications, diagnose bugs, and rewrite entire codebases. Yet a company can possess that capability while its own application cannot reliably manage a long voice note.
+Anthropic may have good business reasons for this. Its real business may be APIs, enterprise customers, and selling access to the models. Claude.ai may be mainly a demonstration of what the models can do.
 
-That contradiction says more than a benchmark.
+But models are still a means to an end.
 
-Building a model and building a product are different disciplines. A model succeeds when it produces an impressive answer. A product succeeds when ordinary people can depend on it repeatedly, under imperfect conditions, without thinking about the machinery.
+Even AGI, if it arrives, will have to be served through something: an interface, an agent, a device, a voice, a workflow, or another kind of product.
 
-Anthropic has demonstrated the first achievement.
+Somebody still has to make that product work.
 
-Its software keeps reminding me that the second one still matters.
+People keep saying software is solved because models can now write code. But software is more than producing code. It includes the interface, the search, the mobile experience, the reliability, and all the small decisions between the model and the person trying to use it.
+
+The products these AI companies build for themselves may be the best evidence of whether software is actually solved.
+
+Claude has shown me that an exceptional model can still sit inside a product that feels secondary.
+
+And if models eventually become cheaper, more common, and harder to distinguish, the product may be the part that remains.
 
 ---
 

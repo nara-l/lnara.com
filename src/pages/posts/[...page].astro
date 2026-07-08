@@ -8,6 +8,7 @@ import Footer from "@/components/Footer.astro";
 import Card from "@/components/Card.astro";
 import Pagination from "@/components/Pagination.astro";
 import getSortedPosts from "@/utils/getSortedPosts";
+import { isNote, isSeries } from "@/utils/entryPaths";
 import { SITE } from "@/config";
 
 export const getStaticPaths = (async ({ paginate }) => {
@@ -16,7 +17,8 @@ export const getStaticPaths = (async ({ paginate }) => {
   const recentPosts = getSortedPosts(posts).filter(
     post =>
       post.data.pubDatetime.getFullYear() >= 2019 &&
-      !post.data.tags.includes("series")
+      !isSeries(post) &&
+      !isNote(post)
   );
   return paginate(recentPosts, { pageSize: SITE.postPerPage });
 }) satisfies GetStaticPaths;

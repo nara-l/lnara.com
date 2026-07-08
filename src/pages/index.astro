@@ -4,13 +4,11 @@ import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
 import getSortedPosts from "@/utils/getSortedPosts";
-import { getPath } from "@/utils/getPath";
+import { getEntryPath, isSeries } from "@/utils/entryPaths";
 
 const posts = await getCollection("blog");
 const sortedPosts = getSortedPosts(posts);
-const recentPosts = sortedPosts
-  .filter(post => !post.data.tags.includes("series"))
-  .slice(0, 5); // Last 5 posts
+const recentPosts = sortedPosts.filter(post => !isSeries(post)).slice(0, 5); // Last 5 posts
 ---
 
 <Layout>
@@ -54,7 +52,7 @@ const recentPosts = sortedPosts
           recentPosts.map(post => (
             <li>
               <a
-                href={getPath(post.id, post.filePath)}
+                href={getEntryPath(post)}
                 class="block text-blue-600 transition-colors hover:text-blue-800"
               >
                 <div class="flex flex-col sm:flex-row sm:items-baseline sm:justify-between">

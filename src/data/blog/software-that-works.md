@@ -13,8 +13,8 @@ Software That Works is a series about the gap between technical capability and a
 
 The series is not a nostalgia project. It is an attempt to name what good software still owes the person using it.
 
-1. [What Is the Last Good Software You Used?](/posts/what-is-the-last-good-software-you-used)
+1. [What Is the Last Good Software You Used?](/notes/what-is-the-last-good-software-you-used)
    A note on why modern software can be technically sophisticated and still fail the person using it.
 
-2. [Anthropic Is a Model Company Pretending to Be a Product Company](/posts/anthropic-is-a-model-company-pretending-to-be-a-product-company)
+2. [Anthropic Is a Model Company Pretending to Be a Product Company](/notes/anthropic-is-a-model-company-pretending-to-be-a-product-company)
    A note on the difference between building a powerful AI model and building dependable software around it.
