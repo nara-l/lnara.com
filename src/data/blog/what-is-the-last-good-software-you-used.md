@@ -38,6 +38,30 @@ The app could sign me up, take my payment, let me choose meals, and schedule fut
 
 That told me what the product was really doing. It was trying to make me a subscriber. The box of meals was the entry point.
 
+I think there is a simple way to describe all of this.
+
+There is a gap between what a person reasonably expects software to do and what the software actually does.
+
+When that gap is small, the software works. It is probably never completely zero, but the product behaves close enough to what you expected that you do not have to stop and rethink the entire interaction.
+
+Google Lens has a small gap. You point your camera at something because you want to know what it is, and it usually helps you identify it.
+
+HelloFresh has a much larger gap. You think you are choosing meals and ordering a box. Then you discover that you are also entering a subscription system with its own timing, cancellation rules, skipped weeks, and restrictions that were not part of the simple thing you thought you were doing.
+
+The software may be functioning exactly as the company designed it, but the experience still feels broken because the distance between the expectation and the reality is too large.
+
+This may also be what a brand is supposed to do. A brand is a promise about what a company or product will provide. Trust comes from the actual experience matching that promise.
+
+I wonder whether this is part of something larger in American business. Companies seem increasingly unable or unwilling to say clearly what something is. The advertisement makes a simple promise. The Terms of Service adds the caveats, exceptions, timing rules, and conditions that quietly change the meaning of that promise.
+
+"Cancel anytime" rarely means only "cancel anytime."
+
+It may mean that you have to use the website instead of the app, cancel before a particular cutoff, complete several steps, and understand whether cancellation applies to the order you already selected.
+
+The company can then say that everything was disclosed. The user is left carrying the burden of figuring out what the product really is.
+
+Good software keeps the distance between its promise and its behavior as close to zero as possible.
+
 I understand that HelloFresh needs subscriptions. Google needs advertising revenue. Apple needs people to keep buying its products. I am not asking companies to become charities.
 
 I just do not believe a good business and a good product are opposites.
