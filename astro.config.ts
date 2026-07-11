@@ -11,13 +11,23 @@ import {
 import { transformerFileName } from "./src/utils/transformers/fileName";
 import { SITE } from "./src/config";
 
+const legacyNotePostPaths = [
+  "/posts/what-is-the-last-good-software-you-used/",
+  "/posts/anthropic-is-a-model-company-pretending-to-be-a-product-company/",
+  "/posts/capitalism-requires-a-non-capitalist-shelter/",
+];
+
 // https://astro.build/config
 export default defineConfig({
   site: SITE.website,
   output: "static",
   integrations: [
     sitemap({
-      filter: page => SITE.showArchives || !page.endsWith("/archives"),
+      filter: page => {
+        const path = new URL(page).pathname;
+        if (legacyNotePostPaths.includes(path)) return false;
+        return SITE.showArchives || path !== "/archives/";
+      },
       serialize: item => {
         // Add lastmod date to improve SEO
         return {

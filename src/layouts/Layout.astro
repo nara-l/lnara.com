@@ -14,6 +14,8 @@ export interface Props {
   pubDatetime?: Date;
   modDatetime?: Date | null;
   scrollSmooth?: boolean;
+  sectionName?: string;
+  sectionPath?: string;
 }
 
 const {
@@ -26,6 +28,8 @@ const {
   pubDatetime,
   modDatetime,
   scrollSmooth = false,
+  sectionName = "Posts",
+  sectionPath = "/posts",
 } = Astro.props;
 
 const socialImageURL = new URL(ogImage, Astro.url);
@@ -47,30 +51,32 @@ const structuredData = {
 };
 
 // Add breadcrumb structured data for blog posts
-const breadcrumbData = pubDatetime ? {
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  itemListElement: [
-    {
-      "@type": "ListItem",
-      position: 1,
-      name: "Home",
-      item: `${new URL("/", Astro.url).href}`
-    },
-    {
-      "@type": "ListItem",
-      position: 2,
-      name: "Posts",
-      item: `${new URL("/posts", Astro.url).href}`
-    },
-    {
-      "@type": "ListItem",
-      position: 3,
-      name: `${title}`,
-      item: `${canonicalURL}`
+const breadcrumbData = pubDatetime
+  ? {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Home",
+          item: `${new URL("/", Astro.url).href}`,
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: sectionName,
+          item: `${new URL(sectionPath, Astro.url).href}`,
+        },
+        {
+          "@type": "ListItem",
+          position: 3,
+          name: `${title}`,
+          item: `${canonicalURL}`,
+        },
+      ],
     }
-  ]
-} : null;
+  : null;
 ---
 
 <!doctype html>
@@ -84,6 +90,12 @@ const breadcrumbData = pubDatetime ? {
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/png" href="/cropped_favicon.png" />
     <link rel="canonical" href={canonicalURL} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;1,400;1,600&display=swap"
+      rel="stylesheet"
+    />
     <meta name="generator" content={Astro.generator} />
 
     <!-- General Meta Tags -->
@@ -91,7 +103,10 @@ const breadcrumbData = pubDatetime ? {
     <meta name="title" content={title} />
     <meta name="description" content={description} />
     <meta name="author" content={author} />
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
     <link rel="sitemap" href="/sitemap-index.xml" />
 
     <!-- Open Graph / Facebook -->
@@ -136,13 +151,15 @@ const breadcrumbData = pubDatetime ? {
     />
 
     <!-- Breadcrumb JSON-LD Structured data -->
-    {breadcrumbData && (
-      <script
-        type="application/ld+json"
-        is:inline
-        set:html={JSON.stringify(breadcrumbData)}
-      />
-    )}
+    {
+      breadcrumbData && (
+        <script
+          type="application/ld+json"
+          is:inline
+          set:html={JSON.stringify(breadcrumbData)}
+        />
+      )
+    }
 
     <!-- Enable RSS feed auto-discovery  -->
     <!-- https://docs.astro.build/en/recipes/rss/#enabling-rss-feed-auto-discovery -->
@@ -168,7 +185,6 @@ const breadcrumbData = pubDatetime ? {
     }
 
     <ClientRouter />
-
   </head>
   <body>
     <slot />

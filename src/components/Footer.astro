@@ -3,9 +3,15 @@ const currentYear = new Date().getFullYear();
 
 export interface Props {
   noMarginTop?: boolean;
+  entryIndexPath?: string;
+  entryIndexLabel?: string;
 }
 
-const { noMarginTop = false } = Astro.props;
+const {
+  noMarginTop = false,
+  entryIndexPath = "/posts/",
+  entryIndexLabel = "All posts",
+} = Astro.props;
 ---
 
 <footer class:list={["w-full max-w-3xl mx-auto px-4 py-8 text-center text-sm text-gray-500", { "mt-auto": !noMarginTop }]}>
@@ -13,7 +19,7 @@ const { noMarginTop = false } = Astro.props;
   <div class="flex flex-wrap items-center justify-center gap-2">
     <span>© {currentYear} lnara</span>
     <span>·</span>
-    <a href="/posts/" class="hover:text-gray-700">All posts</a>
+    <a href={entryIndexPath} class="hover:text-gray-700">{entryIndexLabel}</a>
     <span>·</span>
     <a href="/archives/" class="hover:text-gray-700">Archives</a>
     <span>·</span>

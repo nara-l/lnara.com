@@ -53,11 +53,11 @@ const recentPosts = sortedPosts.filter(post => !isSeries(post)).slice(0, 5); // 
             <li>
               <a
                 href={getEntryPath(post)}
-                class="block text-blue-600 transition-colors hover:text-blue-800"
+                class="block text-[#1a1a1a] transition-colors hover:text-accent dark:text-[#e8e8e8]"
               >
                 <div class="flex flex-col sm:flex-row sm:items-baseline sm:justify-between">
                   <h3 class="font-medium">{post.data.title}</h3>
-                  <time class="mt-1 text-sm text-gray-500 sm:mt-0">
+                  <time class="mt-1 font-mono text-sm text-gray-500 sm:mt-0">
                     {post.data.pubDatetime.toLocaleDateString("en-US", {
                       year: "numeric",
                       month: "short",
@@ -74,11 +74,11 @@ const recentPosts = sortedPosts.filter(post => !isSeries(post)).slice(0, 5); // 
         }
       </ul>
       <div class="mt-6">
-        <a href="/posts/" class="text-sm text-blue-600 hover:underline">
+        <a href="/posts/" class="text-sm text-accent hover:underline">
           → View all posts
         </a>
         <span class="mx-2 text-gray-400">·</span>
-        <a href="/notes/" class="text-sm text-blue-600 hover:underline">
+        <a href="/notes/" class="text-sm text-accent hover:underline">
           → View notes
         </a>
       </div>
@@ -119,7 +119,7 @@ const recentPosts = sortedPosts.filter(post => !isSeries(post)).slice(0, 5); // 
       <div class="mt-6">
         <a
           href="/lawrence-njie-litumbe-resume-2026.pdf"
-          class="text-sm text-blue-600 hover:underline"
+          class="text-sm text-accent hover:underline"
           target="_blank"
         >
           → Download resume (PDF)
@@ -135,14 +135,14 @@ const recentPosts = sortedPosts.filter(post => !isSeries(post)).slice(0, 5); // 
       <div class="flex gap-4">
         <a
           href="mailto:lawrence.nara@gmail.com"
-          class="text-blue-600 hover:underline"
+          class="text-accent hover:underline"
         >
           Email
         </a>
         <span class="text-gray-400">·</span>
         <a
           href="https://github.com/nara-l"
-          class="text-blue-600 hover:underline"
+          class="text-accent hover:underline"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -151,14 +151,14 @@ const recentPosts = sortedPosts.filter(post => !isSeries(post)).slice(0, 5); // 
         <span class="text-gray-400">·</span>
         <a
           href="https://www.linkedin.com/in/lawrence-njie-litumbe-8a042032/"
-          class="text-blue-600 hover:underline"
+          class="text-accent hover:underline"
           target="_blank"
           rel="noopener noreferrer"
         >
           LinkedIn
         </a>
         <span class="text-gray-400">·</span>
-        <a href="/rss.xml" class="text-blue-600 hover:underline"> RSS </a>
+        <a href="/rss.xml" class="text-accent hover:underline"> RSS </a>
       </div>
     </section>
   </main>

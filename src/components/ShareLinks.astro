@@ -2,24 +2,36 @@
 import { SHARE_LINKS } from "@/constants";
 import LinkButton from "./LinkButton.astro";
 
+interface Props {
+  entryLabel?: "post" | "note";
+}
+
+const { entryLabel = "post" } = Astro.props;
 const URL = Astro.url;
 ---
 
 {
   SHARE_LINKS.length > 0 && (
     <div class="flex flex-none flex-col items-center justify-center gap-1 md:items-start">
-      <span class="italic">Share this post on:</span>
+      <span class="italic">Share this {entryLabel} on:</span>
       <div class="text-center">
-        {SHARE_LINKS.map(social => (
-          <LinkButton
-            href={`${social.href + URL}`}
-            class="scale-90 p-2 hover:rotate-6 sm:p-1"
-            title={social.linkTitle}
-          >
-            <social.icon class="inline-block size-6 scale-125 fill-transparent stroke-current stroke-2 opacity-90 group-hover:fill-transparent sm:scale-110" />
-            <span class="sr-only">{social.linkTitle}</span>
-          </LinkButton>
-        ))}
+        {SHARE_LINKS.map(social => {
+          const linkTitle = social.linkTitle.replace("post", entryLabel);
+          const href =
+            social.name === "Mail"
+              ? social.href.replace("post", entryLabel)
+              : social.href;
+          return (
+            <LinkButton
+              href={`${href + URL}`}
+              class="scale-90 p-2 hover:rotate-6 sm:p-1"
+              title={linkTitle}
+            >
+              <social.icon class="inline-block size-6 scale-125 fill-transparent stroke-current stroke-2 opacity-90 group-hover:fill-transparent sm:scale-110" />
+              <span class="sr-only">{linkTitle}</span>
+            </LinkButton>
+          );
+        })}
       </div>
     </div>
   )

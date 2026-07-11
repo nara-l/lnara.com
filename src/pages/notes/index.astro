@@ -19,7 +19,7 @@ const notes = getSortedPosts(posts);
   <Header />
   <Main
     pageTitle="Notes"
-    pageDesc="Shorter, unfinished, and still useful thoughts."
+    pageDesc="Ideas, observations, and arguments I am still thinking through."
   >
     <ul>
       {notes.map(data => <Card {...data} />)}

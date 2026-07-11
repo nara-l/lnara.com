@@ -4,13 +4,23 @@
   /* ===== Override default Tailwind Typography styles ===== */
   .app-prose {
     @apply prose prose-lg;
+    max-width: 68ch;
+    color: #2b2b2b;
+    font-family: "Source Serif 4", Georgia, serif;
+    font-size: 1.1875rem;
+    line-height: 1.7;
+    text-align: start;
+    hyphens: none;
 
     h1,
     h2,
     h3,
     h4,
     th {
-      @apply mb-3 text-foreground;
+      @apply mb-3;
+      color: #1a1a1a;
+      font-weight: 600;
+      margin-top: 2em;
     }
 
     h3 {
@@ -22,13 +32,19 @@
     ol,
     ul,
     figcaption,
-    table,
-    code {
-      @apply leading-relaxed text-foreground;
+    table {
+      color: inherit;
+      line-height: inherit;
+    }
+
+    p {
+      margin-bottom: 1.5em;
     }
 
     a {
-      @apply break-words text-foreground decoration-dashed underline-offset-4 hover:text-accent focus-visible:no-underline;
+      @apply break-words underline underline-offset-4 focus-visible:no-underline;
+      color: #254f73;
+      text-decoration-thickness: 1px;
     }
 
     ul {
@@ -67,6 +83,9 @@
     }
 
     code {
+      font-family:
+        ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
       @apply rounded bg-muted/75 p-1 break-words text-foreground before:content-none after:content-none;
     }
 
@@ -75,7 +94,13 @@
     }
 
     blockquote {
-      @apply border-s-accent/80 break-words opacity-80;
+      @apply border-s-2 break-words;
+      background: transparent;
+      border-color: currentColor;
+      color: inherit;
+      font-family: inherit;
+      font-style: italic;
+      opacity: 0.85;
     }
 
     details {
@@ -143,6 +168,22 @@
 
   html[data-theme="dark"] .astro-code {
     @apply bg-(--shiki-dark-bg) text-(--shiki-dark) [&_span]:text-(--shiki-dark);
+  }
+
+  html[data-theme="dark"] .app-prose {
+    color: #e8e8e8;
+  }
+
+  html[data-theme="dark"] .app-prose h1,
+  html[data-theme="dark"] .app-prose h2,
+  html[data-theme="dark"] .app-prose h3,
+  html[data-theme="dark"] .app-prose h4,
+  html[data-theme="dark"] .app-prose th {
+    color: #e8e8e8;
+  }
+
+  html[data-theme="dark"] .app-prose a {
+    color: #9bbbd3;
   }
 
   /* Styles for Shiki transformers */

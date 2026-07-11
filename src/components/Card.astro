@@ -15,14 +15,14 @@ const href = Astro.props.href ?? getEntryPath(Astro.props);
 
 const headerProps = {
   style: { viewTransitionName: slugifyStr(title) },
-  class: "text-lg font-medium hover:underline",
+  class: "text-lg font-medium break-words [overflow-wrap:anywhere] hover:underline",
 };
 ---
 
-<li class="my-6">
+<li class="my-6 min-w-0">
   <a
     href={href}
-    class="inline-block text-lg font-medium text-blue-600 underline-offset-4 hover:text-blue-800 focus-visible:no-underline focus-visible:underline-offset-0"
+    class="block max-w-full break-words text-lg font-semibold text-[#1a1a1a] underline-offset-4 [overflow-wrap:anywhere] hover:text-accent focus-visible:no-underline focus-visible:underline-offset-0 dark:text-[#e8e8e8]"
   >
     {
       variant === "h2" ? (
@@ -33,5 +33,5 @@ const headerProps = {
     }
   </a>
   <Datetime {pubDatetime} {modDatetime} {timezone} />
-  <p>{description}</p>
+  <p class="break-words [overflow-wrap:anywhere]">{description}</p>
 </li>

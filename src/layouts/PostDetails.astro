@@ -80,6 +80,8 @@ const layoutProps = {
   canonicalURL,
   ogImage,
   scrollSmooth: true,
+  sectionName: entryLabel === "Note" ? "Notes" : "Posts",
+  sectionPath: pathBase,
 };
 
 /* ========== Prev/Next Posts ========== */
@@ -103,18 +105,18 @@ const nextPost =
   <main
     id="main-content"
     class:list={[
-      "mx-auto w-full max-w-app px-4 pb-12",
+      "mx-auto w-full max-w-app px-5 pb-12 sm:px-4",
       { "mt-8": !SITE.showBackButton },
     ]}
     data-pagefind-body
   >
     <h1
       transition:name={slugifyStr(title)}
-      class="inline-block text-2xl font-bold text-accent sm:text-3xl"
+      class="inline-block text-2xl font-semibold text-[#1a1a1a] sm:text-3xl dark:text-[#e8e8e8]"
     >
       {title}
     </h1>
-    <div class="my-2 flex flex-wrap items-center gap-x-2 gap-y-1">
+    <div class="my-2 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono">
       <Datetime {pubDatetime} {modDatetime} {timezone} size="lg" />
       {
         wordCount > 0 && (
@@ -192,7 +194,7 @@ const nextPost =
     }
     <article
       id="article"
-      class="app-prose mx-auto mt-8 max-w-app prose-pre:bg-(--shiki-light-bg) dark:prose-pre:bg-(--shiki-dark-bg)"
+      class="app-prose mx-auto mt-8 max-w-[68ch] prose-pre:bg-(--shiki-light-bg) dark:prose-pre:bg-(--shiki-dark-bg)"
     >
       <Content />
     </article>
@@ -207,11 +209,11 @@ const nextPost =
 
     <BackToTopButton />
 
-    <ShareLinks />
+    <ShareLinks entryLabel={entryLabel === "Note" ? "note" : "post"} />
 
     <hr class="my-6 border-dashed" />
 
-    <!-- Previous/Next Post Buttons -->
+    <!-- Previous/Next Entry Buttons -->
     <div data-pagefind-ignore class="grid grid-cols-1 gap-6 sm:grid-cols-2">
       {
         prevPost && (
@@ -243,7 +245,10 @@ const nextPost =
       }
     </div>
   </main>
-  <Footer />
+  <Footer
+    entryIndexPath={`${pathBase}/`}
+    entryIndexLabel={`All ${entryLabel === "Note" ? "notes" : "posts"}`}
+  />
 </Layout>
 
 <script is:inline data-astro-rerun>
@@ -292,7 +297,7 @@ const nextPost =
    *  allowing sharing of sections easily */
   function addHeadingLinks() {
     const headings = Array.from(
-      document.querySelectorAll("h2, h3, h4, h5, h6")
+      document.querySelectorAll("#article h2, #article h3, #article h4, #article h5, #article h6")
     );
     for (const heading of headings) {
       heading.classList.add("group");
