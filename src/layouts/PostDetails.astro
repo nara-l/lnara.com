@@ -42,7 +42,43 @@ const {
 const { Content } = await render(post);
 const { audio } = post.data;
 
-const bodyText = (post.body ?? "")
+const stripTrailingIndexSection = (body: string) =>
+  body.replace(/\n##\s+Index\s*\n[\s\S]*$/i, "").trim();
+
+const cleanHeadingText = (value: string) =>
+  value
+    .replace(/\[(.*?)\]\([^)]+\)/g, "$1")
+    .replace(/[`*_~]/g, "")
+    .trim();
+
+const getTocItems = (body: string) => {
+  const seen = new Map<string, number>();
+  const items: { id: string; text: string }[] = [];
+  const h2Pattern = /^##\s+(?!#)(.+)$/gm;
+  let match: RegExpExecArray | null;
+
+  while ((match = h2Pattern.exec(body)) !== null) {
+    const text = cleanHeadingText(match[1]);
+    if (!text || text.toLowerCase() === "index") continue;
+
+    const baseId = slugifyStr(text) || `section-${items.length + 1}`;
+    const count = seen.get(baseId) ?? 0;
+    seen.set(baseId, count + 1);
+
+    items.push({
+      id: count === 0 ? baseId : `${baseId}-${count + 1}`,
+      text,
+    });
+  }
+
+  return items;
+};
+
+const articleBody = stripTrailingIndexSection(post.body ?? "");
+const tocItems = getTocItems(articleBody);
+const isNoteEntry = entryLabel === "Note";
+
+const bodyText = articleBody
   .replace(/<[^>]+>/g, " ")
   .replace(/\[(.*?)\]\([^)]+\)/g, "$1")
   .replace(/[#_*`>~\-]/g, " ")
@@ -51,6 +87,7 @@ const bodyText = (post.body ?? "")
 const wordCount = bodyText ? bodyText.split(" ").length : 0;
 const readMinutes = wordCount ? Math.ceil(wordCount / 220) : 0;
 const listenMinutes = wordCount ? Math.ceil(wordCount / 150) : 0;
+const showNoteToc = isNoteEntry && wordCount > 1500 && tocItems.length >= 3;
 
 let ogImageUrl: string | undefined;
 
@@ -192,6 +229,52 @@ const nextPost =
         </div>
       )
     }
+    {
+      showNoteToc && (
+        <>
+          <nav
+            class="note-toc-desktop"
+            aria-label="Contents"
+            data-note-toc
+            data-pagefind-ignore
+          >
+            <div class="note-toc-title">Contents</div>
+            <ol>
+              {tocItems.map(item => (
+                <li>
+                  <a href={`#${item.id}`} data-note-toc-link>
+                    {item.text}
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </nav>
+
+          <details
+            class="note-toc-mobile mt-6 rounded-sm border border-border px-4 py-3 font-mono text-sm"
+            data-note-toc
+            data-pagefind-ignore
+          >
+            <summary class="cursor-pointer text-xs uppercase tracking-[0.2em] text-foreground/70">
+              Contents
+            </summary>
+            <ol class="mt-3 space-y-2">
+              {tocItems.map(item => (
+                <li>
+                  <a
+                    href={`#${item.id}`}
+                    class="text-foreground/75 underline-offset-4 hover:text-accent hover:underline"
+                    data-note-toc-link
+                  >
+                    {item.text}
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </details>
+        </>
+      )
+    }
     <article
       id="article"
       class="app-prose mx-auto mt-8 max-w-[68ch] prose-pre:bg-(--shiki-light-bg) dark:prose-pre:bg-(--shiki-dark-bg)"
@@ -251,6 +334,80 @@ const nextPost =
   />
 </Layout>
 
+<style>
+  .note-toc-desktop {
+    display: none;
+  }
+
+  .note-toc-mobile ol {
+    list-style: decimal;
+    padding-inline-start: 1.25rem;
+  }
+
+  @media (min-width: 1280px) {
+    .note-toc-mobile {
+      display: none;
+    }
+
+    .note-toc-desktop {
+      position: fixed;
+      top: 7rem;
+      left: max(1rem, calc((100vw - 68ch) / 2 - 17rem));
+      display: block;
+      width: 13.5rem;
+      max-height: calc(100vh - 9rem);
+      overflow: auto;
+      padding-inline-end: 1rem;
+      font-family:
+        ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-size: 0.72rem;
+      line-height: 1.45;
+    }
+
+    .note-toc-title {
+      margin-bottom: 0.75rem;
+      color: color-mix(in srgb, var(--foreground) 55%, transparent);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .note-toc-desktop ol {
+      margin: 0;
+      list-style: none;
+      padding: 0;
+    }
+
+    .note-toc-desktop li + li {
+      margin-top: 0.65rem;
+    }
+
+    .note-toc-desktop a {
+      display: block;
+      border-inline-start: 1px solid
+        color-mix(in srgb, var(--foreground) 16%, transparent);
+      color: color-mix(in srgb, var(--foreground) 58%, transparent);
+      padding-inline-start: 0.65rem;
+      text-decoration: none;
+      transition:
+        border-color 150ms ease,
+        color 150ms ease;
+    }
+
+    .note-toc-desktop a:hover,
+    .note-toc-desktop a:focus,
+    .note-toc-desktop a[aria-current="true"] {
+      border-color: var(--color-accent);
+      color: var(--color-accent);
+    }
+
+    .note-toc-desktop a:focus-visible {
+      outline: 2px dashed var(--color-accent);
+      outline-offset: 3px;
+    }
+  }
+</style>
+
 <script is:inline data-astro-rerun>
   /** Create a progress indicator
    *  at the top */
@@ -292,6 +449,68 @@ const nextPost =
     });
   }
   updateScrollProgress();
+
+  function setupNoteToc() {
+    const tocLinks = Array.from(
+      document.querySelectorAll("[data-note-toc-link]")
+    );
+    if (tocLinks.length === 0) return;
+
+    const tocIds = Array.from(
+      new Set(
+        tocLinks
+          .map(link => link.getAttribute("href")?.replace(/^#/, ""))
+          .filter(Boolean)
+      )
+    );
+
+    const h2s = Array.from(document.querySelectorAll("#article h2"));
+    h2s.forEach((heading, index) => {
+      const id = tocIds[index];
+      if (id) heading.id = id;
+    });
+
+    tocLinks.forEach(link => {
+      link.addEventListener("click", () => {
+        link.closest("details")?.removeAttribute("open");
+      });
+    });
+
+    if (!("IntersectionObserver" in window)) return;
+
+    const sectionLinks = new Map();
+    tocLinks.forEach(link => {
+      const id = link.getAttribute("href")?.replace(/^#/, "");
+      if (!id) return;
+      const links = sectionLinks.get(id) ?? [];
+      links.push(link);
+      sectionLinks.set(id, links);
+    });
+
+    function setCurrentSection(id) {
+      tocLinks.forEach(link => link.removeAttribute("aria-current"));
+      const links = sectionLinks.get(id) ?? [];
+      links.forEach(link => link.setAttribute("aria-current", "true"));
+    }
+
+    const observer = new IntersectionObserver(
+      entries => {
+        const visible = entries
+          .filter(entry => entry.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        const current = visible[0]?.target;
+        if (current?.id) setCurrentSection(current.id);
+      },
+      { rootMargin: "-18% 0px -70% 0px", threshold: 0 }
+    );
+
+    h2s.forEach(heading => {
+      if (heading.id && sectionLinks.has(heading.id)) {
+        observer.observe(heading);
+      }
+    });
+  }
+  setupNoteToc();
 
   /** Attaches links to headings in the document,
    *  allowing sharing of sections easily */

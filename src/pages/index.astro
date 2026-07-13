@@ -1,175 +1,246 @@
 ---
-import { getCollection } from "astro:content";
+import { getCollection, type CollectionEntry } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
-import Footer from "@/components/Footer.astro";
 import getSortedPosts from "@/utils/getSortedPosts";
-import { getEntryPath, isSeries } from "@/utils/entryPaths";
+import { getEntryPath, isNote, isSeries } from "@/utils/entryPaths";
+
+type BlogEntry = CollectionEntry<"blog">;
 
 const posts = await getCollection("blog");
-const sortedPosts = getSortedPosts(posts);
-const recentPosts = sortedPosts.filter(post => !isSeries(post)).slice(0, 5); // Last 5 posts
+const sortedPosts = getSortedPosts(posts).filter(post => !isSeries(post));
+const essays = sortedPosts.filter(post => !isNote(post));
+const notes = sortedPosts
+  .filter(isNote)
+  .filter(note => note.id !== "how-these-get-written");
+
+const featuredEssay = essays[0];
+const recentEssays = essays.slice(1, 4);
+const recentNotes = notes.slice(0, 3);
+
+// TODO: Add a scrapbook/Life, lately section after selecting the photo set and concept.
+const formatDate = (date: Date) =>
+  date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+
+const titleCase = (value: string) =>
+  value
+    .split("-")
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+
+const getTopicLabel = (entry: BlogEntry) => {
+  const tags = entry.data.tags;
+
+  if (
+    tags.some(tag =>
+      [
+        "software",
+        "software-that-works",
+        "technology",
+        "ai",
+        "interfaces",
+        "product",
+      ].includes(tag)
+    )
+  ) {
+    return "Technology";
+  }
+
+  if (
+    tags.some(tag =>
+      ["capitalism", "capitalism-and-human-desire", "status", "work"].includes(
+        tag
+      )
+    )
+  ) {
+    return "Capitalism";
+  }
+
+  if (
+    tags.some(tag =>
+      ["society", "institutions", "infrastructure", "family", "life"].includes(
+        tag
+      )
+    )
+  ) {
+    return "Society";
+  }
+
+  return tags[0] ? titleCase(tags[0]) : "Writing";
+};
+
 ---
 
-<Layout>
+<Layout
+  title="Lawrence Nara"
+  description="Essays on technology, institutions, capitalism, immigration, and ordinary life."
+>
   <Header />
-  <main id="main-content" class="mx-auto max-w-3xl px-4 py-8">
-    <!-- Header -->
-    <header class="mb-12">
-      <h1 class="mb-2 text-3xl font-bold">Lawrence Nara</h1>
-      <p class="text-lg text-gray-600">
-        Product. Many many incomplete ideas and thoughts.
-      </p>
-      <p class="mt-1 text-sm text-gray-500">
-        Life is short. What have I done about it today?
-      </p>
-    </header>
-
-    <hr class="my-8 border-gray-300" />
-
-    <!-- Now Section -->
-    <section class="mb-12">
-      <h2 class="mb-4 text-xl font-semibold">Now</h2>
-      <p class="text-lg leading-relaxed font-medium">
-        Took my first real break in years after getting burned out from working
-        non-stop. During the sabbatical, decided to finally finish my MBA and
-        started experimenting with AI. 'Your fastest path to yourself is
-        unemployment' - and that turned out to be true. Something magical
-        happens when you step back from the daily grind - you see where tech is
-        heading, where humanity is heading. Got my energy back. Now building
-        things and prepping for my next full-time role.
-      </p>
-      <p class="mt-2 text-sm text-gray-500">Last updated: December 2025</p>
+  <main id="main-content" class="mx-auto max-w-3xl px-5 py-10 sm:px-4">
+    <section class="grid gap-8 border-b border-border pb-10 sm:grid-cols-[1fr_8.5rem] sm:items-start">
+      <div>
+        <p class="mb-4 font-mono text-xs uppercase tracking-[0.24em] text-foreground/55">
+          Lawrence Nara
+        </p>
+        <h1 class="max-w-2xl text-3xl font-semibold leading-tight text-[#1a1a1a] sm:text-4xl dark:text-[#e8e8e8]">
+          Essays and notes on technology, institutions, and ordinary life.
+        </h1>
+        <p class="mt-4 max-w-2xl text-base leading-relaxed text-foreground/75 sm:text-lg">
+          I write about whatever won't leave me alone. I'm based in Baltimore.
+          I'm a husband and father, I've driven through twenty-some states, I go
+          to more concerts than I plan to, and I attend regional Burning Man
+          events. Nevada is still on the list. Essays are finished arguments.
+          Notes are me thinking out loud.
+          <a
+            href="/about/"
+            class="whitespace-nowrap text-accent underline-offset-4 hover:underline"
+          >
+            More about me
+          </a>
+        </p>
+      </div>
+      <figure class="w-36 max-w-full sm:w-full">
+        <img
+          src="/images/lawrence-home.jpg"
+          alt="Portrait of Lawrence Nara in a car."
+          class="aspect-square w-full rounded-md border border-border object-cover"
+          loading="eager"
+        />
+        <figcaption class="mt-2 font-mono text-[0.65rem] uppercase tracking-[0.16em] text-foreground/55">
+          photo
+        </figcaption>
+      </figure>
     </section>
 
-    <hr class="my-8 border-gray-300" />
+    {
+      featuredEssay && (
+        <section class="border-b border-border py-8">
+          <p class="mb-3 font-mono text-xs uppercase tracking-[0.22em] text-foreground/55">
+            Featured Essay / {getTopicLabel(featuredEssay)}
+          </p>
+          <a
+            href={getEntryPath(featuredEssay)}
+            class="group block rounded-sm focus-visible:outline-2 focus-visible:outline-dashed focus-visible:outline-accent"
+          >
+            <h2 class="text-2xl font-semibold leading-tight text-[#1a1a1a] underline-offset-4 group-hover:text-accent group-hover:underline dark:text-[#e8e8e8]">
+              {featuredEssay.data.title}
+            </h2>
+            <p class="mt-3 max-w-2xl leading-relaxed text-foreground/75">
+              {featuredEssay.data.description}
+            </p>
+            <time
+              class="mt-4 block font-mono text-xs text-foreground/55"
+              datetime={featuredEssay.data.pubDatetime.toISOString()}
+            >
+              {formatDate(featuredEssay.data.pubDatetime)}
+            </time>
+          </a>
+        </section>
+      )
+    }
 
-    <!-- Recent Writing -->
-    <section class="mb-12">
-      <h2 class="mb-6 text-xl font-semibold">Recent Writing</h2>
-      <ul class="space-y-4">
-        {
-          recentPosts.map(post => (
-            <li>
-              <a
-                href={getEntryPath(post)}
-                class="block text-[#1a1a1a] transition-colors hover:text-accent dark:text-[#e8e8e8]"
-              >
-                <div class="flex flex-col sm:flex-row sm:items-baseline sm:justify-between">
-                  <h3 class="font-medium">{post.data.title}</h3>
-                  <time class="mt-1 font-mono text-sm text-gray-500 sm:mt-0">
-                    {post.data.pubDatetime.toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </time>
-                </div>
-                <p class="mt-1 line-clamp-1 text-base leading-relaxed text-gray-600">
-                  {post.data.description}
-                </p>
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-      <div class="mt-6">
-        <a href="/posts/" class="text-sm text-accent hover:underline">
-          → View all posts
-        </a>
-        <span class="mx-2 text-gray-400">·</span>
-        <a href="/notes/" class="text-sm text-accent hover:underline">
-          → View notes
-        </a>
+    <section class="grid gap-10 border-b border-border py-8 sm:grid-cols-2">
+      <div>
+        <div class="mb-5 flex items-baseline justify-between gap-4">
+          <h2 class="text-xl font-semibold">Recent essays</h2>
+          <a
+            href="/posts/"
+            class="text-sm text-accent underline-offset-4 hover:underline"
+          >
+            all
+          </a>
+        </div>
+        <ul class="space-y-4">
+          {
+            recentEssays.map(essay => (
+              <li>
+                <a
+                  href={getEntryPath(essay)}
+                  class="group block rounded-sm focus-visible:outline-2 focus-visible:outline-dashed focus-visible:outline-accent"
+                >
+                  <div class="mb-1 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-foreground/55">
+                    {getTopicLabel(essay)}
+                  </div>
+                  <h3 class="font-semibold leading-snug text-[#1a1a1a] underline-offset-4 group-hover:text-accent group-hover:underline dark:text-[#e8e8e8]">
+                    {essay.data.title}
+                  </h3>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div>
+        <div class="mb-5 flex items-baseline justify-between gap-4">
+          <h2 class="text-xl font-semibold">Recent notes</h2>
+          <a
+            href="/notes/"
+            class="text-sm text-accent underline-offset-4 hover:underline"
+          >
+            all
+          </a>
+        </div>
+        <ul class="space-y-4">
+          {
+            recentNotes.map(note => (
+              <li>
+                <a
+                  href={getEntryPath(note)}
+                  class="group block rounded-sm focus-visible:outline-2 focus-visible:outline-dashed focus-visible:outline-accent"
+                >
+                  <div class="mb-1 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-foreground/55">
+                    {getTopicLabel(note)}
+                  </div>
+                  <h3 class="font-semibold leading-snug text-[#1a1a1a] underline-offset-4 group-hover:text-accent group-hover:underline dark:text-[#e8e8e8]">
+                    {note.data.title}
+                  </h3>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
       </div>
     </section>
 
-    <hr class="my-8 border-gray-300" />
-
-    <!-- Work Section -->
-    <section class="mb-12">
-      <h2 class="mb-6 text-xl font-semibold">Work</h2>
-      <ul class="space-y-4">
-        <li class="text-lg leading-relaxed">
-          <strong>Infosys</strong> - Led teams that modernize legacy systems for
-          Fortune 100 companies (2019-2024)
-        </li>
-        <li class="text-lg leading-relaxed">
-          <strong>Amiti Consulting</strong> - Built SaaS feedback tool for investment
-          firm with 500+ employees (2018)
-        </li>
-        <li class="text-lg leading-relaxed">
-          <strong>UMHCS</strong> - Developed HIPAA-compliant health records system
-          (2017-2018)
-        </li>
-        <li class="text-lg leading-relaxed">
-          <strong>Wasamundi</strong> - Co-founded first business directory in Cameroon,
-          pioneered student hostel directory and SMS marketing SaaS, grew to 5K+
-          businesses (2011-2017)
-        </li>
-        <li class="text-lg leading-relaxed">
-          <strong>Usepulse</strong> - Built university communication platform connecting
-          students via SMS/web (2011-2013)
-        </li>
-        <li class="text-lg leading-relaxed">
-          <strong>Tools I use</strong> - AWS, React, Angular, Node.js, Python, whatever
-          works for the problem
-        </li>
-      </ul>
-      <div class="mt-6">
+    <footer class="py-6">
+      <nav
+        aria-label="Homepage"
+        class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm"
+      >
+        <a href="/about/" class="text-accent underline-offset-4 hover:underline">
+          About
+        </a>
+        <a href="/posts/" class="text-accent underline-offset-4 hover:underline">
+          Essays
+        </a>
+        <a href="/notes/" class="text-accent underline-offset-4 hover:underline">
+          Notes
+        </a>
+        <a href="/tags/" class="text-accent underline-offset-4 hover:underline">
+          Topics
+        </a>
+        <a href="/tags/life/" class="text-accent underline-offset-4 hover:underline">
+          Life
+        </a>
         <a
           href="/lawrence-njie-litumbe-resume-2026.pdf"
-          class="text-sm text-accent hover:underline"
+          class="text-accent underline-offset-4 hover:underline"
           target="_blank"
         >
-          → Download resume (PDF)
+          CV
         </a>
-      </div>
-    </section>
-
-    <hr class="my-8 border-gray-300" />
-
-    <!-- Connect Section -->
-    <section class="mb-12">
-      <h2 class="mb-6 text-xl font-semibold">Connect</h2>
-      <div class="flex gap-4">
         <a
-          href="mailto:lawrence.nara@gmail.com"
-          class="text-accent hover:underline"
+          href="mailto:lawrence.nara@gmail.com?subject=Subscribe%20me%20to%20lnara.com&body=Please%20add%20me%20to%20the%20lnara.com%20reading%20list."
+          class="text-foreground/55 underline-offset-4 hover:text-accent hover:underline"
         >
-          Email
+          Subscribe
         </a>
-        <span class="text-gray-400">·</span>
-        <a
-          href="https://github.com/nara-l"
-          class="text-accent hover:underline"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          GitHub
-        </a>
-        <span class="text-gray-400">·</span>
-        <a
-          href="https://www.linkedin.com/in/lawrence-njie-litumbe-8a042032/"
-          class="text-accent hover:underline"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          LinkedIn
-        </a>
-        <span class="text-gray-400">·</span>
-        <a href="/rss.xml" class="text-accent hover:underline"> RSS </a>
-      </div>
-    </section>
+      </nav>
+    </footer>
   </main>
-  <Footer />
 </Layout>
-
-<style>
-  .line-clamp-1 {
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-</style>
