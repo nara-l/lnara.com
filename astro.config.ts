@@ -78,6 +78,11 @@ export default defineConfig({
         context: "client",
         optional: true,
       }),
+      PUBLIC_ANNOTATIONS_API_URL: envField.string({
+        access: "public",
+        context: "client",
+        optional: true,
+      }),
     },
   },
   experimental: {

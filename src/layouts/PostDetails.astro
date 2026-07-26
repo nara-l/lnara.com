@@ -9,7 +9,11 @@ import EditPost from "@/components/EditPost.astro";
 import ShareLinks from "@/components/ShareLinks.astro";
 import BackButton from "@/components/BackButton.astro";
 import BackToTopButton from "@/components/BackToTopButton.astro";
+import Annotations from "@/components/Annotations.astro";
+import AnnotationAuthor from "@/components/AnnotationAuthor.astro";
 import { getPath } from "@/utils/getPath";
+import { getPublicAnnotations } from "@/utils/annotations";
+import { renderAnnotatedMarkdown } from "@/utils/renderAnnotatedMarkdown";
 import { slugifyStr } from "@/utils/slugify";
 import IconChevronLeft from "@/assets/icons/IconChevronLeft.svg";
 import IconChevronRight from "@/assets/icons/IconChevronRight.svg";
@@ -41,6 +45,11 @@ const {
 
 const { Content } = await render(post);
 const { audio } = post.data;
+const publicAnnotations = getPublicAnnotations(post.id);
+const annotatedContent =
+  publicAnnotations.length > 0
+    ? await renderAnnotatedMarkdown(post.body ?? "", post.id)
+    : null;
 
 const stripTrailingIndexSection = (body: string) =>
   body.replace(/\n##\s+Index\s*\n[\s\S]*$/i, "").trim();
@@ -289,8 +298,16 @@ const nextPost =
         id="article"
         class="app-prose mx-auto max-w-[68ch] prose-pre:bg-(--shiki-light-bg) dark:prose-pre:bg-(--shiki-dark-bg)"
       >
-        <Content />
+        {
+          annotatedContent ? (
+            <Fragment set:html={annotatedContent.code} />
+          ) : (
+            <Content />
+          )
+        }
       </article>
+      <Annotations annotations={publicAnnotations} />
+      <AnnotationAuthor slug={post.id} />
     </div>
 
     <div class="post-footer-shell mx-auto max-w-[68ch]">

@@ -1,7 +1,12 @@
 {
   "extends": "astro/tsconfigs/strict",
   "include": [".astro/types.d.ts", "**/*"],
-  "exclude": ["dist", "public/pagefind", "consumed-backend"],
+  "exclude": [
+    "dist",
+    "public/pagefind",
+    "consumed-backend",
+    "annotations-worker"
+  ],
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {

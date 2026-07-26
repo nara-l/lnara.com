@@ -1,0 +1,14 @@
+{
+  "name": "lnara-annotations-worker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --local --persist-to .wrangler/state",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "4.20260702.1",
+    "typescript": "^5.8.3",
+    "wrangler": "3.80.0"
+  }
+}

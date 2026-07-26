@@ -1,0 +1,726 @@
+---
+interface Props {
+  slug: string;
+}
+
+const { slug } = Astro.props;
+const configuredApi = import.meta.env.PUBLIC_ANNOTATIONS_API_URL;
+const apiUrl =
+  configuredApi || (import.meta.env.DEV ? "http://127.0.0.1:8787" : "");
+---
+
+<div
+  data-annotation-author
+  data-slug={slug}
+  data-api-url={apiUrl}
+  hidden
+  data-pagefind-ignore
+>
+  <button type="button" class="annotation-mode" data-annotation-mode>
+    Annotating
+  </button>
+
+  <button type="button" class="annotation-notes-button" data-annotation-notes>
+    My notes
+  </button>
+
+  <button type="button" class="annotation-add" data-annotation-add hidden>
+    Add note
+  </button>
+
+  <dialog class="annotation-dialog" data-annotation-login>
+    <form method="dialog" data-annotation-login-form>
+      <header>
+        <h2>Author mode</h2>
+        <button type="button" class="icon-button" data-close aria-label="Close">
+          &times;
+        </button>
+      </header>
+      <label>
+        Password
+        <input
+          type="password"
+          name="password"
+          autocomplete="current-password"
+          required
+        />
+      </label>
+      <p class="annotation-error" data-login-error role="alert"></p>
+      <footer>
+        <button type="submit">Unlock</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog class="annotation-dialog composer" data-annotation-composer>
+    <form method="dialog" data-annotation-form>
+      <header>
+        <h2>Add annotation</h2>
+        <button type="button" class="icon-button" data-close aria-label="Close">
+          &times;
+        </button>
+      </header>
+      <blockquote data-selected-quote></blockquote>
+      <label>
+        Note
+        <textarea
+          name="text"
+          rows="5"
+          maxlength="5000"
+          placeholder="Your reading, a connection, a question..."
+          required></textarea>
+      </label>
+      <label>
+        Tags
+        <input
+          name="tags"
+          maxlength="200"
+          placeholder="comma separated"
+          autocomplete="off"
+        />
+      </label>
+      <fieldset>
+        <legend>Visibility</legend>
+        <label
+          ><input type="radio" name="visibility" value="private" checked /> Private</label
+        >
+        <label
+          ><input type="radio" name="visibility" value="public" /> Public</label
+        >
+      </fieldset>
+      <p class="annotation-error" data-save-error role="alert"></p>
+      <footer>
+        <button type="button" class="secondary" data-cancel>Cancel</button>
+        <button type="submit" data-save>Save note</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog class="annotation-dialog notes-dialog" data-annotation-notes-dialog>
+    <section>
+      <header>
+        <h2>My notes</h2>
+        <button type="button" class="icon-button" data-close aria-label="Close">
+          &times;
+        </button>
+      </header>
+      <ol data-private-notes></ol>
+      <p data-no-private-notes>No annotations on this note yet.</p>
+    </section>
+  </dialog>
+
+  <div class="annotation-status" data-annotation-status role="status" hidden>
+  </div>
+</div>
+
+<style>
+  [data-annotation-author] {
+    --annotation-panel: var(--background);
+  }
+
+  .annotation-mode,
+  .annotation-notes-button,
+  .annotation-add {
+    position: fixed;
+    z-index: 30;
+    right: max(1rem, env(safe-area-inset-right));
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: var(--annotation-panel);
+    color: var(--foreground);
+    font-family:
+      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+      "Courier New", monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    box-shadow: 0 2px 12px
+      color-mix(in srgb, var(--foreground) 12%, transparent);
+  }
+
+  .annotation-mode {
+    top: max(1rem, env(safe-area-inset-top));
+    padding: 0.55rem 0.75rem;
+  }
+
+  .annotation-notes-button {
+    top: max(4.4rem, calc(env(safe-area-inset-top) + 3.4rem));
+    padding: 0.55rem 0.75rem;
+  }
+
+  .annotation-add {
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    padding: 0.75rem 1rem;
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--background);
+  }
+
+  .annotation-dialog {
+    width: min(32rem, calc(100vw - 2rem));
+    max-height: calc(100dvh - 2rem);
+    margin: auto;
+    padding: 0;
+    overflow: auto;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--annotation-panel);
+    color: var(--foreground);
+  }
+
+  .annotation-dialog::backdrop {
+    background: color-mix(in srgb, #000 45%, transparent);
+  }
+
+  .annotation-dialog form {
+    display: grid;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .notes-dialog > section {
+    padding: 1rem;
+  }
+
+  .annotation-dialog header,
+  .annotation-dialog footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .annotation-dialog h2 {
+    margin: 0;
+    font-family: "Source Serif 4", Georgia, serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
+
+  .annotation-dialog label,
+  .annotation-dialog legend {
+    font-family:
+      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+      "Courier New", monospace;
+    font-size: 0.72rem;
+  }
+
+  .annotation-dialog input[type="password"],
+  .annotation-dialog input[name="tags"],
+  .annotation-dialog textarea {
+    display: block;
+    width: 100%;
+    margin-top: 0.4rem;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: var(--background);
+    color: var(--foreground);
+    font-family: "Source Serif 4", Georgia, serif;
+    font-size: 1rem;
+  }
+
+  .annotation-dialog input,
+  .annotation-dialog textarea {
+    padding: 0.7rem;
+  }
+
+  .annotation-dialog textarea {
+    resize: vertical;
+  }
+
+  .annotation-dialog blockquote {
+    max-height: 8rem;
+    margin: 0;
+    padding: 0.75rem;
+    overflow: auto;
+    border-inline-start: 2px solid var(--accent);
+    background: color-mix(in srgb, var(--foreground) 4%, transparent);
+    font-family: "Source Serif 4", Georgia, serif;
+    font-style: italic;
+  }
+
+  .notes-dialog ol {
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .notes-dialog li {
+    display: grid;
+    grid-template-columns: 2rem minmax(0, 1fr);
+    gap: 0.6rem;
+    padding-block: 0.8rem;
+    border-top: 1px solid var(--border);
+    font-family: "Source Serif 4", Georgia, serif;
+  }
+
+  .notes-dialog li > span {
+    color: var(--accent);
+    font-family:
+      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+      "Courier New", monospace;
+    font-size: 0.72rem;
+  }
+
+  .notes-dialog li p {
+    margin: 0;
+  }
+
+  .notes-dialog li small {
+    display: block;
+    margin-top: 0.35rem;
+    font-family:
+      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+      "Courier New", monospace;
+    opacity: 0.65;
+  }
+
+  .annotation-dialog fieldset {
+    display: flex;
+    gap: 1rem;
+    margin: 0;
+    padding: 0.7rem;
+    border: 1px solid var(--border);
+  }
+
+  .annotation-dialog button {
+    min-height: 2.5rem;
+    padding: 0.55rem 0.85rem;
+    border: 1px solid var(--accent);
+    border-radius: 2px;
+    background: var(--accent);
+    color: var(--background);
+    font-family:
+      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+      "Courier New", monospace;
+    font-size: 0.75rem;
+  }
+
+  .annotation-dialog .icon-button,
+  .annotation-dialog .secondary {
+    border-color: var(--border);
+    background: transparent;
+    color: var(--foreground);
+  }
+
+  .annotation-dialog .icon-button {
+    width: 2.5rem;
+    padding: 0;
+    font-size: 1.3rem;
+  }
+
+  .annotation-error {
+    min-height: 1.25rem;
+    margin: 0;
+    color: #a1372b;
+    font-size: 0.8rem;
+  }
+
+  .annotation-status {
+    position: fixed;
+    z-index: 40;
+    right: 1rem;
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    max-width: min(24rem, calc(100vw - 2rem));
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border);
+    background: var(--annotation-panel);
+    color: var(--foreground);
+    font-family:
+      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+      "Courier New", monospace;
+    font-size: 0.75rem;
+  }
+
+  @media (max-width: 640px) {
+    .annotation-dialog.composer {
+      width: 100%;
+      max-width: none;
+      max-height: 90dvh;
+      margin: auto 0 0;
+      border-width: 1px 0 0;
+      border-radius: 0;
+    }
+  }
+</style>
+
+<style is:global>
+  ::highlight(lnara-private-annotations) {
+    background: color-mix(in srgb, #e3b85a 28%, transparent);
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent);
+    text-decoration-style: dotted;
+    text-underline-offset: 0.16em;
+  }
+</style>
+
+<script>
+  type SelectionState = {
+    exact: string;
+    prefix?: string;
+    suffix?: string;
+  };
+
+  type AuthorAnnotation = {
+    id: string;
+    selector: SelectionState;
+    text: string;
+    tags: string[];
+    visibility: "private" | "public";
+    createdAt: string;
+  };
+
+  const setupAnnotationAuthor = () => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("annotate") !== "1") return;
+
+    const root = document.querySelector<HTMLElement>(
+      "[data-annotation-author]"
+    );
+    const article = document.querySelector<HTMLElement>("#article");
+    if (!root || !article) return;
+
+    const apiUrl = root.dataset.apiUrl;
+    const slug = root.dataset.slug;
+    if (!apiUrl || !slug) return;
+
+    const login = root.querySelector<HTMLDialogElement>(
+      "[data-annotation-login]"
+    );
+    const composer = root.querySelector<HTMLDialogElement>(
+      "[data-annotation-composer]"
+    );
+    const addButton = root.querySelector<HTMLButtonElement>(
+      "[data-annotation-add]"
+    );
+    const quote = root.querySelector<HTMLElement>("[data-selected-quote]");
+    const status = root.querySelector<HTMLElement>("[data-annotation-status]");
+    const form = root.querySelector<HTMLFormElement>("[data-annotation-form]");
+    const notesButton = root.querySelector<HTMLButtonElement>(
+      "[data-annotation-notes]"
+    );
+    const notesDialog = root.querySelector<HTMLDialogElement>(
+      "[data-annotation-notes-dialog]"
+    );
+    const notesList = root.querySelector<HTMLOListElement>(
+      "[data-private-notes]"
+    );
+    const noNotes = root.querySelector<HTMLElement>("[data-no-private-notes]");
+    const noteInput = form?.querySelector<HTMLTextAreaElement>('[name="text"]');
+    const tagsInput = form?.querySelector<HTMLInputElement>('[name="tags"]');
+    if (
+      !login ||
+      !composer ||
+      !addButton ||
+      !quote ||
+      !status ||
+      !form ||
+      !noteInput ||
+      !tagsInput ||
+      !notesButton ||
+      !notesDialog ||
+      !notesList ||
+      !noNotes
+    )
+      return;
+
+    const draftKey = `lnara-annotation-draft:${slug}`;
+    let selected: SelectionState | null = null;
+    root.hidden = false;
+
+    const showStatus = (message: string) => {
+      status.textContent = message;
+      status.hidden = false;
+      window.setTimeout(() => (status.hidden = true), 3500);
+    };
+
+    const api = (path: string, init?: RequestInit) =>
+      fetch(`${apiUrl}${path}`, { ...init, credentials: "include" });
+
+    const eligibleBlock = (element: Element | null) =>
+      element?.closest<HTMLElement>("p, li, blockquote, h2, h3, h4") ?? null;
+
+    const textNodes = (block: HTMLElement) => {
+      const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT, {
+        acceptNode(node) {
+          const parent = node.parentElement;
+          if (
+            !parent ||
+            parent.closest(
+              "a, code, pre, script, style, sup, mark.annotation-anchor"
+            )
+          ) {
+            return NodeFilter.FILTER_REJECT;
+          }
+          return NodeFilter.FILTER_ACCEPT;
+        },
+      });
+      const nodes: Text[] = [];
+      while (walker.nextNode()) nodes.push(walker.currentNode as Text);
+      return nodes;
+    };
+
+    const rangeForSelector = (selector: SelectionState) => {
+      for (const block of article.querySelectorAll<HTMLElement>(
+        "p, li, blockquote, h2, h3, h4"
+      )) {
+        const nodes = textNodes(block);
+        const fullText = nodes.map(node => node.data).join("");
+        let index = fullText.indexOf(selector.exact);
+        while (index !== -1) {
+          const prefixMatches =
+            !selector.prefix ||
+            fullText.slice(0, index).endsWith(selector.prefix);
+          const suffixMatches =
+            !selector.suffix ||
+            fullText
+              .slice(index + selector.exact.length)
+              .startsWith(selector.suffix);
+          if (prefixMatches && suffixMatches) {
+            let offset = 0;
+            let startNode: Text | null = null;
+            let endNode: Text | null = null;
+            let startOffset = 0;
+            let endOffset = 0;
+            for (const node of nodes) {
+              const next = offset + node.data.length;
+              if (!startNode && index >= offset && index <= next) {
+                startNode = node;
+                startOffset = index - offset;
+              }
+              const end = index + selector.exact.length;
+              if (endNode === null && end >= offset && end <= next) {
+                endNode = node;
+                endOffset = end - offset;
+              }
+              offset = next;
+            }
+            if (startNode && endNode) {
+              const range = document.createRange();
+              range.setStart(startNode, startOffset);
+              range.setEnd(endNode, endOffset);
+              return range;
+            }
+          }
+          index = fullText.indexOf(selector.exact, index + 1);
+        }
+      }
+      return null;
+    };
+
+    const renderAuthorAnnotations = (annotations: AuthorAnnotation[]) => {
+      notesList.replaceChildren();
+      const ranges: Range[] = [];
+
+      annotations.forEach((annotation, index) => {
+        if (annotation.visibility === "private") {
+          const range = rangeForSelector(annotation.selector);
+          if (range) ranges.push(range);
+        }
+
+        const item = document.createElement("li");
+        const number = document.createElement("span");
+        number.textContent = String(index + 1);
+        const body = document.createElement("div");
+        const text = document.createElement("p");
+        text.textContent = annotation.text;
+        const meta = document.createElement("small");
+        meta.textContent = `${annotation.visibility} | ${annotation.createdAt.slice(0, 10)}`;
+        body.append(text, meta);
+        item.append(number, body);
+        notesList.append(item);
+      });
+
+      noNotes.hidden = annotations.length > 0;
+      if ("highlights" in CSS && typeof Highlight !== "undefined") {
+        CSS.highlights.set(
+          "lnara-private-annotations",
+          new Highlight(...ranges)
+        );
+      }
+    };
+
+    const loadAnnotations = async () => {
+      const response = await api(`/api/annotations/${slug}`);
+      if (!response.ok) return false;
+      const result = (await response.json()) as {
+        annotations?: AuthorAnnotation[];
+      };
+      renderAuthorAnnotations(result.annotations ?? []);
+      return true;
+    };
+
+    const ensureSession = async () => {
+      if (await loadAnnotations()) return true;
+      const response = await api(`/api/annotations/${slug}`);
+      if (response.status === 401) login.showModal();
+      else showStatus("Annotation service is unavailable.");
+      return false;
+    };
+
+    const captureSelection = () => {
+      const selection = window.getSelection();
+      if (!selection || selection.isCollapsed || selection.rangeCount !== 1) {
+        addButton.hidden = true;
+        return;
+      }
+      const range = selection.getRangeAt(0);
+      const start =
+        range.startContainer.nodeType === Node.TEXT_NODE
+          ? range.startContainer.parentElement
+          : (range.startContainer as Element);
+      const end =
+        range.endContainer.nodeType === Node.TEXT_NODE
+          ? range.endContainer.parentElement
+          : (range.endContainer as Element);
+      const startBlock = eligibleBlock(start);
+      const endBlock = eligibleBlock(end);
+      const exact = range.toString();
+
+      if (
+        !startBlock ||
+        startBlock !== endBlock ||
+        !article.contains(startBlock) ||
+        exact.trim().length < 2 ||
+        exact.length > 1000
+      ) {
+        addButton.hidden = true;
+        return;
+      }
+
+      const before = document.createRange();
+      before.selectNodeContents(startBlock);
+      before.setEnd(range.startContainer, range.startOffset);
+      const after = document.createRange();
+      after.selectNodeContents(startBlock);
+      after.setStart(range.endContainer, range.endOffset);
+      selected = {
+        exact,
+        prefix: before.toString().slice(-120) || undefined,
+        suffix: after.toString().slice(0, 120) || undefined,
+      };
+      addButton.hidden = false;
+    };
+
+    document.addEventListener("selectionchange", captureSelection);
+    article.addEventListener("pointerup", captureSelection);
+    article.addEventListener("keyup", captureSelection);
+
+    addButton.addEventListener("click", async () => {
+      if (!selected || !(await ensureSession())) return;
+      quote.textContent = selected.exact;
+      const draft = localStorage.getItem(draftKey);
+      if (draft) {
+        const saved = JSON.parse(draft) as { text?: string; tags?: string };
+        noteInput.value = saved.text ?? "";
+        tagsInput.value = saved.tags ?? "";
+      }
+      composer.showModal();
+      addButton.hidden = true;
+    });
+
+    notesButton.addEventListener("click", () => notesDialog.showModal());
+
+    root
+      .querySelectorAll<HTMLElement>("[data-close], [data-cancel]")
+      .forEach(button =>
+        button.addEventListener("click", () =>
+          button.closest<HTMLDialogElement>("dialog")?.close()
+        )
+      );
+
+    const loginForm = root.querySelector<HTMLFormElement>(
+      "[data-annotation-login-form]"
+    );
+    loginForm?.addEventListener("submit", async event => {
+      event.preventDefault();
+      const password = String(new FormData(loginForm).get("password") ?? "");
+      const error = root.querySelector<HTMLElement>("[data-login-error]");
+      const response = await api("/api/annotations/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
+      if (!response.ok) {
+        if (error) error.textContent = "That password was not accepted.";
+        return;
+      }
+      login.close();
+      loginForm.reset();
+      await loadAnnotations();
+      showStatus("Author mode unlocked. Select the passage again.");
+    });
+
+    const persistDraft = () => {
+      localStorage.setItem(
+        draftKey,
+        JSON.stringify({
+          text: noteInput.value,
+          tags: tagsInput.value,
+        })
+      );
+    };
+    noteInput.addEventListener("input", persistDraft);
+    tagsInput.addEventListener("input", persistDraft);
+
+    form.addEventListener("submit", async event => {
+      event.preventDefault();
+      if (!selected) return;
+      const values = new FormData(form);
+      const save = root.querySelector<HTMLButtonElement>("[data-save]");
+      const error = root.querySelector<HTMLElement>("[data-save-error]");
+      const id = `annotation-${crypto.randomUUID()}`;
+      const requestKey = crypto.randomUUID();
+      if (save) save.disabled = true;
+      if (error) error.textContent = "";
+
+      try {
+        const response = await api(`/api/annotations/${slug}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Idempotency-Key": requestKey,
+          },
+          body: JSON.stringify({
+            id,
+            selector: selected,
+            text: String(values.get("text") ?? ""),
+            tags: String(values.get("tags") ?? "")
+              .split(",")
+              .map(tag => tag.trim().toLowerCase())
+              .filter(Boolean),
+            visibility: values.get("visibility"),
+          }),
+        });
+        const result = (await response.json()) as { error?: string };
+        if (!response.ok) throw new Error(result.error || "Save failed");
+
+        localStorage.removeItem(draftKey);
+        form.reset();
+        composer.close();
+        selected = null;
+        window.getSelection()?.removeAllRanges();
+        showStatus(
+          values.get("visibility") === "public"
+            ? "Public note saved. It appears after the site rebuild."
+            : "Private note saved."
+        );
+        await loadAnnotations();
+      } catch (saveError) {
+        persistDraft();
+        if (error) {
+          error.textContent =
+            saveError instanceof Error ? saveError.message : "Save failed";
+        }
+      } finally {
+        if (save) save.disabled = false;
+      }
+    });
+
+    void ensureSession();
+  };
+
+  setupAnnotationAuthor();
+  document.addEventListener("astro:after-swap", setupAnnotationAuthor);
+</script>

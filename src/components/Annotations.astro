@@ -1,0 +1,175 @@
+---
+import type { PublicAnnotation } from "@/types/annotations";
+
+interface Props {
+  annotations: PublicAnnotation[];
+}
+
+const { annotations } = Astro.props;
+---
+
+{
+  annotations.length > 0 && (
+    <section
+      id="annotations"
+      class="public-annotations mx-auto mt-12 max-w-[68ch]"
+      aria-labelledby="annotations-title"
+    >
+      <header class="annotation-heading">
+        <h2 id="annotations-title">Annotations</h2>
+        <span>
+          {annotations.length} {annotations.length === 1 ? "note" : "notes"}
+        </span>
+      </header>
+      <ol>
+        {annotations.map((annotation, index) => (
+          <li
+            id={`annotation-note-${annotation.id}`}
+            data-annotation-note={annotation.id}
+          >
+            <div class="annotation-number" aria-hidden="true">
+              {index + 1}
+            </div>
+            <div>
+              <p>{annotation.text}</p>
+              <footer>
+                <time datetime={annotation.createdAt}>
+                  {annotation.createdAt}
+                </time>
+                {annotation.tags?.map(tag => (
+                  <span>#{tag}</span>
+                ))}
+                <a
+                  href={`#annotation-anchor-${annotation.id}`}
+                  aria-label={`Return to annotated passage ${index + 1}`}
+                >
+                  Back to passage
+                </a>
+              </footer>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </section>
+  )
+}
+
+<style>
+  .public-annotations {
+    border-top: 1px solid var(--border);
+    color: var(--foreground);
+  }
+
+  .annotation-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 1rem;
+  }
+
+  .annotation-heading h2 {
+    margin: 0;
+    color: inherit;
+    font-family: "Source Serif 4", Georgia, serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .annotation-heading span,
+  .public-annotations footer {
+    font-family:
+      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+      "Courier New", monospace;
+  }
+
+  .annotation-heading span {
+    font-size: 0.75rem;
+    opacity: 0.65;
+  }
+
+  .public-annotations ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .public-annotations li {
+    display: grid;
+    grid-template-columns: 2rem minmax(0, 1fr);
+    gap: 0.75rem;
+    margin: 0;
+    padding: 1rem 0 1rem 1rem;
+    border-left: 2px solid color-mix(in srgb, var(--accent) 65%, transparent);
+  }
+
+  .public-annotations li + li {
+    margin-top: 0.75rem;
+  }
+
+  .annotation-number {
+    color: var(--accent);
+    font-family:
+      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+      "Courier New", monospace;
+    font-size: 0.8rem;
+  }
+
+  .public-annotations p {
+    margin: 0;
+    font-family: "Source Serif 4", Georgia, serif;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .public-annotations footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-top: 0.65rem;
+    font-size: 0.7rem;
+    opacity: 0.7;
+  }
+
+  .public-annotations footer a {
+    margin-inline-start: auto;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  @media (min-width: 1280px) {
+    :global(.note-content-shell.has-note-toc) .public-annotations {
+      grid-column: 2;
+    }
+  }
+</style>
+
+<style is:global>
+  .app-prose mark.annotation-anchor {
+    border-bottom: 1px dotted color-mix(in srgb, var(--accent) 70%, transparent);
+    background: color-mix(in srgb, #f5df72 35%, transparent);
+    color: inherit;
+  }
+
+  .app-prose .annotation-ref {
+    padding-inline-start: 0.12em;
+    font-family:
+      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+      "Courier New", monospace;
+    font-size: 0.68em;
+    line-height: 0;
+    vertical-align: super;
+  }
+
+  .app-prose .annotation-ref a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .app-prose mark.annotation-anchor:target {
+    outline: 2px solid color-mix(in srgb, var(--accent) 65%, transparent);
+    outline-offset: 2px;
+  }
+</style>
