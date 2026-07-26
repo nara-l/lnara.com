@@ -263,7 +263,10 @@ export const handleRequest = async (request: Request, env: Env) => {
       .bind(slug)
       .all<Record<string, unknown>>();
     return json(
-      { annotations: result.results.map(rowToAnnotation) },
+      {
+        annotations: result.results.map(rowToAnnotation),
+        publicPublishing: Boolean(env.GITHUB_TOKEN),
+      },
       200,
       headers
     );

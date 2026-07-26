@@ -5,14 +5,12 @@ interface Props {
 
 const { slug } = Astro.props;
 const configuredApi = import.meta.env.PUBLIC_ANNOTATIONS_API_URL;
-const apiUrl =
-  configuredApi || (import.meta.env.DEV ? "http://127.0.0.1:8787" : "");
 ---
 
 <div
   data-annotation-author
   data-slug={slug}
-  data-api-url={apiUrl}
+  data-api-url={configuredApi}
   hidden
   data-pagefind-ignore
 >
@@ -88,6 +86,9 @@ const apiUrl =
           ><input type="radio" name="visibility" value="public" /> Public</label
         >
       </fieldset>
+      <p class="annotation-capability" data-public-capability hidden>
+        Public publishing is unavailable in this local build.
+      </p>
       <p class="annotation-error" data-save-error role="alert"></p>
       <footer>
         <button type="button" class="secondary" data-discard>Discard</button>
@@ -343,6 +344,15 @@ const apiUrl =
     font-size: 0.8rem;
   }
 
+  .annotation-capability {
+    margin: -0.5rem 0 0;
+    font-family:
+      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+      "Courier New", monospace;
+    font-size: 0.72rem;
+    opacity: 0.7;
+  }
+
   .annotation-status {
     position: fixed;
     z-index: 40;
@@ -409,11 +419,16 @@ const apiUrl =
     updatedAt: string;
   };
 
-  let cleanupAnnotationAuthor: (() => void) | undefined;
+  type AnnotationWindow = Window & {
+    __lnaraAnnotationCleanup?: () => void;
+    __lnaraAnnotationAfterSwap?: EventListener;
+  };
+
+  const annotationWindow = window as AnnotationWindow;
 
   const setupAnnotationAuthor = () => {
-    cleanupAnnotationAuthor?.();
-    cleanupAnnotationAuthor = undefined;
+    annotationWindow.__lnaraAnnotationCleanup?.();
+    annotationWindow.__lnaraAnnotationCleanup = undefined;
 
     const params = new URLSearchParams(window.location.search);
     if (params.get("annotate") !== "1") return;
@@ -424,7 +439,11 @@ const apiUrl =
     const article = document.querySelector<HTMLElement>("#article");
     if (!root || !article) return;
 
-    const apiUrl = root.dataset.apiUrl;
+    const apiUrl =
+      root.dataset.apiUrl ||
+      (import.meta.env.DEV
+        ? `${window.location.protocol}//${window.location.hostname}:8787`
+        : "");
     const slug = root.dataset.slug;
     if (!apiUrl || !slug) return;
 
@@ -456,6 +475,15 @@ const apiUrl =
       "[data-private-notes]"
     );
     const noNotes = root.querySelector<HTMLElement>("[data-no-private-notes]");
+    const publicCapability = root.querySelector<HTMLElement>(
+      "[data-public-capability]"
+    );
+    const publicVisibility = form?.querySelector<HTMLInputElement>(
+      '[name="visibility"][value="public"]'
+    );
+    const privateVisibility = form?.querySelector<HTMLInputElement>(
+      '[name="visibility"][value="private"]'
+    );
     const noteInput = form?.querySelector<HTMLTextAreaElement>('[name="text"]');
     const tagsInput = form?.querySelector<HTMLInputElement>('[name="tags"]');
     if (
@@ -473,17 +501,22 @@ const apiUrl =
       !notesButton ||
       !notesDialog ||
       !notesList ||
-      !noNotes
+      !noNotes ||
+      !publicCapability ||
+      !publicVisibility ||
+      !privateVisibility
     )
       return;
 
     const controller = new AbortController();
     const signal = controller.signal;
-    cleanupAnnotationAuthor = () => controller.abort();
+    annotationWindow.__lnaraAnnotationCleanup = () => controller.abort();
     const draftKey = `lnara-annotation-draft:${slug}`;
     let selected: SelectionState | null = null;
     let editing: AuthorAnnotation | null = null;
     let annotations: AuthorAnnotation[] = [];
+    let pendingAction: "compose" | "notes" | null = null;
+    let publicPublishing = false;
     root.hidden = false;
 
     const showStatus = (message: string) => {
@@ -659,7 +692,14 @@ const apiUrl =
       if (!response.ok) return response;
       const result = (await response.json()) as {
         annotations?: AuthorAnnotation[];
+        publicPublishing?: boolean;
       };
+      publicPublishing = result.publicPublishing === true;
+      publicVisibility.disabled = !publicPublishing;
+      publicCapability.hidden = publicPublishing;
+      if (!publicPublishing && publicVisibility.checked) {
+        privateVisibility.checked = true;
+      }
       renderAuthorAnnotations(result.annotations ?? []);
       return response;
     };
@@ -667,10 +707,35 @@ const apiUrl =
     const draftKeyFor = (annotation: AuthorAnnotation | null) =>
       annotation ? `${draftKey}:${annotation.id}` : draftKey;
 
+    const composerAnnotation = () => {
+      const annotationId = composer.dataset.annotationId;
+      return annotationId
+        ? (annotations.find(annotation => annotation.id === annotationId) ??
+            null)
+        : null;
+    };
+
+    const composerSelection = () => {
+      if (selected) return selected;
+      const serialized = composer.dataset.selector;
+      if (!serialized) return null;
+      try {
+        const selector = JSON.parse(serialized) as SelectionState;
+        return typeof selector.exact === "string" && selector.exact
+          ? selector
+          : null;
+      } catch {
+        return null;
+      }
+    };
+
     const openComposer = (annotation: AuthorAnnotation | null) => {
       editing = annotation;
       selected = annotation?.selector ?? selected;
       if (!selected) return;
+      composer.dataset.selector = JSON.stringify(selected);
+      if (annotation) composer.dataset.annotationId = annotation.id;
+      else delete composer.dataset.annotationId;
 
       composerTitle.textContent = annotation
         ? "Edit annotation"
@@ -696,7 +761,9 @@ const apiUrl =
         const draftVisibility = form.querySelector<HTMLInputElement>(
           `[name="visibility"][value="${saved.visibility}"]`
         );
-        if (draftVisibility) draftVisibility.checked = true;
+        if (draftVisibility && (!draftVisibility.disabled || publicPublishing)) {
+          draftVisibility.checked = true;
+        }
       }
 
       composer.showModal();
@@ -787,7 +854,11 @@ const apiUrl =
         }
         event.preventDefault();
         selected = candidate;
-        if (await ensureSession()) openComposer(null);
+        pendingAction = "compose";
+        if (await ensureSession()) {
+          pendingAction = null;
+          openComposer(null);
+        }
       },
       { signal }
     );
@@ -795,22 +866,36 @@ const apiUrl =
     addButton.addEventListener(
       "click",
       async () => {
-        if (!selected || !(await ensureSession())) return;
-        openComposer(null);
+        if (!selected) return;
+        pendingAction = "compose";
+        if (await ensureSession()) {
+          pendingAction = null;
+          openComposer(null);
+        }
       },
       { signal }
     );
 
-    notesButton.addEventListener("click", () => notesDialog.showModal(), {
-      signal,
-    });
+    notesButton.addEventListener(
+      "click",
+      async () => {
+        pendingAction = "notes";
+        if (await ensureSession()) {
+          pendingAction = null;
+          notesDialog.showModal();
+        }
+      },
+      { signal }
+    );
 
     discardButton.addEventListener(
       "click",
       () => {
-        localStorage.removeItem(draftKeyFor(editing));
+        localStorage.removeItem(draftKeyFor(editing ?? composerAnnotation()));
         form.reset();
         composer.close();
+        delete composer.dataset.annotationId;
+        delete composer.dataset.selector;
         editing = null;
         selected = null;
         window.getSelection()?.removeAllRanges();
@@ -909,17 +994,25 @@ const apiUrl =
           if (error) error.textContent = "That password was not accepted.";
           return;
         }
+        const action = pendingAction;
+        pendingAction = null;
         login.close();
         loginForm.reset();
         await loadAnnotations();
-        showStatus("Author mode unlocked. Select the passage again.");
+        if (action === "compose" && selected) {
+          openComposer(null);
+        } else if (action === "notes") {
+          notesDialog.showModal();
+        } else {
+          showStatus("Author mode unlocked.");
+        }
       },
       { signal }
     );
 
     const persistDraft = () => {
       localStorage.setItem(
-        draftKeyFor(editing),
+        draftKeyFor(editing ?? composerAnnotation()),
         JSON.stringify({
           text: noteInput.value,
           tags: tagsInput.value,
@@ -941,32 +1034,43 @@ const apiUrl =
       "submit",
       async event => {
         event.preventDefault();
-        if (!selected) return;
         const values = new FormData(form);
         const error = root.querySelector<HTMLElement>("[data-save-error]");
-        const id = editing?.id ?? `annotation-${crypto.randomUUID()}`;
+        const activeEditing = editing ?? composerAnnotation();
+        const activeSelection =
+          selected ?? activeEditing?.selector ?? composerSelection();
+        if (!activeSelection) {
+          if (error) {
+            error.textContent =
+              "The selected passage is no longer active. Close this window and select it again.";
+          }
+          return;
+        }
+        const id = activeEditing?.id ?? `annotation-${crypto.randomUUID()}`;
         const requestKey = crypto.randomUUID();
         saveButton.disabled = true;
         if (error) error.textContent = "";
 
         try {
-          if (!rangeForSelector(selected)) {
+          if (!rangeForSelector(activeSelection)) {
             throw new Error(
               "The selected passage is missing or ambiguous. Select it again."
             );
           }
           const response = await api(
-            editing
-              ? `/api/annotations/${slug}/${editing.id}`
+            activeEditing
+              ? `/api/annotations/${slug}/${activeEditing.id}`
               : `/api/annotations/${slug}`,
             {
-              method: editing ? "PATCH" : "POST",
+              method: activeEditing ? "PATCH" : "POST",
               headers: {
                 "Content-Type": "application/json",
                 "Idempotency-Key": requestKey,
               },
               body: JSON.stringify({
-                ...(editing ? {} : { id, selector: selected }),
+                ...(activeEditing
+                  ? {}
+                  : { id, selector: activeSelection }),
                 text: String(values.get("text") ?? ""),
                 tags: String(values.get("tags") ?? "")
                   .split(",")
@@ -979,10 +1083,12 @@ const apiUrl =
           const result = (await response.json()) as { error?: string };
           if (!response.ok) throw new Error(result.error || "Save failed");
 
-          localStorage.removeItem(draftKeyFor(editing));
+          localStorage.removeItem(draftKeyFor(activeEditing));
           form.reset();
           composer.close();
-          const wasEditing = editing !== null;
+          delete composer.dataset.annotationId;
+          delete composer.dataset.selector;
+          const wasEditing = activeEditing !== null;
           editing = null;
           selected = null;
           window.getSelection()?.removeAllRanges();
@@ -1005,9 +1111,20 @@ const apiUrl =
       { signal }
     );
 
-    void ensureSession();
+    void loadAnnotations().then(response => {
+      if (!response.ok && response.status !== 401) {
+        showStatus("Annotation service is unavailable.");
+      }
+    });
   };
 
   setupAnnotationAuthor();
+  if (annotationWindow.__lnaraAnnotationAfterSwap) {
+    document.removeEventListener(
+      "astro:after-swap",
+      annotationWindow.__lnaraAnnotationAfterSwap
+    );
+  }
+  annotationWindow.__lnaraAnnotationAfterSwap = setupAnnotationAuthor;
   document.addEventListener("astro:after-swap", setupAnnotationAuthor);
 </script>

@@ -25,6 +25,32 @@ Private annotations persist in local D1. Public saves additionally require a
 `GITHUB_TOKEN` binding and write a versioned sidecar to
 `src/data/annotations/<note-slug>.json` on the configured branch.
 
+## Test on a phone or tablet
+
+Use the laptop's LAN IPv4 address in place of `<lan-ip>`. The author client
+automatically sends local API requests to the same hostname as the page.
+
+```powershell
+# Repository root
+npm run dev -- --host 0.0.0.0
+
+# annotations-worker
+npm run dev -- --ip 0.0.0.0 --port 8787 `
+  --var ALLOWED_ORIGIN:http://<lan-ip>:4323 `
+  --var AUTHOR_PASSWORD:choose-a-local-password `
+  --var SESSION_SECRET:choose-a-long-local-secret
+```
+
+On a device connected to the same network, open:
+
+```text
+http://<lan-ip>:4323/notes/<note-slug>?annotate=1
+```
+
+Keep the exact `ALLOWED_ORIGIN`; do not use a wildcard with credentialed
+requests. Production likewise requires a same-site API hostname so the strict
+author cookie is not treated as a third-party cookie.
+
 For an end-to-end local public-write test without GitHub:
 
 ```powershell
