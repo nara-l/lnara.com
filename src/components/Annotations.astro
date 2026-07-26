@@ -140,8 +140,15 @@ const { annotations } = Astro.props;
   }
 
   @media (min-width: 1280px) {
-    :global(.note-content-shell.has-note-toc) .public-annotations {
-      grid-column: 2;
+    :global(.note-content-shell.has-note-toc.has-public-annotations)
+      .public-annotations {
+      position: sticky;
+      top: 7rem;
+      grid-row: 1;
+      grid-column: 3;
+      max-height: calc(100vh - 9rem);
+      margin-top: 0;
+      overflow: auto;
     }
   }
 </style>

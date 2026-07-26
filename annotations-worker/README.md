@@ -25,6 +25,19 @@ Private annotations persist in local D1. Public saves additionally require a
 `GITHUB_TOKEN` binding and write a versioned sidecar to
 `src/data/annotations/<note-slug>.json` on the configured branch.
 
+For an end-to-end local public-write test without GitHub:
+
+```powershell
+npm run mock-github
+npm run dev -- --port 8787 `
+  --var AUTHOR_PASSWORD:choose-a-local-password `
+  --var SESSION_SECRET:choose-a-long-local-secret `
+  --var GITHUB_TOKEN:local-test-token `
+  --var GITHUB_API_URL:http://127.0.0.1:8790
+```
+
+Inspect the emulator's persisted sidecar at `http://127.0.0.1:8790/__state`.
+
 ## Checks
 
 From the repository root:

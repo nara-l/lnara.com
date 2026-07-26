@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "wrangler dev --local --persist-to .wrangler/state",
+    "mock-github": "node scripts/mock-github.mjs",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

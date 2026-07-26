@@ -29,16 +29,17 @@ const encode = (value: string) => {
   return btoa(binary);
 };
 
-export const publishAnnotation = async (
+const updatePublicFile = async (
   env: Env,
   slug: string,
-  annotation: AnnotationInput,
-  createdAt: string,
+  mutate: (data: PublicFile) => { changed: boolean; data: PublicFile },
+  message: string,
   fetcher: typeof fetch = fetch
 ) => {
   if (!env.GITHUB_TOKEN) throw new Error("Public publishing is not configured");
   const filePath = `src/data/annotations/${slug}.json`;
-  const api = `https://api.github.com/repos/${env.GITHUB_REPOSITORY}/contents/${filePath}`;
+  const apiBase = env.GITHUB_API_URL ?? "https://api.github.com";
+  const api = `${apiBase}/repos/${env.GITHUB_REPOSITORY}/contents/${filePath}`;
   const headers = {
     Authorization: `Bearer ${env.GITHUB_TOKEN}`,
     Accept: "application/vnd.github+json",
@@ -62,20 +63,20 @@ export const publishAnnotation = async (
       throw new Error(`GitHub read failed (${current.status})`);
     }
 
-    if (data.annotations.some(item => item.id === annotation.id)) return;
-    data.annotations.push({
-      ...annotation,
-      visibility: "public",
-      createdAt,
-    });
+    if (data.version !== 1 || !Array.isArray(data.annotations)) {
+      throw new Error("Public annotation file is invalid");
+    }
+
+    const mutation = mutate(data);
+    if (!mutation.changed) return;
 
     const update = await fetcher(api, {
       method: "PUT",
       headers,
       body: JSON.stringify({
-        message: `Publish annotation for ${slug}`,
+        message,
         branch: env.GITHUB_BRANCH,
-        content: encode(`${JSON.stringify(data, null, 2)}\n`),
+        content: encode(`${JSON.stringify(mutation.data, null, 2)}\n`),
         ...(sha ? { sha } : {}),
       }),
     });
@@ -85,3 +86,62 @@ export const publishAnnotation = async (
     }
   }
 };
+
+export const upsertPublicAnnotation = async (
+  env: Env,
+  slug: string,
+  annotation: AnnotationInput,
+  createdAt: string,
+  fetcher: typeof fetch = fetch
+) =>
+  updatePublicFile(
+    env,
+    slug,
+    data => {
+      const next = {
+        ...annotation,
+        visibility: "public" as const,
+        createdAt,
+      };
+      const index = data.annotations.findIndex(
+        item => item.id === annotation.id
+      );
+      if (
+        index !== -1 &&
+        JSON.stringify(data.annotations[index]) === JSON.stringify(next)
+      ) {
+        return { changed: false, data };
+      }
+
+      const annotations = [...data.annotations];
+      if (index === -1) annotations.push(next);
+      else annotations[index] = next;
+      return { changed: true, data: { version: 1, annotations } };
+    },
+    `Publish annotation for ${slug}`,
+    fetcher
+  );
+
+export const removePublicAnnotation = async (
+  env: Env,
+  slug: string,
+  annotationId: string,
+  fetcher: typeof fetch = fetch
+) =>
+  updatePublicFile(
+    env,
+    slug,
+    data => {
+      const annotations = data.annotations.filter(
+        item => item.id !== annotationId
+      );
+      return {
+        changed: annotations.length !== data.annotations.length,
+        data: { version: 1, annotations },
+      };
+    },
+    `Remove annotation from ${slug}`,
+    fetcher
+  );
+
+export const publishAnnotation = upsertPublicAnnotation;

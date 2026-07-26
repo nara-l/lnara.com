@@ -55,7 +55,7 @@ const apiUrl =
   <dialog class="annotation-dialog composer" data-annotation-composer>
     <form method="dialog" data-annotation-form>
       <header>
-        <h2>Add annotation</h2>
+        <h2 data-composer-title>Add annotation</h2>
         <button type="button" class="icon-button" data-close aria-label="Close">
           &times;
         </button>
@@ -90,6 +90,7 @@ const apiUrl =
       </fieldset>
       <p class="annotation-error" data-save-error role="alert"></p>
       <footer>
+        <button type="button" class="secondary" data-discard>Discard</button>
         <button type="button" class="secondary" data-cancel>Cancel</button>
         <button type="submit" data-save>Save note</button>
       </footer>
@@ -190,6 +191,11 @@ const apiUrl =
     gap: 0.75rem;
   }
 
+  .annotation-dialog footer {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
   .annotation-dialog h2 {
     margin: 0;
     font-family: "Source Serif 4", Georgia, serif;
@@ -275,6 +281,27 @@ const apiUrl =
     opacity: 0.65;
   }
 
+  .annotation-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.65rem;
+  }
+
+  .notes-dialog .annotation-actions button {
+    min-height: 2rem;
+    padding: 0.35rem 0.55rem;
+    border-color: var(--border);
+    background: transparent;
+    color: var(--foreground);
+    font-size: 0.68rem;
+  }
+
+  .notes-dialog .annotation-actions button[data-confirm="true"] {
+    border-color: #a1372b;
+    color: #a1372b;
+  }
+
   .annotation-dialog fieldset {
     display: flex;
     gap: 1rem;
@@ -345,13 +372,23 @@ const apiUrl =
 </style>
 
 <style is:global>
-  ::highlight(lnara-private-annotations) {
+  .app-prose mark.private-annotation-anchor {
     background: color-mix(in srgb, #e3b85a 28%, transparent);
     color: inherit;
     text-decoration: underline;
     text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent);
     text-decoration-style: dotted;
     text-underline-offset: 0.16em;
+  }
+
+  .app-prose mark.private-annotation-anchor:target {
+    outline: 2px solid color-mix(in srgb, var(--accent) 65%, transparent);
+    outline-offset: 2px;
+  }
+
+  .app-prose [data-author-selectable]:focus-visible {
+    outline: 2px dashed var(--accent);
+    outline-offset: 0.3rem;
   }
 </style>
 
@@ -369,9 +406,15 @@ const apiUrl =
     tags: string[];
     visibility: "private" | "public";
     createdAt: string;
+    updatedAt: string;
   };
 
+  let cleanupAnnotationAuthor: (() => void) | undefined;
+
   const setupAnnotationAuthor = () => {
+    cleanupAnnotationAuthor?.();
+    cleanupAnnotationAuthor = undefined;
+
     const params = new URLSearchParams(window.location.search);
     if (params.get("annotate") !== "1") return;
 
@@ -397,6 +440,12 @@ const apiUrl =
     const quote = root.querySelector<HTMLElement>("[data-selected-quote]");
     const status = root.querySelector<HTMLElement>("[data-annotation-status]");
     const form = root.querySelector<HTMLFormElement>("[data-annotation-form]");
+    const composerTitle = root.querySelector<HTMLElement>(
+      "[data-composer-title]"
+    );
+    const saveButton = root.querySelector<HTMLButtonElement>("[data-save]");
+    const discardButton =
+      root.querySelector<HTMLButtonElement>("[data-discard]");
     const notesButton = root.querySelector<HTMLButtonElement>(
       "[data-annotation-notes]"
     );
@@ -416,6 +465,9 @@ const apiUrl =
       !quote ||
       !status ||
       !form ||
+      !composerTitle ||
+      !saveButton ||
+      !discardButton ||
       !noteInput ||
       !tagsInput ||
       !notesButton ||
@@ -425,8 +477,13 @@ const apiUrl =
     )
       return;
 
+    const controller = new AbortController();
+    const signal = controller.signal;
+    cleanupAnnotationAuthor = () => controller.abort();
     const draftKey = `lnara-annotation-draft:${slug}`;
     let selected: SelectionState | null = null;
+    let editing: AuthorAnnotation | null = null;
+    let annotations: AuthorAnnotation[] = [];
     root.hidden = false;
 
     const showStatus = (message: string) => {
@@ -438,8 +495,9 @@ const apiUrl =
     const api = (path: string, init?: RequestInit) =>
       fetch(`${apiUrl}${path}`, { ...init, credentials: "include" });
 
+    const blockSelector = "p, li, blockquote, h2, h3, h4";
     const eligibleBlock = (element: Element | null) =>
-      element?.closest<HTMLElement>("p, li, blockquote, h2, h3, h4") ?? null;
+      element?.closest<HTMLElement>(blockSelector) ?? null;
 
     const textNodes = (block: HTMLElement) => {
       const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT, {
@@ -461,9 +519,10 @@ const apiUrl =
       return nodes;
     };
 
-    const rangeForSelector = (selector: SelectionState) => {
+    const rangesForSelector = (selector: SelectionState) => {
+      const matches: Range[] = [];
       for (const block of article.querySelectorAll<HTMLElement>(
-        "p, li, blockquote, h2, h3, h4"
+        blockSelector
       )) {
         const nodes = textNodes(block);
         const fullText = nodes.map(node => node.data).join("");
@@ -500,23 +559,68 @@ const apiUrl =
               const range = document.createRange();
               range.setStart(startNode, startOffset);
               range.setEnd(endNode, endOffset);
-              return range;
+              matches.push(range);
             }
           }
           index = fullText.indexOf(selector.exact, index + 1);
         }
       }
-      return null;
+      return matches;
     };
 
-    const renderAuthorAnnotations = (annotations: AuthorAnnotation[]) => {
+    const rangeForSelector = (selector: SelectionState) => {
+      const matches = rangesForSelector(selector);
+      return matches.length === 1 ? matches[0] : null;
+    };
+
+    const clearPrivateMarks = () => {
+      article
+        .querySelectorAll<HTMLElement>("mark.private-annotation-anchor")
+        .forEach(mark => mark.replaceWith(...mark.childNodes));
+      article.normalize();
+    };
+
+    const markPrivateRange = (range: Range, annotationId: string) => {
+      const nodes = textNodes(article).filter(node =>
+        range.intersectsNode(node)
+      );
+      const segments = nodes
+        .map((node, index) => ({
+          node,
+          start: node === range.startContainer ? range.startOffset : 0,
+          end: node === range.endContainer ? range.endOffset : node.data.length,
+          first: index === 0,
+        }))
+        .filter(segment => segment.end > segment.start);
+
+      [...segments].reverse().forEach(segment => {
+        let selectedNode = segment.node;
+        if (segment.end < selectedNode.data.length) {
+          selectedNode.splitText(segment.end);
+        }
+        if (segment.start > 0) {
+          selectedNode = selectedNode.splitText(segment.start);
+        }
+
+        const mark = document.createElement("mark");
+        mark.className = "private-annotation-anchor";
+        mark.dataset.privateAnnotationId = annotationId;
+        if (segment.first) mark.id = `private-annotation-${annotationId}`;
+        selectedNode.replaceWith(mark);
+        mark.append(selectedNode);
+      });
+    };
+
+    const renderAuthorAnnotations = (nextAnnotations: AuthorAnnotation[]) => {
+      annotations = nextAnnotations;
       notesList.replaceChildren();
-      const ranges: Range[] = [];
+      clearPrivateMarks();
+      const privateRanges: Array<{ id: string; range: Range }> = [];
 
       annotations.forEach((annotation, index) => {
         if (annotation.visibility === "private") {
           const range = rangeForSelector(annotation.selector);
-          if (range) ranges.push(range);
+          if (range) privateRanges.push({ id: annotation.id, range });
         }
 
         const item = document.createElement("li");
@@ -527,33 +631,81 @@ const apiUrl =
         text.textContent = annotation.text;
         const meta = document.createElement("small");
         meta.textContent = `${annotation.visibility} | ${annotation.createdAt.slice(0, 10)}`;
-        body.append(text, meta);
+        const actions = document.createElement("div");
+        actions.className = "annotation-actions";
+        [
+          ["passage", "Passage"],
+          ["edit", "Edit"],
+          ["delete", "Delete"],
+        ].forEach(([action, label]) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.dataset.annotationAction = action;
+          button.dataset.annotationId = annotation.id;
+          button.textContent = label;
+          actions.append(button);
+        });
+        body.append(text, meta, actions);
         item.append(number, body);
         notesList.append(item);
       });
 
       noNotes.hidden = annotations.length > 0;
-      if ("highlights" in CSS && typeof Highlight !== "undefined") {
-        CSS.highlights.set(
-          "lnara-private-annotations",
-          new Highlight(...ranges)
-        );
-      }
+      privateRanges.forEach(item => markPrivateRange(item.range, item.id));
     };
 
     const loadAnnotations = async () => {
       const response = await api(`/api/annotations/${slug}`);
-      if (!response.ok) return false;
+      if (!response.ok) return response;
       const result = (await response.json()) as {
         annotations?: AuthorAnnotation[];
       };
       renderAuthorAnnotations(result.annotations ?? []);
-      return true;
+      return response;
+    };
+
+    const draftKeyFor = (annotation: AuthorAnnotation | null) =>
+      annotation ? `${draftKey}:${annotation.id}` : draftKey;
+
+    const openComposer = (annotation: AuthorAnnotation | null) => {
+      editing = annotation;
+      selected = annotation?.selector ?? selected;
+      if (!selected) return;
+
+      composerTitle.textContent = annotation
+        ? "Edit annotation"
+        : "Add annotation";
+      saveButton.textContent = annotation ? "Save changes" : "Save note";
+      quote.textContent = selected.exact;
+      noteInput.value = annotation?.text ?? "";
+      tagsInput.value = annotation?.tags.join(", ") ?? "";
+      const visibility = form.querySelector<HTMLInputElement>(
+        `[name="visibility"][value="${annotation?.visibility ?? "private"}"]`
+      );
+      if (visibility) visibility.checked = true;
+
+      const draft = localStorage.getItem(draftKeyFor(annotation));
+      if (draft) {
+        const saved = JSON.parse(draft) as {
+          text?: string;
+          tags?: string;
+          visibility?: "private" | "public";
+        };
+        noteInput.value = saved.text ?? noteInput.value;
+        tagsInput.value = saved.tags ?? tagsInput.value;
+        const draftVisibility = form.querySelector<HTMLInputElement>(
+          `[name="visibility"][value="${saved.visibility}"]`
+        );
+        if (draftVisibility) draftVisibility.checked = true;
+      }
+
+      composer.showModal();
+      addButton.hidden = true;
     };
 
     const ensureSession = async () => {
-      if (await loadAnnotations()) return true;
-      const response = await api(`/api/annotations/${slug}`);
+      const response = await loadAnnotations();
+      if (response.ok) return true;
       if (response.status === 401) login.showModal();
       else showStatus("Annotation service is unavailable.");
       return false;
@@ -603,120 +755,255 @@ const apiUrl =
       addButton.hidden = false;
     };
 
-    document.addEventListener("selectionchange", captureSelection);
-    article.addEventListener("pointerup", captureSelection);
-    article.addEventListener("keyup", captureSelection);
+    document.addEventListener("selectionchange", captureSelection, { signal });
+    article.addEventListener("pointerup", captureSelection, { signal });
+    article.addEventListener("keyup", captureSelection, { signal });
+    article.querySelectorAll<HTMLElement>(blockSelector).forEach(block => {
+      block.tabIndex = 0;
+      block.dataset.authorSelectable = "";
+    });
+    article.addEventListener(
+      "keydown",
+      async event => {
+        if (
+          event.key !== "Enter" ||
+          event.target !== eligibleBlock(event.target as Element)
+        ) {
+          return;
+        }
+        const block = event.target as HTMLElement;
+        const exact = textNodes(block)
+          .map(node => node.data)
+          .join("");
+        if (exact.trim().length < 2 || exact.length > 1000) {
+          showStatus("This passage is too long to annotate as one selection.");
+          return;
+        }
 
-    addButton.addEventListener("click", async () => {
-      if (!selected || !(await ensureSession())) return;
-      quote.textContent = selected.exact;
-      const draft = localStorage.getItem(draftKey);
-      if (draft) {
-        const saved = JSON.parse(draft) as { text?: string; tags?: string };
-        noteInput.value = saved.text ?? "";
-        tagsInput.value = saved.tags ?? "";
-      }
-      composer.showModal();
-      addButton.hidden = true;
+        const candidate = { exact };
+        if (!rangeForSelector(candidate)) {
+          showStatus("Select a more specific passage.");
+          return;
+        }
+        event.preventDefault();
+        selected = candidate;
+        if (await ensureSession()) openComposer(null);
+      },
+      { signal }
+    );
+
+    addButton.addEventListener(
+      "click",
+      async () => {
+        if (!selected || !(await ensureSession())) return;
+        openComposer(null);
+      },
+      { signal }
+    );
+
+    notesButton.addEventListener("click", () => notesDialog.showModal(), {
+      signal,
     });
 
-    notesButton.addEventListener("click", () => notesDialog.showModal());
+    discardButton.addEventListener(
+      "click",
+      () => {
+        localStorage.removeItem(draftKeyFor(editing));
+        form.reset();
+        composer.close();
+        editing = null;
+        selected = null;
+        window.getSelection()?.removeAllRanges();
+        showStatus("Draft discarded.");
+      },
+      { signal }
+    );
+
+    notesList.addEventListener(
+      "click",
+      async event => {
+        const button = (event.target as Element).closest<HTMLButtonElement>(
+          "[data-annotation-action]"
+        );
+        if (!button) return;
+        const annotation = annotations.find(
+          item => item.id === button.dataset.annotationId
+        );
+        if (!annotation) return;
+
+        if (button.dataset.annotationAction === "passage") {
+          const target =
+            document.querySelector(`#private-annotation-${annotation.id}`) ??
+            document.querySelector(`#annotation-anchor-${annotation.id}`);
+          notesDialog.close();
+          target?.scrollIntoView({ behavior: "smooth", block: "center" });
+          return;
+        }
+
+        if (button.dataset.annotationAction === "edit") {
+          notesDialog.close();
+          openComposer(annotation);
+          return;
+        }
+
+        if (button.dataset.annotationAction === "delete") {
+          if (button.dataset.confirm !== "true") {
+            button.dataset.confirm = "true";
+            button.textContent = "Confirm delete";
+            window.setTimeout(() => {
+              if (button.isConnected) {
+                delete button.dataset.confirm;
+                button.textContent = "Delete";
+              }
+            }, 4000);
+            return;
+          }
+
+          button.disabled = true;
+          const response = await api(
+            `/api/annotations/${slug}/${annotation.id}`,
+            {
+              method: "DELETE",
+              headers: { "Idempotency-Key": crypto.randomUUID() },
+            }
+          );
+          const result = (await response.json()) as { error?: string };
+          if (!response.ok) {
+            button.disabled = false;
+            showStatus(result.error || "Delete failed.");
+            return;
+          }
+          localStorage.removeItem(draftKeyFor(annotation));
+          await loadAnnotations();
+          showStatus("Annotation deleted.");
+        }
+      },
+      { signal }
+    );
 
     root
       .querySelectorAll<HTMLElement>("[data-close], [data-cancel]")
       .forEach(button =>
-        button.addEventListener("click", () =>
-          button.closest<HTMLDialogElement>("dialog")?.close()
+        button.addEventListener(
+          "click",
+          () => button.closest<HTMLDialogElement>("dialog")?.close(),
+          { signal }
         )
       );
 
     const loginForm = root.querySelector<HTMLFormElement>(
       "[data-annotation-login-form]"
     );
-    loginForm?.addEventListener("submit", async event => {
-      event.preventDefault();
-      const password = String(new FormData(loginForm).get("password") ?? "");
-      const error = root.querySelector<HTMLElement>("[data-login-error]");
-      const response = await api("/api/annotations/session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
-      });
-      if (!response.ok) {
-        if (error) error.textContent = "That password was not accepted.";
-        return;
-      }
-      login.close();
-      loginForm.reset();
-      await loadAnnotations();
-      showStatus("Author mode unlocked. Select the passage again.");
-    });
+    loginForm?.addEventListener(
+      "submit",
+      async event => {
+        event.preventDefault();
+        const password = String(new FormData(loginForm).get("password") ?? "");
+        const error = root.querySelector<HTMLElement>("[data-login-error]");
+        const response = await api("/api/annotations/session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ password }),
+        });
+        if (!response.ok) {
+          if (error) error.textContent = "That password was not accepted.";
+          return;
+        }
+        login.close();
+        loginForm.reset();
+        await loadAnnotations();
+        showStatus("Author mode unlocked. Select the passage again.");
+      },
+      { signal }
+    );
 
     const persistDraft = () => {
       localStorage.setItem(
-        draftKey,
+        draftKeyFor(editing),
         JSON.stringify({
           text: noteInput.value,
           tags: tagsInput.value,
+          visibility:
+            form.querySelector<HTMLInputElement>('[name="visibility"]:checked')
+              ?.value ?? "private",
         })
       );
     };
-    noteInput.addEventListener("input", persistDraft);
-    tagsInput.addEventListener("input", persistDraft);
+    noteInput.addEventListener("input", persistDraft, { signal });
+    tagsInput.addEventListener("input", persistDraft, { signal });
+    form
+      .querySelectorAll<HTMLInputElement>('[name="visibility"]')
+      .forEach(input =>
+        input.addEventListener("change", persistDraft, { signal })
+      );
 
-    form.addEventListener("submit", async event => {
-      event.preventDefault();
-      if (!selected) return;
-      const values = new FormData(form);
-      const save = root.querySelector<HTMLButtonElement>("[data-save]");
-      const error = root.querySelector<HTMLElement>("[data-save-error]");
-      const id = `annotation-${crypto.randomUUID()}`;
-      const requestKey = crypto.randomUUID();
-      if (save) save.disabled = true;
-      if (error) error.textContent = "";
+    form.addEventListener(
+      "submit",
+      async event => {
+        event.preventDefault();
+        if (!selected) return;
+        const values = new FormData(form);
+        const error = root.querySelector<HTMLElement>("[data-save-error]");
+        const id = editing?.id ?? `annotation-${crypto.randomUUID()}`;
+        const requestKey = crypto.randomUUID();
+        saveButton.disabled = true;
+        if (error) error.textContent = "";
 
-      try {
-        const response = await api(`/api/annotations/${slug}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Idempotency-Key": requestKey,
-          },
-          body: JSON.stringify({
-            id,
-            selector: selected,
-            text: String(values.get("text") ?? ""),
-            tags: String(values.get("tags") ?? "")
-              .split(",")
-              .map(tag => tag.trim().toLowerCase())
-              .filter(Boolean),
-            visibility: values.get("visibility"),
-          }),
-        });
-        const result = (await response.json()) as { error?: string };
-        if (!response.ok) throw new Error(result.error || "Save failed");
+        try {
+          if (!rangeForSelector(selected)) {
+            throw new Error(
+              "The selected passage is missing or ambiguous. Select it again."
+            );
+          }
+          const response = await api(
+            editing
+              ? `/api/annotations/${slug}/${editing.id}`
+              : `/api/annotations/${slug}`,
+            {
+              method: editing ? "PATCH" : "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Idempotency-Key": requestKey,
+              },
+              body: JSON.stringify({
+                ...(editing ? {} : { id, selector: selected }),
+                text: String(values.get("text") ?? ""),
+                tags: String(values.get("tags") ?? "")
+                  .split(",")
+                  .map(tag => tag.trim().toLowerCase())
+                  .filter(Boolean),
+                visibility: values.get("visibility"),
+              }),
+            }
+          );
+          const result = (await response.json()) as { error?: string };
+          if (!response.ok) throw new Error(result.error || "Save failed");
 
-        localStorage.removeItem(draftKey);
-        form.reset();
-        composer.close();
-        selected = null;
-        window.getSelection()?.removeAllRanges();
-        showStatus(
-          values.get("visibility") === "public"
-            ? "Public note saved. It appears after the site rebuild."
-            : "Private note saved."
-        );
-        await loadAnnotations();
-      } catch (saveError) {
-        persistDraft();
-        if (error) {
-          error.textContent =
-            saveError instanceof Error ? saveError.message : "Save failed";
+          localStorage.removeItem(draftKeyFor(editing));
+          form.reset();
+          composer.close();
+          const wasEditing = editing !== null;
+          editing = null;
+          selected = null;
+          window.getSelection()?.removeAllRanges();
+          showStatus(
+            values.get("visibility") === "public"
+              ? `Public note ${wasEditing ? "updated" : "saved"}. It appears after the site rebuild.`
+              : `Private note ${wasEditing ? "updated" : "saved"}.`
+          );
+          await loadAnnotations();
+        } catch (saveError) {
+          persistDraft();
+          if (error) {
+            error.textContent =
+              saveError instanceof Error ? saveError.message : "Save failed";
+          }
+        } finally {
+          saveButton.disabled = false;
         }
-      } finally {
-        if (save) save.disabled = false;
-      }
-    });
+      },
+      { signal }
+    );
 
     void ensureSession();
   };

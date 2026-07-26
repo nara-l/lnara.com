@@ -16,15 +16,15 @@ const sign = async (body: string, secret: string) => {
     ["sign"]
   );
   return base64url(
-    new Uint8Array(
-      await crypto.subtle.sign("HMAC", key, encoder.encode(body))
-    )
+    new Uint8Array(await crypto.subtle.sign("HMAC", key, encoder.encode(body)))
   );
 };
 
 export const createSession = async (secret: string, now = Date.now()) => {
   const body = base64url(
-    encoder.encode(JSON.stringify({ role: "author", exp: now + SESSION_SECONDS * 1000 }))
+    encoder.encode(
+      JSON.stringify({ role: "author", exp: now + SESSION_SECONDS * 1000 })
+    )
   );
   return `${body}.${await sign(body, secret)}`;
 };
@@ -36,15 +36,24 @@ export const verifySession = async (
 ) => {
   if (!token) return false;
   const [body, signature] = token.split(".");
-  if (!body || !signature || (await sign(body, secret)) !== signature) return false;
+  if (!body || !signature || (await sign(body, secret)) !== signature)
+    return false;
 
   try {
     const normalized = body.replace(/-/g, "+").replace(/_/g, "/");
-    const json = atob(normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "="));
+    const json = atob(
+      normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=")
+    );
     const payload = JSON.parse(
-      new TextDecoder().decode(Uint8Array.from(json, char => char.charCodeAt(0)))
+      new TextDecoder().decode(
+        Uint8Array.from(json, char => char.charCodeAt(0))
+      )
     ) as { role?: string; exp?: number };
-    return payload.role === "author" && typeof payload.exp === "number" && payload.exp > now;
+    return (
+      payload.role === "author" &&
+      typeof payload.exp === "number" &&
+      payload.exp > now
+    );
   } catch {
     return false;
   }

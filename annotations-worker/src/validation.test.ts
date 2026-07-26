@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { parseAnnotationInput, validateSlug } from "./validation";
+import {
+  parseAnnotationInput,
+  parseAnnotationPatch,
+  validateSlug,
+} from "./validation";
 
 const valid = {
   id: "annotation-123456",
@@ -19,5 +23,21 @@ describe("annotation validation", () => {
     expect(parseAnnotationInput({ ...valid, text: "" })).toBeNull();
     expect(parseAnnotationInput({ ...valid, visibility: "reader" })).toBeNull();
     expect(parseAnnotationInput({ ...valid, tags: ["Bad Tag"] })).toBeNull();
+  });
+
+  it("accepts bounded lifecycle changes and rejects empty patches", () => {
+    expect(
+      parseAnnotationPatch({
+        text: "Updated note",
+        tags: ["trust", "trust"],
+        visibility: "public",
+      })
+    ).toEqual({
+      text: "Updated note",
+      tags: ["trust"],
+      visibility: "public",
+    });
+    expect(parseAnnotationPatch({})).toBeNull();
+    expect(parseAnnotationPatch({ visibility: "reader" })).toBeNull();
   });
 });

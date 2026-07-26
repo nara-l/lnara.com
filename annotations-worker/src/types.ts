@@ -4,6 +4,7 @@ export interface Env {
   AUTHOR_PASSWORD: string;
   SESSION_SECRET: string;
   GITHUB_TOKEN?: string;
+  GITHUB_API_URL?: string;
   GITHUB_REPOSITORY: string;
   GITHUB_BRANCH: string;
 }
@@ -24,4 +25,10 @@ export interface StoredAnnotation extends AnnotationInput {
   slug: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface AnnotationPatch {
+  text?: string;
+  tags?: string[];
+  visibility?: "private" | "public";
 }

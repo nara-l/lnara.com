@@ -1,5 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
-import { publishAnnotation } from "./github";
+import {
+  publishAnnotation,
+  removePublicAnnotation,
+  upsertPublicAnnotation,
+} from "./github";
 import type { AnnotationInput, Env } from "./types";
 
 const env = {
@@ -48,6 +52,56 @@ describe("public annotation publishing", () => {
     await publishAnnotation(env, "trust-note", input, "2026-07-26", fetcher);
 
     expect(fetcher).toHaveBeenCalledTimes(1);
+  });
+
+  it("updates an existing public annotation without duplicating it", async () => {
+    const sidecar = {
+      version: 1,
+      annotations: [{ ...input, text: "Old note", createdAt: "2026-07-26" }],
+    };
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(
+        Response.json({
+          sha: "current",
+          content: btoa(JSON.stringify(sidecar)),
+        })
+      )
+      .mockResolvedValueOnce(Response.json({ commit: { sha: "updated" } }));
+
+    await upsertPublicAnnotation(
+      env,
+      "trust-note",
+      { ...input, text: "Updated note" },
+      "2026-07-26",
+      fetcher
+    );
+
+    const body = JSON.parse(String(fetcher.mock.calls[1][1]?.body));
+    const updated = JSON.parse(atob(body.content));
+    expect(updated.annotations).toHaveLength(1);
+    expect(updated.annotations[0].text).toBe("Updated note");
+  });
+
+  it("removes an existing public annotation idempotently", async () => {
+    const sidecar = {
+      version: 1,
+      annotations: [{ ...input, createdAt: "2026-07-26" }],
+    };
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(
+        Response.json({
+          sha: "current",
+          content: btoa(JSON.stringify(sidecar)),
+        })
+      )
+      .mockResolvedValueOnce(Response.json({ commit: { sha: "updated" } }));
+
+    await removePublicAnnotation(env, "trust-note", input.id, fetcher);
+
+    const body = JSON.parse(String(fetcher.mock.calls[1][1]?.body));
+    expect(JSON.parse(atob(body.content)).annotations).toEqual([]);
   });
 
   it("refetches once after an optimistic concurrency conflict", async () => {

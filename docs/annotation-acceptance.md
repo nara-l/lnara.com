@@ -52,18 +52,17 @@
 | --- | --- | --- | --- |
 | Static public annotations | Operationally verified locally | Temporary sidecar fixture, static build, inspect generated HTML, then remove fixture | Anchor, reference, note, no Index, and hidden author controls all present in `dist` |
 | Desktop reading rail | Operationally verified locally | Browser at 1280 x 720 | 68ch article and existing left contents rail unchanged; author controls do not resize the article |
-| Tablet reading | Pending | Browser at tablet viewport | Pending |
-| Phone reading and capture | Partially verified | Browser at 390 x 844 | Reading, collapsed Contents, login, persisted-note drawer, and no horizontal overflow verified; native touch selection still needs a physical-device pass |
-| Private D1 persistence | Integrated locally | Create, idempotent retry, reload, and authenticated fetch against persisted Wrangler D1 | Login 200; first save 201; retry 201; one private row returned after reload |
-| Public persistence | Implemented | Mocked GitHub Contents API, missing-file create, existing-id retry, and 409 retry | Automated tests pass; real GitHub credential and branch write not exercised |
-| Authentication | Integrated locally | Correct key plus automated tampered, wrong-secret, and expired-session checks | Local login succeeded; session tests pass |
-| Retry and idempotency | Integrated locally | Duplicate D1 request and simulated GitHub conflict | Duplicate request produced one D1 row; GitHub conflict refetched once in tests |
-| Regression checks | Implemented | Astro check, static build, matcher tests, Worker typecheck | 13 tests pass; Astro reports zero diagnostics; Worker TypeScript reports zero errors |
+| Tablet reading and capture | Operationally verified locally | Browser at 768px; keyboard passage capture, create, edit, privatize, publish, delete, and draft discard | 68ch article retained, mobile Contents shown, no overflow, private highlights restored, and lifecycle controls persisted through the local Worker |
+| Phone reading and capture | Partially verified | Browser at 390 x 844 | Reading, bottom-sheet composer, collapsed Contents, login, keyboard capture, persisted-note drawer, and no horizontal overflow verified; native touch selection still needs a physical-device pass |
+| Private D1 persistence | Operationally verified locally | Create, edit, visibility change, delete, idempotent retries, reload, and authenticated fetch against persisted Wrangler D1 | Full private lifecycle persisted and cleanup left zero verification rows |
+| Public persistence | Operationally verified locally | Real Worker requests against a local GitHub Contents API emulator | Create wrote one sidecar entry; edit updated it without duplication; privatize removed it; republish restored it; delete and retry removed it; real GitHub credential and branch write remain unverified |
+| Authentication | Operationally verified locally | Live Worker requests plus automated tampered, wrong-secret, and expired-session checks | Login 200; wrong password and unauthenticated fetch 401; foreign origin 403; session tests pass |
+| Retry and idempotency | Operationally verified locally | Duplicate create, edit, and delete requests plus simulated GitHub conflict | Repeated keys returned the persisted result without duplicate D1 or sidecar entries; GitHub conflict refetched once |
+| Regression checks | Implemented | Astro check, static build, matcher tests, Worker typecheck | 16 tests pass; Astro reports zero diagnostics; Worker TypeScript reports zero errors |
 
 ## Remaining before production
 
 - Exercise native text selection and composer save on Lawrence's actual phone and tablet.
-- Add edit, delete, and visibility-change endpoints and controls.
 - Create the production D1 database, configure secrets and the exact allowed origin, and verify real persistence.
 - Exercise one real GitHub sidecar commit on a non-production branch, including a failed build and retry.
 - Review the branch visually with real author-written annotations before any deployment.
