@@ -40,7 +40,7 @@ In another neighborhood, a package left outside is understood as an opportunity.
 
 Both neighborhoods exist within the same city, under the same state laws and inside the same country. They do not live in the same trust environment.
 
-## What the bookshelf is really measuring
+## 1. The bookshelf measures a street, not a country
 
 The public bookshelf looks simple, but it contains several expectations.
 
@@ -76,7 +76,7 @@ This is one reason the description "low-trust society" should not be treated as 
 
 That behavior then reinforces the environment. People encounter suspicion and respond with suspicion. The honest person is treated as a possible liar. The customer is treated as a possible thief. The company is treated as something that will exploit workers unless forced to behave. Each side can point to previous experiences proving that its caution is justified.
 
-## America as a collection of trust environments
+## 2. America is many trust environments
 
 The data on American trust fits this local picture better than the simple idea of one national trust level.
 
@@ -108,7 +108,7 @@ The same is true at the national level. A high-trust country may look as though 
 
 Trust is easier when rule-following does not feel like unilateral disarmament.
 
-## The old days and the memory of trust
+## 3. The old trust was real and it was bounded
 
 People often describe an earlier America as a more trusting place.
 
@@ -150,7 +150,7 @@ The broadest form of a high-trust society requires people to extend some presump
 
 That is harder.
 
-## The American puzzle: formal cooperation without confidence
+## 4. America cooperates without confidence
 
 Francis Fukuyama once classified the United States, Germany and Japan as historically high-trust societies. His argument focused on the ability of people to cooperate beyond the family. Trust made it possible to build large voluntary organizations, companies and civic institutions without relying entirely on kinship or state coercion.
 
@@ -188,7 +188,7 @@ Fukuyama described low trust as raising transaction costs. More time, money and 
 
 The social cost is larger than the paperwork. The default relationship changes. People approach one another as potential risks to be managed. America becomes a country of terms and conditions.
 
-## When nobody can say what happened
+## 5. When nobody can say what happened
 
 Trust also depends on a basic expectation of empathy.
 
@@ -232,7 +232,7 @@ Unresolved harm creates the reverse evidence: another person can endanger you, d
 
 One expands the moral circle. The other contracts it.
 
-## Institutions can compensate for distrust
+## 6. Institutions compensate for distrust. They do not produce it.
 
 America may be better at compensating for low trust than it is at producing trust.
 
@@ -272,7 +272,7 @@ A high-trust country is one where trust survives scaling better. A low-trust cou
 
 The United States appears somewhere in between. It can build enormous systems for coordinating strangers, but those systems increasingly rely on verification, legal enforcement and technological monitoring.
 
-## Is Japan still high-trust?
+## 7. Japan complicates the argument
 
 Japan remains the example that makes me hesitate before declaring that no high-trust countries exist.
 
@@ -290,7 +290,7 @@ This is another reason the simple scale can mislead. Trust, conformity, institut
 
 Every high-trust society has a machinery beneath the visible calm. The question is whether that machinery creates enough repeated evidence that ordinary cooperation is safe.
 
-## Which America you inhabit
+## 8. Which America you inhabit
 
 Calling America a high-trust society now feels too broad.
 
@@ -318,7 +318,7 @@ Some people spend most of life on the islands. They can sincerely believe that s
 
 Other people move constantly between trust environments. They know how quickly the rules change from one street, workplace or institution to another.
 
-## Trust as accumulated evidence
+## 9. Trust is accumulated evidence
 
 The thought I keep returning to is that trust is accumulated evidence.
 
@@ -344,7 +344,7 @@ When harm is identified, addressed and repaired, people can treat it as an excep
 
 This may be the bridge between interpersonal trust and institutional trust. Institutions do more than deliver services. They decide whether individual violations remain individual or become general lessons about society.
 
-## A provisional conclusion
+## 10. The boundary runs through people
 
 I started with a public bookshelf in Roland Park and the feeling that I was looking at a high-trust society.
 
@@ -390,13 +390,13 @@ It gives them a physical form.
 
 ## Index
 
-1. What the bookshelf is really measuring
-2. America as a collection of trust environments
-3. The old days and the memory of trust
-4. The American puzzle: formal cooperation without confidence
+1. The bookshelf measures a street, not a country
+2. America is many trust environments
+3. The old trust was real and it was bounded
+4. America cooperates without confidence
 5. When nobody can say what happened
-6. Institutions can compensate for distrust
-7. Is Japan still high-trust?
+6. Institutions compensate for distrust. They do not produce it.
+7. Japan complicates the argument
 8. Which America you inhabit
-9. Trust as accumulated evidence
-10. A provisional conclusion
+9. Trust is accumulated evidence
+10. The boundary runs through people
