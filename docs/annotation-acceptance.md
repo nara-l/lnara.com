@@ -54,15 +54,14 @@
 | Desktop reading rail | Operationally verified locally | Browser at 1280 x 720 | 68ch article and existing left contents rail unchanged; author controls do not resize the article |
 | Tablet reading and capture | Operationally verified locally | Browser at 768px; keyboard passage capture, create, edit, privatize, publish, delete, and draft discard | 68ch article retained, mobile Contents shown, no overflow, private highlights restored, and lifecycle controls persisted through the local Worker |
 | Phone reading and capture | Partially verified | Browser at 390 x 844 | Reading, bottom-sheet composer, collapsed Contents, deferred login, direct unlock-to-composer continuation, keyboard capture, private save/delete, persisted-note drawer, and no horizontal overflow verified; native touch selection still needs a physical-device pass |
-| Private D1 persistence | Operationally verified locally | Create, edit, visibility change, delete, idempotent retries, reload, and authenticated fetch against persisted Wrangler D1 | Full private lifecycle persisted and cleanup left zero verification rows |
+| Private D1 persistence | Operationally verified in production | Create, authenticated fetch, and delete against `annotations.lnara.com` and production D1 | Worker version `7991c5a0-6a52-4272-b214-2776fde1627e`; create returned 201, persisted read found one row, delete returned 200, and cleanup left zero verification rows |
 | Public persistence | Operationally verified locally | Real Worker requests against a local GitHub Contents API emulator | Create wrote one sidecar entry; edit updated it without duplication; privatize removed it; republish restored it; delete and retry removed it; real GitHub credential and branch write remain unverified |
-| Authentication | Operationally verified locally | Live Worker requests plus browser recovery and automated tampered, wrong-secret, and expired-session checks | Author mode starts without an eager prompt; wrong password keeps the dialog and pending passage; a subsequent correct password opens that passage's composer directly; login 200, wrong password and unauthenticated fetch 401, foreign origin 403; session tests pass |
+| Authentication | Operationally verified in production | Production Worker requests plus local browser recovery and automated tampered, wrong-secret, and expired-session checks | Production login returned 200, wrong password and unauthenticated fetch returned 401, foreign origin returned 403; author mode locally preserves the pending passage through login; session tests pass |
 | Retry and idempotency | Operationally verified locally | Duplicate create, edit, and delete requests plus simulated GitHub conflict | Repeated keys returned the persisted result without duplicate D1 or sidecar entries; GitHub conflict refetched once |
 | Regression checks | Implemented | Astro check, static build, matcher tests, Worker typecheck | 16 tests pass; Astro reports zero diagnostics; Worker TypeScript reports zero errors |
 
 ## Remaining before production
 
 - Exercise native text selection and composer save on Lawrence's actual phone and tablet.
-- Create the production D1 database, configure secrets and the exact allowed origin, and verify real persistence.
 - Exercise one real GitHub sidecar commit on a non-production branch, including a failed build and retry.
-- Review the branch visually with real author-written annotations before any deployment.
+- Verify the deployed author UI against `lnara.com` after the Pages build completes.

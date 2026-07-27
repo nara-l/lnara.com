@@ -3,6 +3,10 @@
 Local and future production API for Lawrence's private and public note
 annotations.
 
+Production private annotations run at `https://annotations.lnara.com` with D1
+persistence. Public publishing remains disabled until a narrowly scoped GitHub
+credential is configured.
+
 ## Local setup
 
 ```powershell

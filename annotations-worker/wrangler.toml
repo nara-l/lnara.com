@@ -1,14 +1,19 @@
 name = "lnara-annotations"
 main = "src/index.ts"
 compatibility_date = "2026-07-26"
+account_id = "de0ef1f046b93e5388253135d76064f0"
+
+routes = [
+  { pattern = "annotations.lnara.com", custom_domain = true }
+]
 
 [vars]
-ALLOWED_ORIGIN = "http://127.0.0.1:4323"
+ALLOWED_ORIGIN = "https://lnara.com"
 GITHUB_REPOSITORY = "nara-l/lnara.com"
-GITHUB_BRANCH = "codex/annotations-readability"
+GITHUB_BRANCH = "master"
 
 [[d1_databases]]
 binding = "ANNOTATIONS_DB"
-database_name = "lnara-annotations-local"
-database_id = "00000000-0000-0000-0000-000000000000"
+database_name = "lnara-annotations"
+database_id = "9e3ebeb7-de21-4323-b6b6-243a269ce145"
 migrations_dir = "migrations"
