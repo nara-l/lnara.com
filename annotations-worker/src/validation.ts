@@ -29,8 +29,7 @@ export const parseAnnotationInput = (
     input.text.length > 5000 ||
     !Array.isArray(input.tags) ||
     input.tags.length > 12 ||
-    !input.tags.every(tag => typeof tag === "string" && TAG.test(tag)) ||
-    (input.visibility !== "private" && input.visibility !== "public")
+    !input.tags.every(tag => typeof tag === "string" && TAG.test(tag))
   ) {
     return null;
   }
@@ -44,7 +43,6 @@ export const parseAnnotationInput = (
     },
     text: input.text.trim(),
     tags: [...new Set(input.tags)],
-    visibility: input.visibility,
   };
 };
 
@@ -55,13 +53,9 @@ export const parseAnnotationPatch = (
   const patch = value as AnnotationPatch;
   const hasText = Object.prototype.hasOwnProperty.call(patch, "text");
   const hasTags = Object.prototype.hasOwnProperty.call(patch, "tags");
-  const hasVisibility = Object.prototype.hasOwnProperty.call(
-    patch,
-    "visibility"
-  );
 
   if (
-    (!hasText && !hasTags && !hasVisibility) ||
+    (!hasText && !hasTags) ||
     (hasText &&
       (typeof patch.text !== "string" ||
         patch.text.trim().length < 1 ||
@@ -69,10 +63,7 @@ export const parseAnnotationPatch = (
     (hasTags &&
       (!Array.isArray(patch.tags) ||
         patch.tags.length > 12 ||
-        !patch.tags.every(tag => typeof tag === "string" && TAG.test(tag)))) ||
-    (hasVisibility &&
-      patch.visibility !== "private" &&
-      patch.visibility !== "public")
+        !patch.tags.every(tag => typeof tag === "string" && TAG.test(tag))))
   ) {
     return null;
   }
@@ -80,6 +71,5 @@ export const parseAnnotationPatch = (
   return {
     ...(hasText ? { text: patch.text?.trim() } : {}),
     ...(hasTags ? { tags: [...new Set(patch.tags)] } : {}),
-    ...(hasVisibility ? { visibility: patch.visibility } : {}),
   };
 };

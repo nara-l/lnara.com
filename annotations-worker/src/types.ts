@@ -3,10 +3,6 @@ export interface Env {
   ALLOWED_ORIGIN: string;
   AUTHOR_PASSWORD: string;
   SESSION_SECRET: string;
-  GITHUB_TOKEN?: string;
-  GITHUB_API_URL?: string;
-  GITHUB_REPOSITORY: string;
-  GITHUB_BRANCH: string;
 }
 
 export interface AnnotationInput {
@@ -18,11 +14,11 @@ export interface AnnotationInput {
   };
   text: string;
   tags: string[];
-  visibility: "private" | "public";
 }
 
 export interface StoredAnnotation extends AnnotationInput {
   slug: string;
+  visibility: "public";
   createdAt: string;
   updatedAt: string;
 }
@@ -30,5 +26,4 @@ export interface StoredAnnotation extends AnnotationInput {
 export interface AnnotationPatch {
   text?: string;
   tags?: string[];
-  visibility?: "private" | "public";
 }

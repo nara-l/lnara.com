@@ -9,8 +9,6 @@ routes = [
 
 [vars]
 ALLOWED_ORIGIN = "https://lnara.com"
-GITHUB_REPOSITORY = "nara-l/lnara.com"
-GITHUB_BRANCH = "master"
 
 [[d1_databases]]
 binding = "ANNOTATIONS_DB"

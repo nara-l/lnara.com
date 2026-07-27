@@ -77,18 +77,6 @@ const configuredApi = import.meta.env.PUBLIC_ANNOTATIONS_API_URL;
           autocomplete="off"
         />
       </label>
-      <fieldset>
-        <legend>Visibility</legend>
-        <label
-          ><input type="radio" name="visibility" value="private" checked /> Private</label
-        >
-        <label
-          ><input type="radio" name="visibility" value="public" /> Public</label
-        >
-      </fieldset>
-      <p class="annotation-capability" data-public-capability hidden>
-        Public publishing is not configured.
-      </p>
       <p class="annotation-error" data-save-error role="alert"></p>
       <footer>
         <button type="button" class="secondary" data-discard>Discard</button>
@@ -106,8 +94,8 @@ const configuredApi = import.meta.env.PUBLIC_ANNOTATIONS_API_URL;
           &times;
         </button>
       </header>
-      <ol data-private-notes></ol>
-      <p data-no-private-notes>No annotations on this note yet.</p>
+      <ol data-author-notes></ol>
+      <p data-no-author-notes>No annotations on this note yet.</p>
     </section>
   </dialog>
 
@@ -313,14 +301,6 @@ const configuredApi = import.meta.env.PUBLIC_ANNOTATIONS_API_URL;
     color: #a1372b;
   }
 
-  .annotation-dialog fieldset {
-    display: flex;
-    gap: 1rem;
-    margin: 0;
-    padding: 0.7rem;
-    border: 1px solid var(--border);
-  }
-
   .annotation-dialog button {
     min-height: 2.5rem;
     padding: 0.55rem 0.85rem;
@@ -354,15 +334,6 @@ const configuredApi = import.meta.env.PUBLIC_ANNOTATIONS_API_URL;
     font-size: 0.8rem;
   }
 
-  .annotation-capability {
-    margin: -0.5rem 0 0;
-    font-family:
-      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
-      "Courier New", monospace;
-    font-size: 0.72rem;
-    opacity: 0.7;
-  }
-
   .annotation-status {
     position: fixed;
     z-index: 40;
@@ -392,20 +363,6 @@ const configuredApi = import.meta.env.PUBLIC_ANNOTATIONS_API_URL;
 </style>
 
 <style is:global>
-  .app-prose mark.private-annotation-anchor {
-    background: color-mix(in srgb, #e3b85a 28%, transparent);
-    color: inherit;
-    text-decoration: underline;
-    text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent);
-    text-decoration-style: dotted;
-    text-underline-offset: 0.16em;
-  }
-
-  .app-prose mark.private-annotation-anchor:target {
-    outline: 2px solid color-mix(in srgb, var(--accent) 65%, transparent);
-    outline-offset: 2px;
-  }
-
   .app-prose [data-author-selectable]:focus-visible {
     outline: 2px dashed var(--accent);
     outline-offset: 0.3rem;
@@ -424,7 +381,7 @@ const configuredApi = import.meta.env.PUBLIC_ANNOTATIONS_API_URL;
     selector: SelectionState;
     text: string;
     tags: string[];
-    visibility: "private" | "public";
+    visibility: "public";
     createdAt: string;
     updatedAt: string;
   };
@@ -481,19 +438,9 @@ const configuredApi = import.meta.env.PUBLIC_ANNOTATIONS_API_URL;
     const notesDialog = root.querySelector<HTMLDialogElement>(
       "[data-annotation-notes-dialog]"
     );
-    const notesList = root.querySelector<HTMLOListElement>(
-      "[data-private-notes]"
-    );
-    const noNotes = root.querySelector<HTMLElement>("[data-no-private-notes]");
-    const publicCapability = root.querySelector<HTMLElement>(
-      "[data-public-capability]"
-    );
-    const publicVisibility = form?.querySelector<HTMLInputElement>(
-      '[name="visibility"][value="public"]'
-    );
-    const privateVisibility = form?.querySelector<HTMLInputElement>(
-      '[name="visibility"][value="private"]'
-    );
+    const notesList =
+      root.querySelector<HTMLOListElement>("[data-author-notes]");
+    const noNotes = root.querySelector<HTMLElement>("[data-no-author-notes]");
     const noteInput = form?.querySelector<HTMLTextAreaElement>('[name="text"]');
     const tagsInput = form?.querySelector<HTMLInputElement>('[name="tags"]');
     if (
@@ -511,10 +458,7 @@ const configuredApi = import.meta.env.PUBLIC_ANNOTATIONS_API_URL;
       !notesButton ||
       !notesDialog ||
       !notesList ||
-      !noNotes ||
-      !publicCapability ||
-      !publicVisibility ||
-      !privateVisibility
+      !noNotes
     )
       return;
 
@@ -526,7 +470,6 @@ const configuredApi = import.meta.env.PUBLIC_ANNOTATIONS_API_URL;
     let editing: AuthorAnnotation | null = null;
     let annotations: AuthorAnnotation[] = [];
     let pendingAction: "compose" | "notes" | null = null;
-    let publicPublishing = false;
     root.hidden = false;
 
     const showStatus = (message: string) => {
@@ -616,56 +559,11 @@ const configuredApi = import.meta.env.PUBLIC_ANNOTATIONS_API_URL;
       return matches.length === 1 ? matches[0] : null;
     };
 
-    const clearPrivateMarks = () => {
-      article
-        .querySelectorAll<HTMLElement>("mark.private-annotation-anchor")
-        .forEach(mark => mark.replaceWith(...mark.childNodes));
-      article.normalize();
-    };
-
-    const markPrivateRange = (range: Range, annotationId: string) => {
-      const nodes = textNodes(article).filter(node =>
-        range.intersectsNode(node)
-      );
-      const segments = nodes
-        .map((node, index) => ({
-          node,
-          start: node === range.startContainer ? range.startOffset : 0,
-          end: node === range.endContainer ? range.endOffset : node.data.length,
-          first: index === 0,
-        }))
-        .filter(segment => segment.end > segment.start);
-
-      [...segments].reverse().forEach(segment => {
-        let selectedNode = segment.node;
-        if (segment.end < selectedNode.data.length) {
-          selectedNode.splitText(segment.end);
-        }
-        if (segment.start > 0) {
-          selectedNode = selectedNode.splitText(segment.start);
-        }
-
-        const mark = document.createElement("mark");
-        mark.className = "private-annotation-anchor";
-        mark.dataset.privateAnnotationId = annotationId;
-        if (segment.first) mark.id = `private-annotation-${annotationId}`;
-        selectedNode.replaceWith(mark);
-        mark.append(selectedNode);
-      });
-    };
-
     const renderAuthorAnnotations = (nextAnnotations: AuthorAnnotation[]) => {
       annotations = nextAnnotations;
       notesList.replaceChildren();
-      clearPrivateMarks();
-      const privateRanges: Array<{ id: string; range: Range }> = [];
 
       annotations.forEach((annotation, index) => {
-        if (annotation.visibility === "private") {
-          const range = rangeForSelector(annotation.selector);
-          if (range) privateRanges.push({ id: annotation.id, range });
-        }
-
         const item = document.createElement("li");
         const number = document.createElement("span");
         number.textContent = String(index + 1);
@@ -673,7 +571,7 @@ const configuredApi = import.meta.env.PUBLIC_ANNOTATIONS_API_URL;
         const text = document.createElement("p");
         text.textContent = annotation.text;
         const meta = document.createElement("small");
-        meta.textContent = `${annotation.visibility} | ${annotation.createdAt.slice(0, 10)}`;
+        meta.textContent = annotation.createdAt.slice(0, 10);
         const actions = document.createElement("div");
         actions.className = "annotation-actions";
         [
@@ -696,7 +594,6 @@ const configuredApi = import.meta.env.PUBLIC_ANNOTATIONS_API_URL;
       noNotes.hidden = annotations.length > 0;
       notesButton.textContent =
         annotations.length > 0 ? `Notes (${annotations.length})` : "Notes";
-      privateRanges.forEach(item => markPrivateRange(item.range, item.id));
     };
 
     const loadAnnotations = async () => {
@@ -704,14 +601,7 @@ const configuredApi = import.meta.env.PUBLIC_ANNOTATIONS_API_URL;
       if (!response.ok) return response;
       const result = (await response.json()) as {
         annotations?: AuthorAnnotation[];
-        publicPublishing?: boolean;
       };
-      publicPublishing = result.publicPublishing === true;
-      publicVisibility.disabled = !publicPublishing;
-      publicCapability.hidden = publicPublishing;
-      if (!publicPublishing && publicVisibility.checked) {
-        privateVisibility.checked = true;
-      }
       renderAuthorAnnotations(result.annotations ?? []);
       return response;
     };
@@ -756,26 +646,14 @@ const configuredApi = import.meta.env.PUBLIC_ANNOTATIONS_API_URL;
       quote.textContent = selected.exact;
       noteInput.value = annotation?.text ?? "";
       tagsInput.value = annotation?.tags.join(", ") ?? "";
-      const visibility = form.querySelector<HTMLInputElement>(
-        `[name="visibility"][value="${annotation?.visibility ?? "private"}"]`
-      );
-      if (visibility) visibility.checked = true;
-
       const draft = localStorage.getItem(draftKeyFor(annotation));
       if (draft) {
         const saved = JSON.parse(draft) as {
           text?: string;
           tags?: string;
-          visibility?: "private" | "public";
         };
         noteInput.value = saved.text ?? noteInput.value;
         tagsInput.value = saved.tags ?? tagsInput.value;
-        const draftVisibility = form.querySelector<HTMLInputElement>(
-          `[name="visibility"][value="${saved.visibility}"]`
-        );
-        if (draftVisibility && (!draftVisibility.disabled || publicPublishing)) {
-          draftVisibility.checked = true;
-        }
       }
 
       composer.showModal();
@@ -783,10 +661,17 @@ const configuredApi = import.meta.env.PUBLIC_ANNOTATIONS_API_URL;
     };
 
     const ensureSession = async () => {
-      const response = await loadAnnotations();
-      if (response.ok) return true;
-      if (response.status === 401) login.showModal();
-      else showStatus("Annotation service is unavailable.");
+      const response = await api("/api/annotations/session");
+      if (!response.ok) {
+        showStatus("Annotation service is unavailable.");
+        return false;
+      }
+      const result = (await response.json()) as { authenticated?: boolean };
+      if (result.authenticated) {
+        await loadAnnotations();
+        return true;
+      }
+      login.showModal();
       return false;
     };
 
@@ -930,7 +815,7 @@ const configuredApi = import.meta.env.PUBLIC_ANNOTATIONS_API_URL;
 
         if (button.dataset.annotationAction === "passage") {
           const target =
-            document.querySelector(`#private-annotation-${annotation.id}`) ??
+            document.querySelector(`#annotation-anchor-${annotation.id}`) ??
             document.querySelector(`#annotation-anchor-${annotation.id}`);
           notesDialog.close();
           target?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -972,6 +857,11 @@ const configuredApi = import.meta.env.PUBLIC_ANNOTATIONS_API_URL;
           }
           localStorage.removeItem(draftKeyFor(annotation));
           await loadAnnotations();
+          document.dispatchEvent(
+            new CustomEvent("lnara:annotations-changed", {
+              detail: { slug },
+            })
+          );
           showStatus("Annotation deleted.");
         }
       },
@@ -1028,20 +918,11 @@ const configuredApi = import.meta.env.PUBLIC_ANNOTATIONS_API_URL;
         JSON.stringify({
           text: noteInput.value,
           tags: tagsInput.value,
-          visibility:
-            form.querySelector<HTMLInputElement>('[name="visibility"]:checked')
-              ?.value ?? "private",
         })
       );
     };
     noteInput.addEventListener("input", persistDraft, { signal });
     tagsInput.addEventListener("input", persistDraft, { signal });
-    form
-      .querySelectorAll<HTMLInputElement>('[name="visibility"]')
-      .forEach(input =>
-        input.addEventListener("change", persistDraft, { signal })
-      );
-
     form.addEventListener(
       "submit",
       async event => {
@@ -1088,7 +969,6 @@ const configuredApi = import.meta.env.PUBLIC_ANNOTATIONS_API_URL;
                   .split(",")
                   .map(tag => tag.trim().toLowerCase())
                   .filter(Boolean),
-                visibility: values.get("visibility"),
               }),
             }
           );
@@ -1104,12 +984,13 @@ const configuredApi = import.meta.env.PUBLIC_ANNOTATIONS_API_URL;
           editing = null;
           selected = null;
           window.getSelection()?.removeAllRanges();
-          showStatus(
-            values.get("visibility") === "public"
-              ? `Public note ${wasEditing ? "updated" : "saved"}. It appears after the site rebuild.`
-              : `Private note ${wasEditing ? "updated" : "saved"}.`
-          );
+          showStatus(`Public note ${wasEditing ? "updated" : "saved"}.`);
           await loadAnnotations();
+          document.dispatchEvent(
+            new CustomEvent("lnara:annotations-changed", {
+              detail: { slug },
+            })
+          );
         } catch (saveError) {
           persistDraft();
           if (error) {

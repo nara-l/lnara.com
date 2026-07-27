@@ -1,4 +1,3 @@
-import { removePublicAnnotation, upsertPublicAnnotation } from "./github";
 import {
   createSession,
   readCookie,
@@ -51,7 +50,7 @@ const rowToAnnotation = (row: Record<string, unknown>): StoredAnnotation => ({
   },
   text: String(row.note_text),
   tags: JSON.parse(String(row.tags_json)),
-  visibility: row.visibility === "public" ? "public" : "private",
+  visibility: "public",
   createdAt: String(row.created_at),
   updatedAt: String(row.updated_at),
 });
@@ -110,13 +109,10 @@ const saveAnnotation = async (
   }
 
   const now = new Date().toISOString();
-  if (input.visibility === "public") {
-    await upsertPublicAnnotation(env, slug, input, now);
-  }
-
   const stored: StoredAnnotation = {
     ...input,
     slug,
+    visibility: "public",
     createdAt: now,
     updatedAt: now,
   };
@@ -134,7 +130,7 @@ const saveAnnotation = async (
       input.selector.suffix ?? null,
       input.text,
       JSON.stringify(input.tags),
-      input.visibility,
+      "public",
       now,
       now
     ),
@@ -162,12 +158,6 @@ const updateAnnotation = async (
     tags: patch.tags ?? existing.tags,
     updatedAt: now,
   };
-
-  if (updated.visibility === "public") {
-    await upsertPublicAnnotation(env, slug, updated, existing.createdAt);
-  } else if (existing.visibility === "public") {
-    await removePublicAnnotation(env, slug, id);
-  }
 
   await env.ANNOTATIONS_DB.batch([
     env.ANNOTATIONS_DB.prepare(
@@ -198,10 +188,6 @@ const deleteAnnotation = async (
 
   const existing = await getStoredAnnotation(env, slug, id);
   if (!existing) return null;
-  if (existing.visibility === "public") {
-    await removePublicAnnotation(env, slug, id);
-  }
-
   const now = new Date().toISOString();
   const result = { deleted: id };
   await env.ANNOTATIONS_DB.batch([
@@ -243,8 +229,15 @@ export const handleRequest = async (request: Request, env: Env) => {
     return json({ authenticated: true }, 200, headers);
   }
 
-  if (!(await authorized(request, env))) {
-    return json({ error: "Unauthorized" }, 401, headers);
+  if (
+    url.pathname === "/api/annotations/session" &&
+    request.method === "GET"
+  ) {
+    return json(
+      { authenticated: await authorized(request, env) },
+      200,
+      headers
+    );
   }
 
   const match = url.pathname.match(
@@ -258,18 +251,21 @@ export const handleRequest = async (request: Request, env: Env) => {
 
   if (request.method === "GET" && !annotationId) {
     const result = await env.ANNOTATIONS_DB.prepare(
-      "SELECT * FROM annotations WHERE slug = ? ORDER BY created_at"
+      "SELECT * FROM annotations WHERE slug = ? AND visibility = 'public' ORDER BY created_at"
     )
       .bind(slug)
       .all<Record<string, unknown>>();
     return json(
       {
         annotations: result.results.map(rowToAnnotation),
-        publicPublishing: Boolean(env.GITHUB_TOKEN),
       },
       200,
       headers
     );
+  }
+
+  if (!(await authorized(request, env))) {
+    return json({ error: "Unauthorized" }, 401, headers);
   }
 
   if (request.method === "POST" && !annotationId) {

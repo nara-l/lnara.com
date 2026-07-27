@@ -1,66 +1,36 @@
 ---
-import type { PublicAnnotation } from "@/types/annotations";
-
 interface Props {
-  annotations: PublicAnnotation[];
+  slug: string;
 }
 
-const { annotations } = Astro.props;
+const { slug } = Astro.props;
+const configuredApi = import.meta.env.PUBLIC_ANNOTATIONS_API_URL;
 ---
 
-{
-  annotations.length > 0 && (
-    <section
-      id="annotations"
-      class="public-annotations mx-auto mt-12 max-w-[68ch]"
-      aria-labelledby="annotations-title"
-    >
-      <header class="annotation-heading">
-        <h2 id="annotations-title">Annotations</h2>
-        <span>
-          {annotations.length} {annotations.length === 1 ? "note" : "notes"}
-        </span>
-      </header>
-      <ol>
-        {annotations.map((annotation, index) => (
-          <li
-            id={`annotation-note-${annotation.id}`}
-            data-annotation-note={annotation.id}
-          >
-            <div class="annotation-number" aria-hidden="true">
-              {index + 1}
-            </div>
-            <div>
-              <p>{annotation.text}</p>
-              <footer>
-                <time datetime={annotation.createdAt}>
-                  {annotation.createdAt}
-                </time>
-                {annotation.tags?.map(tag => (
-                  <span>#{tag}</span>
-                ))}
-                <a
-                  href={`#annotation-anchor-${annotation.id}`}
-                  aria-label={`Return to annotated passage ${index + 1}`}
-                >
-                  Back to passage
-                </a>
-              </footer>
-            </div>
-          </li>
-        ))}
-      </ol>
-    </section>
-  )
-}
+<section
+  id="annotations"
+  class="public-annotations mx-auto mt-12 max-w-[68ch]"
+  aria-labelledby="annotations-title"
+  data-public-annotations
+  data-slug={slug}
+  data-api-url={configuredApi}
+  data-pagefind-ignore
+  hidden
+>
+  <header class="annotation-heading">
+    <h2 id="annotations-title">Annotations</h2>
+    <span data-public-annotation-count></span>
+  </header>
+  <ol data-public-annotation-list></ol>
+</section>
 
-<style>
-  .public-annotations {
+<style is:global>
+  [data-public-annotations] {
     border-top: 1px solid var(--border);
     color: var(--foreground);
   }
 
-  .annotation-heading {
+  [data-public-annotations] .annotation-heading {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
@@ -68,7 +38,7 @@ const { annotations } = Astro.props;
     padding-block: 1rem;
   }
 
-  .annotation-heading h2 {
+  [data-public-annotations] .annotation-heading h2 {
     margin: 0;
     color: inherit;
     font-family: "Source Serif 4", Georgia, serif;
@@ -78,25 +48,25 @@ const { annotations } = Astro.props;
     text-transform: uppercase;
   }
 
-  .annotation-heading span,
-  .public-annotations footer {
+  [data-public-annotations] .annotation-heading span,
+  [data-public-annotations] footer {
     font-family:
       ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
       "Courier New", monospace;
   }
 
-  .annotation-heading span {
+  [data-public-annotations] .annotation-heading span {
     font-size: 0.75rem;
     opacity: 0.65;
   }
 
-  .public-annotations ol {
+  [data-public-annotations] ol {
     margin: 0;
     padding: 0;
     list-style: none;
   }
 
-  .public-annotations li {
+  [data-public-annotations] li {
     display: grid;
     grid-template-columns: 2rem minmax(0, 1fr);
     gap: 0.75rem;
@@ -105,11 +75,11 @@ const { annotations } = Astro.props;
     border-left: 2px solid color-mix(in srgb, var(--accent) 65%, transparent);
   }
 
-  .public-annotations li + li {
+  [data-public-annotations] li + li {
     margin-top: 0.75rem;
   }
 
-  .annotation-number {
+  [data-public-annotations] .annotation-number {
     color: var(--accent);
     font-family:
       ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
@@ -117,14 +87,14 @@ const { annotations } = Astro.props;
     font-size: 0.8rem;
   }
 
-  .public-annotations p {
+  [data-public-annotations] li p {
     margin: 0;
     font-family: "Source Serif 4", Georgia, serif;
     font-size: 1rem;
     line-height: 1.6;
   }
 
-  .public-annotations footer {
+  [data-public-annotations] footer {
     display: flex;
     flex-wrap: wrap;
     gap: 0.65rem;
@@ -133,15 +103,15 @@ const { annotations } = Astro.props;
     opacity: 0.7;
   }
 
-  .public-annotations footer a {
+  [data-public-annotations] footer a {
     margin-inline-start: auto;
     color: inherit;
     text-decoration: none;
   }
 
   @media (min-width: 1280px) {
-    :global(.note-content-shell.has-note-toc.has-public-annotations)
-      .public-annotations {
+    .note-content-shell.has-note-toc.has-public-annotations
+      [data-public-annotations] {
       position: sticky;
       top: 7rem;
       grid-row: 1;
@@ -151,9 +121,7 @@ const { annotations } = Astro.props;
       overflow: auto;
     }
   }
-</style>
 
-<style is:global>
   .app-prose mark.annotation-anchor {
     border-bottom: 1px dotted color-mix(in srgb, var(--accent) 70%, transparent);
     background: color-mix(in srgb, #f5df72 35%, transparent);
@@ -180,3 +148,279 @@ const { annotations } = Astro.props;
     outline-offset: 2px;
   }
 </style>
+
+<script>
+  type ReaderAnnotation = {
+    id: string;
+    selector: {
+      exact: string;
+      prefix?: string;
+      suffix?: string;
+    };
+    text: string;
+    tags: string[];
+    visibility: "public";
+    createdAt: string;
+  };
+
+  type AnnotationReaderWindow = Window & {
+    __lnaraAnnotationReaderCleanup?: () => void;
+    __lnaraAnnotationReaderAfterSwap?: EventListener;
+  };
+
+  const annotationReaderWindow = window as AnnotationReaderWindow;
+
+  const setupAnnotationReader = () => {
+    annotationReaderWindow.__lnaraAnnotationReaderCleanup?.();
+
+    const section = document.querySelector<HTMLElement>(
+      "[data-public-annotations]"
+    );
+    const article = document.querySelector<HTMLElement>("#article");
+    if (!section || !article) return;
+
+    const slug = section.dataset.slug;
+    const apiUrl = section.dataset.apiUrl;
+    const list = section.querySelector<HTMLOListElement>(
+      "[data-public-annotation-list]"
+    );
+    const count = section.querySelector<HTMLElement>(
+      "[data-public-annotation-count]"
+    );
+    const shell = section.closest<HTMLElement>(".note-content-shell");
+    if (!slug || !apiUrl || !list || !count || !shell) return;
+
+    const controller = new AbortController();
+    const signal = controller.signal;
+    annotationReaderWindow.__lnaraAnnotationReaderCleanup = () =>
+      controller.abort();
+
+    const blockSelector = "p, li, blockquote, h2, h3, h4";
+    const textNodes = (block: HTMLElement) => {
+      const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT, {
+        acceptNode(node) {
+          const parent = node.parentElement;
+          if (
+            !parent ||
+            parent.closest(
+              "a, code, pre, script, style, sup, mark.annotation-anchor"
+            )
+          ) {
+            return NodeFilter.FILTER_REJECT;
+          }
+          return NodeFilter.FILTER_ACCEPT;
+        },
+      });
+      const nodes: Text[] = [];
+      while (walker.nextNode()) nodes.push(walker.currentNode as Text);
+      return nodes;
+    };
+
+    const rangeForSelector = (selector: ReaderAnnotation["selector"]) => {
+      const matches: Range[] = [];
+      for (const block of article.querySelectorAll<HTMLElement>(
+        blockSelector
+      )) {
+        const nodes = textNodes(block);
+        const fullText = nodes.map(node => node.data).join("");
+        let index = fullText.indexOf(selector.exact);
+        while (index !== -1) {
+          const prefixMatches =
+            !selector.prefix ||
+            fullText.slice(0, index).endsWith(selector.prefix);
+          const suffixMatches =
+            !selector.suffix ||
+            fullText
+              .slice(index + selector.exact.length)
+              .startsWith(selector.suffix);
+          if (prefixMatches && suffixMatches) {
+            let offset = 0;
+            let startNode: Text | null = null;
+            let endNode: Text | null = null;
+            let startOffset = 0;
+            let endOffset = 0;
+            for (const node of nodes) {
+              const next = offset + node.data.length;
+              if (!startNode && index >= offset && index <= next) {
+                startNode = node;
+                startOffset = index - offset;
+              }
+              const end = index + selector.exact.length;
+              if (!endNode && end >= offset && end <= next) {
+                endNode = node;
+                endOffset = end - offset;
+              }
+              offset = next;
+            }
+            if (startNode && endNode) {
+              const range = document.createRange();
+              range.setStart(startNode, startOffset);
+              range.setEnd(endNode, endOffset);
+              matches.push(range);
+            }
+          }
+          index = fullText.indexOf(selector.exact, index + 1);
+        }
+      }
+      return matches.length === 1 ? matches[0] : null;
+    };
+
+    const clearAnnotations = () => {
+      article
+        .querySelectorAll<HTMLElement>("mark[data-live-annotation]")
+        .forEach(mark => mark.replaceWith(...mark.childNodes));
+      article
+        .querySelectorAll<HTMLElement>("[data-live-annotation-ref]")
+        .forEach(ref => ref.remove());
+      article.normalize();
+      list.replaceChildren();
+    };
+
+    const markRange = (
+      range: Range,
+      annotation: ReaderAnnotation,
+      number: number
+    ) => {
+      const nodes = textNodes(article).filter(node =>
+        range.intersectsNode(node)
+      );
+      const segments = nodes
+        .map((node, index) => ({
+          node,
+          start: node === range.startContainer ? range.startOffset : 0,
+          end: node === range.endContainer ? range.endOffset : node.data.length,
+          first: index === 0,
+          last: index === nodes.length - 1,
+        }))
+        .filter(segment => segment.end > segment.start);
+      let lastMark: HTMLElement | null = null;
+
+      for (const segment of [...segments].reverse()) {
+        let selectedNode = segment.node;
+        if (segment.end < selectedNode.data.length) {
+          selectedNode.splitText(segment.end);
+        }
+        if (segment.start > 0) {
+          selectedNode = selectedNode.splitText(segment.start);
+        }
+
+        const mark = document.createElement("mark");
+        mark.className = "annotation-anchor";
+        mark.dataset.annotationId = annotation.id;
+        mark.dataset.liveAnnotation = "";
+        if (segment.first) mark.id = `annotation-anchor-${annotation.id}`;
+        selectedNode.replaceWith(mark);
+        mark.append(selectedNode);
+        if (segment.last) lastMark = mark;
+      }
+
+      if (lastMark) {
+        const ref = document.createElement("sup");
+        ref.className = "annotation-ref";
+        ref.dataset.liveAnnotationRef = "";
+        const link = document.createElement("a");
+        link.href = `#annotation-note-${annotation.id}`;
+        link.setAttribute("aria-label", `Read annotation ${number}`);
+        link.textContent = String(number);
+        ref.append(link);
+        lastMark.after(ref);
+      }
+    };
+
+    const renderList = (annotations: ReaderAnnotation[]) => {
+      annotations.forEach((annotation, index) => {
+        const item = document.createElement("li");
+        item.id = `annotation-note-${annotation.id}`;
+        const number = document.createElement("div");
+        number.className = "annotation-number";
+        number.textContent = String(index + 1);
+        const body = document.createElement("div");
+        const text = document.createElement("p");
+        text.textContent = annotation.text;
+        const footer = document.createElement("footer");
+        const date = document.createElement("time");
+        date.dateTime = annotation.createdAt;
+        date.textContent = annotation.createdAt.slice(0, 10);
+        footer.append(date);
+        annotation.tags.forEach(tag => {
+          const label = document.createElement("span");
+          label.textContent = `#${tag}`;
+          footer.append(label);
+        });
+        const back = document.createElement("a");
+        back.href = `#annotation-anchor-${annotation.id}`;
+        back.textContent = "Back to passage";
+        footer.append(back);
+        body.append(text, footer);
+        item.append(number, body);
+        list.append(item);
+      });
+    };
+
+    const load = async () => {
+      const response = await fetch(`${apiUrl}/api/annotations/${slug}`, {
+        credentials: "include",
+        signal,
+      });
+      if (!response.ok) return;
+      const result = (await response.json()) as {
+        annotations?: ReaderAnnotation[];
+      };
+      const annotations = result.annotations ?? [];
+      clearAnnotations();
+
+      const located = annotations
+        .map((annotation, index) => ({
+          annotation,
+          index,
+          range: rangeForSelector(annotation.selector),
+        }))
+        .filter(
+          (
+            item
+          ): item is {
+            annotation: ReaderAnnotation;
+            index: number;
+            range: Range;
+          } => item.range !== null
+        );
+      located
+        .sort((a, b) =>
+          b.range.compareBoundaryPoints(Range.START_TO_START, a.range)
+        )
+        .forEach(item => markRange(item.range, item.annotation, item.index + 1));
+
+      renderList(annotations);
+      count.textContent = `${annotations.length} ${
+        annotations.length === 1 ? "note" : "notes"
+      }`;
+      section.hidden = annotations.length === 0;
+      shell.classList.toggle(
+        "has-public-annotations",
+        annotations.length > 0
+      );
+    };
+
+    document.addEventListener(
+      "lnara:annotations-changed",
+      event => {
+        if ((event as CustomEvent<{ slug?: string }>).detail?.slug === slug) {
+          void load();
+        }
+      },
+      { signal }
+    );
+    void load();
+  };
+
+  setupAnnotationReader();
+  if (annotationReaderWindow.__lnaraAnnotationReaderAfterSwap) {
+    document.removeEventListener(
+      "astro:after-swap",
+      annotationReaderWindow.__lnaraAnnotationReaderAfterSwap
+    );
+  }
+  annotationReaderWindow.__lnaraAnnotationReaderAfterSwap =
+    setupAnnotationReader;
+  document.addEventListener("astro:after-swap", setupAnnotationReader);
+</script>
