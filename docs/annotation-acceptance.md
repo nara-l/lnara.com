@@ -59,9 +59,9 @@
 | Authentication | Operationally verified in production | Production Worker requests plus local browser recovery and automated tampered, wrong-secret, and expired-session checks | Production login returned 200, wrong password and unauthenticated fetch returned 401, foreign origin returned 403; author mode locally preserves the pending passage through login; session tests pass |
 | Retry and idempotency | Operationally verified locally | Duplicate create, edit, and delete requests plus simulated GitHub conflict | Repeated keys returned the persisted result without duplicate D1 or sidecar entries; GitHub conflict refetched once |
 | Regression checks | Implemented | Astro check, static build, matcher tests, Worker typecheck | 16 tests pass; Astro reports zero diagnostics; Worker TypeScript reports zero errors |
+| Deployed author UI | Operationally verified in production | Keyboard passage capture, login, private save, reload, notes drawer, and delete at `lnara.com` | Unlock continued directly to the selected passage; `Notes (1)` restored the D1-backed note after reload; cleanup returned the drawer to zero notes |
 
 ## Remaining before production
 
 - Exercise native text selection and composer save on Lawrence's actual phone and tablet.
 - Exercise one real GitHub sidecar commit on a non-production branch, including a failed build and retry.
-- Verify the deployed author UI against `lnara.com` after the Pages build completes.
