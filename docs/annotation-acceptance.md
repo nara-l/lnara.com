@@ -51,13 +51,12 @@
 | --- | --- | --- | --- |
 | Public D1 reads | Operationally verified at the API | Unauthenticated GET before and after create, edit, and delete | Worker `3d6aceaa-0bff-4eed-828f-8c85dba3ab55`; anonymous reader saw the new and edited annotation immediately |
 | Password-protected writes | Operationally verified at the API | Login, create, duplicate create, edit, duplicate delete, wrong password, unauthenticated write, and foreign origin | Login `200`; rejected requests `401`/`403`; retries were idempotent; final D1 count returned to zero |
-| Desktop reading rail | Implemented, browser verification pending | Browser at 1280 x 720 | Verify 68ch article and left contents rail remain unchanged |
+| Desktop reader display | Operationally verified in production | Ordinary `temporal-blindness` URL without author mode | Existing D1 note rendered with one highlight and one numbered reference; author controls remained hidden |
+| Desktop author lifecycle | Operationally verified in production | Author UI edit and two-step delete on a temporary annotation | Edited text appeared immediately in the public rail; deletion removed only the temporary note and retained Lawrence's existing note |
 | Tablet reading and capture | Implemented, physical-device verification pending | Real tablet selection, save, reload, edit, delete | Pending |
 | Phone reading and capture | Implemented, physical-device verification pending | Real phone selection, save, reload, edit, delete | Pending |
 | Regression checks | Implemented | Astro check, static build, Worker typecheck, focused lint, automated tests | Zero Astro diagnostics; 5 tests pass; production build succeeds; changed files pass ESLint |
 
 ## Remaining before production
 
-- Deploy the simplified site frontend.
-- Verify the ordinary reader URL renders the live D1 highlight and note.
 - Exercise native text selection and composer save on Lawrence's actual phone and tablet.
