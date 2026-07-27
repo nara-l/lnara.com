@@ -14,12 +14,12 @@ const configuredApi = import.meta.env.PUBLIC_ANNOTATIONS_API_URL;
   hidden
   data-pagefind-ignore
 >
-  <button type="button" class="annotation-mode" data-annotation-mode>
-    Annotating
-  </button>
+  <div class="annotation-mode" role="status">
+    Author mode
+  </div>
 
   <button type="button" class="annotation-notes-button" data-annotation-notes>
-    My notes
+    Notes
   </button>
 
   <button type="button" class="annotation-add" data-annotation-add hidden>
@@ -143,6 +143,11 @@ const configuredApi = import.meta.env.PUBLIC_ANNOTATIONS_API_URL;
   .annotation-mode {
     top: max(1rem, env(safe-area-inset-top));
     padding: 0.55rem 0.75rem;
+    border: 0;
+    border-inline-start: 2px solid var(--accent);
+    background: transparent;
+    box-shadow: none;
+    cursor: default;
   }
 
   .annotation-notes-button {
@@ -252,7 +257,7 @@ const configuredApi = import.meta.env.PUBLIC_ANNOTATIONS_API_URL;
     list-style: none;
   }
 
-  .notes-dialog li {
+  .notes-dialog :global(li) {
     display: grid;
     grid-template-columns: 2rem minmax(0, 1fr);
     gap: 0.6rem;
@@ -261,7 +266,7 @@ const configuredApi = import.meta.env.PUBLIC_ANNOTATIONS_API_URL;
     font-family: "Source Serif 4", Georgia, serif;
   }
 
-  .notes-dialog li > span {
+  .notes-dialog :global(li > span) {
     color: var(--accent);
     font-family:
       ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
@@ -269,11 +274,11 @@ const configuredApi = import.meta.env.PUBLIC_ANNOTATIONS_API_URL;
     font-size: 0.72rem;
   }
 
-  .notes-dialog li p {
+  .notes-dialog :global(li p) {
     margin: 0;
   }
 
-  .notes-dialog li small {
+  .notes-dialog :global(li small) {
     display: block;
     margin-top: 0.35rem;
     font-family:
@@ -282,23 +287,28 @@ const configuredApi = import.meta.env.PUBLIC_ANNOTATIONS_API_URL;
     opacity: 0.65;
   }
 
-  .annotation-actions {
+  .notes-dialog :global(.annotation-actions) {
     display: flex;
     flex-wrap: wrap;
     gap: 0.4rem;
     margin-top: 0.65rem;
   }
 
-  .notes-dialog .annotation-actions button {
+  .notes-dialog :global(.annotation-actions button) {
     min-height: 2rem;
     padding: 0.35rem 0.55rem;
+    border: 1px solid var(--border);
+    border-radius: 2px;
     border-color: var(--border);
     background: transparent;
     color: var(--foreground);
+    font-family:
+      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+      "Courier New", monospace;
     font-size: 0.68rem;
   }
 
-  .notes-dialog .annotation-actions button[data-confirm="true"] {
+  .notes-dialog :global(.annotation-actions button[data-confirm="true"]) {
     border-color: #a1372b;
     color: #a1372b;
   }
@@ -667,7 +677,7 @@ const configuredApi = import.meta.env.PUBLIC_ANNOTATIONS_API_URL;
         const actions = document.createElement("div");
         actions.className = "annotation-actions";
         [
-          ["passage", "Passage"],
+          ["passage", "View passage"],
           ["edit", "Edit"],
           ["delete", "Delete"],
         ].forEach(([action, label]) => {
@@ -684,6 +694,8 @@ const configuredApi = import.meta.env.PUBLIC_ANNOTATIONS_API_URL;
       });
 
       noNotes.hidden = annotations.length > 0;
+      notesButton.textContent =
+        annotations.length > 0 ? `Notes (${annotations.length})` : "Notes";
       privateRanges.forEach(item => markPrivateRange(item.range, item.id));
     };
 
