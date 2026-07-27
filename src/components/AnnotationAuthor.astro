@@ -491,9 +491,7 @@ const configuredApi = import.meta.env.PUBLIC_ANNOTATIONS_API_URL;
           const parent = node.parentElement;
           if (
             !parent ||
-            parent.closest(
-              "a, code, pre, script, style, sup, mark.annotation-anchor"
-            )
+            parent.closest("a, code, pre, script, style, sup")
           ) {
             return NodeFilter.FILTER_REJECT;
           }
@@ -814,9 +812,9 @@ const configuredApi = import.meta.env.PUBLIC_ANNOTATIONS_API_URL;
         if (!annotation) return;
 
         if (button.dataset.annotationAction === "passage") {
-          const target =
-            document.querySelector(`#annotation-anchor-${annotation.id}`) ??
-            document.querySelector(`#annotation-anchor-${annotation.id}`);
+          const target = document.querySelector(
+            `#annotation-anchor-${annotation.id}`
+          );
           notesDialog.close();
           target?.scrollIntoView({ behavior: "smooth", block: "center" });
           return;
