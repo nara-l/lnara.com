@@ -20,7 +20,7 @@ My first guess was a hard technical constraint. Maybe time zones. Maybe somethin
 
 The cutoff explanation falls apart fast. A knowledge cutoff is about what the model learned during training. The current clock and the time of my private message are different kinds of information. Web search doesn't solve it either. Search can tell an AI what time it is in Baltimore. It cannot tell the AI when I said I was going to bed, because that message never touched the public internet.
 
-The real answer turns out to have three layers. The storage system knows when every message was sent. It has to, in order to store and order them. The interface mostly hides that information from me. And the model commonly receives the conversation as a plain sequence of roles and text, with no timestamp attached to any message.
+The real answer turns out to have three layers. The storage system can keep every message in order and may also retain when each one was sent. The interface mostly hides the timing information from me. And the model commonly receives the conversation as a plain sequence of roles and text, with no timestamp attached to any message.
 
 So to the model, these three situations can look identical: I came back after three minutes. I came back the next morning. I came back three weeks later.
 
@@ -66,7 +66,7 @@ Old information should age at different rates. A traffic report goes stale in mi
 
 And all of it should be a choice. Some people want exact chronology. Some want the model to know only "later that day" or "weeks later." Incognito chats stay timeless. I should be able to see what temporal information the system is using, the same way I should be able to see what it remembers.
 
-## 6. Nothing here is hard to build
+## 6. The timestamp is not the hard part
 
 People keep saying software is solved now, and what they usually mean is that generating code got easier. This problem is a good counterexample. Attaching a timestamp to a message is trivial. Deciding how a product should use time without becoming intrusive, wrong, or expensive is a product problem, and it's still open. The research says even the reasoning part isn't solved: you can hand a model the clock and it still doesn't know what the clock means.
 
@@ -95,5 +95,5 @@ Until then, it may remember what I said. It just won't always know which day of 
 3. Timestamps don't fix it
 4. Why the products stay timeless anyway
 5. The chat I would want
-6. Nothing here is hard to build
+6. The timestamp is not the hard part
 7. Memory is not chronology

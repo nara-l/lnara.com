@@ -232,7 +232,7 @@ Unresolved harm creates the reverse evidence: another person can endanger you, d
 
 One expands the moral circle. The other contracts it.
 
-## 6. Institutions compensate for distrust. They do not produce it.
+## 6. Institutions compensate for distrust. They do not produce trust.
 
 America may be better at compensating for low trust than it is at producing trust.
 
@@ -256,7 +256,7 @@ These are forms of institutional confidence. They allow life to continue. They d
 
 This may explain why Americans sometimes describe the country as highly functional and socially broken at the same time.
 
-There is also a pattern in which institutions people still trust. Americans often trust smaller and more local institutions more than large distant ones. One Pew measure found 86 percent saying small businesses have a positive effect, compared with only 29 percent saying the same about large corporations.
+There is also a pattern in the institutions people still trust. Americans often trust smaller and more local institutions more than large distant ones. One Pew measure found 86 percent saying small businesses have a positive effect, compared with only 29 percent saying the same about large corporations.
 
 People often trust a local shop owner, doctor, pastor, teacher or mechanic because the relationship is concrete. The person has a face. Reputation matters. Poor behavior can be confronted directly. The institution exists inside a social world.
 
@@ -395,7 +395,7 @@ It gives them a physical form.
 3. The old trust was real and it was bounded
 4. America cooperates without confidence
 5. When nobody can say what happened
-6. Institutions compensate for distrust. They do not produce it.
+6. Institutions compensate for distrust. They do not produce trust.
 7. Japan complicates the argument
 8. Which America you inhabit
 9. Trust is accumulated evidence
