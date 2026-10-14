@@ -15,6 +15,8 @@ Currently based in Baltimore. Took my first real break in years after getting bu
 
 When I'm not building something, I put my thoughts on new ideas, think about how things work, spend time with my family, go outside, walk the park. I read about everything that catches my eye, not just technical stuff. This site is where I put my thoughts and track what I'm working on.
 
+I'm a husband and father, I've driven through twenty-some states, I go to more concerts than I plan to, and I attend regional Burning Man events. Nevada is still on the list.
+
 I wrote a short note on [how these pieces get written](/notes/how-these-get-written/).
 
 ---

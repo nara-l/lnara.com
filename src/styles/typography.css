@@ -152,6 +152,28 @@
       @apply text-accent;
     }
 
+    /* Coming soon - looks like a link, explains itself on hover, focus or tap, goes nowhere */
+    .soon {
+      @apply relative cursor-help font-semibold underline decoration-dotted underline-offset-4 outline-none;
+      color: #254f73;
+      text-decoration-thickness: 1px;
+    }
+    .soon-clock {
+      @apply ms-1 inline-block text-[0.85em] no-underline opacity-80;
+    }
+    .soon::after {
+      content: attr(data-soon);
+      @apply pointer-events-none absolute bottom-full left-0 z-10 mb-2 w-max max-w-[16rem] rounded bg-foreground px-2 py-1 font-mono text-xs font-normal text-background no-underline opacity-0 transition-opacity duration-150;
+    }
+    .soon:hover::after,
+    .soon:focus::after,
+    .soon:focus-visible::after {
+      @apply opacity-100;
+    }
+    .soon:focus-visible {
+      @apply outline-2 outline-offset-2 outline-accent outline-dashed;
+    }
+
     summary {
       @apply focus-visible:no-underline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent focus-visible:outline-dashed;
     }
@@ -182,7 +204,8 @@
     color: #e8e8e8;
   }
 
-  html[data-theme="dark"] .app-prose a {
+  html[data-theme="dark"] .app-prose a,
+  html[data-theme="dark"] .app-prose .soon {
     color: #9bbbd3;
   }
 
