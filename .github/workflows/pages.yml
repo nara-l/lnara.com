@@ -18,9 +18,8 @@ jobs:
           PUBLIC_ANNOTATIONS_API_URL: https://annotations.lnara.com
 
       - name: Publish to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
+        uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
-          projectName: lnara-com          # must match the project you created
-          directory: dist                 # build output
+          command: pages deploy dist --project-name=lnara-com --branch=master
