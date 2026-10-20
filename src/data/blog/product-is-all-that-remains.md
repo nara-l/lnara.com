@@ -6,7 +6,12 @@ author: "Lawrence Nara"
 tags: ["product", "software", "ai", "agents"]
 draft: false
 timezone: "America/New_York"
+ogImage: "/images/parrish-fisherman-and-the-genie.jpg"
 ---
+![Smoke pours from a jar on the shore and climbs into the sky while a fisherman stares up at it.](/images/parrish-fisherman-and-the-genie.jpg)
+
+*Detail from [The Fisherman and the Genie](https://digitalcollections.nypl.org/items/6c40374c-9aba-5ac7-e040-e00a18064e61), Maxfield Parrish, 1909. From The New York Public Library.*
+
 *If software is solved, what remains is product.*
 
 This afternoon, I wanted to play Minecraft with my family.
@@ -72,8 +77,6 @@ Did the family actually get to play?
 ### A personal agent as a wish granter
 
 Eventually, I should be able to tell my agent that I want to play Minecraft with my family tonight.
-
-![A man rubs a golden lamp and says, "I wish to play Minecraft with my family tonight." A blue genie wearing a turban marked with the logos of OpenAI, Anthropic, Google DeepMind, Google and Microsoft rises from the smoke and answers, "One sec... Done."](/images/product-minecraft-wish-genie.jpg)
 
 The agent should understand that intention, handle the necessary setup across services, and ask for my approval only when it genuinely needs me.
 
