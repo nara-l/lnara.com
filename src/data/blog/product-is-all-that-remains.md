@@ -6,11 +6,11 @@ author: "Lawrence Nara"
 tags: ["product", "software", "ai", "agents"]
 draft: false
 timezone: "America/New_York"
-ogImage: "/images/parrish-fisherman-and-the-genie.jpg"
+ogImage: "/images/bruegel-tower-of-babel.jpg"
 ---
 <figure class="artwork-lead">
-  <img src="/images/parrish-fisherman-and-the-genie.jpg" alt="A column of smoke rises into the sky while a fisherman stares up at it, a town on the shore behind him." width="2070" height="1035" />
-  <figcaption><em>Detail from <a href="https://digitalcollections.nypl.org/items/6c40374c-9aba-5ac7-e040-e00a18064e61">The Fisherman and the Genie</a>, Maxfield Parrish, 1909. From The New York Public Library.</em></figcaption>
+  <a href="/images/bruegel-tower-of-babel.jpg" title="Open the full painting"><img src="/images/bruegel-tower-of-babel.jpg" alt="A colossal unfinished tower rises in spiraling tiers above a harbor town, its sides crowded with scaffolding, cranes and workers." width="3840" height="2810" /></a>
+  <figcaption><em>Detail from <a href="https://commons.wikimedia.org/wiki/File:Pieter_Bruegel_the_Elder_-_The_Tower_of_Babel_(Vienna)_-_Google_Art_Project.jpg">The Tower of Babel</a>, Pieter Bruegel the Elder, 1563. Kunsthistorisches Museum, Vienna. Click to open the full painting.</em></figcaption>
 </figure>
 
 *If software is solved, what remains is product.*
@@ -78,6 +78,11 @@ Did the family actually get to play?
 ### A personal agent as a wish granter
 
 Eventually, I should be able to tell my agent that I want to play Minecraft with my family tonight.
+
+<figure>
+  <a href="/images/parrish-fisherman-and-the-genie.jpg" title="Open the full painting"><img src="/images/parrish-fisherman-and-the-genie.jpg" alt="Smoke pours from a jar on the shore and climbs into the sky while a fisherman stares up at it." width="2070" height="1565" /></a>
+  <figcaption><em>Detail from <a href="https://digitalcollections.nypl.org/items/6c40374c-9aba-5ac7-e040-e00a18064e61">The Fisherman and the Genie</a>, Maxfield Parrish, 1909. From The New York Public Library.</em></figcaption>
+</figure>
 
 The agent should understand that intention, handle the necessary setup across services, and ask for my approval only when it genuinely needs me.
 

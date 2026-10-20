@@ -73,6 +73,9 @@
 
     .artwork-lead img {
       margin-block: 0;
+      width: 100%;
+      aspect-ratio: 2 / 1;
+      object-fit: cover;
     }
 
     .artwork-lead figcaption {
