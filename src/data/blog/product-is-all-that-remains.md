@@ -8,9 +8,10 @@ draft: false
 timezone: "America/New_York"
 ogImage: "/images/parrish-fisherman-and-the-genie.jpg"
 ---
-![Smoke pours from a jar on the shore and climbs into the sky while a fisherman stares up at it.](/images/parrish-fisherman-and-the-genie.jpg)
-
-*Detail from [The Fisherman and the Genie](https://digitalcollections.nypl.org/items/6c40374c-9aba-5ac7-e040-e00a18064e61), Maxfield Parrish, 1909. From The New York Public Library.*
+<figure class="artwork-lead">
+  <img src="/images/parrish-fisherman-and-the-genie.jpg" alt="A column of smoke rises into the sky while a fisherman stares up at it, a town on the shore behind him." width="2070" height="1035" />
+  <figcaption><em>Detail from <a href="https://digitalcollections.nypl.org/items/6c40374c-9aba-5ac7-e040-e00a18064e61">The Fisherman and the Genie</a>, Maxfield Parrish, 1909. From The New York Public Library.</em></figcaption>
+</figure>
 
 *If software is solved, what remains is product.*
 
